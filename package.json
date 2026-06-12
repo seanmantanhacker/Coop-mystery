@@ -1,0 +1,13 @@
+{
+  "name": "bot-riggock",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "node-pty": "^1.1.0",
+    "ws": "^8.21.0"
+  }
+}
