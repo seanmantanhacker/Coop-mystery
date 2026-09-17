@@ -94,7 +94,16 @@ class EscapeRoomEnvironmentManager {
       if (el) el.classList.add('hidden');
     });
 
-    if (viewKey === 'INSPECT_RADIO' && radioHud) radioHud.classList.remove('hidden');
+    if ((viewKey === 'INSPECT_RADIO' || (viewKey === 'INSPECT_BOMB' && this.currentScenario === 'silo44')) && radioHud) {
+      radioHud.classList.remove('hidden');
+      const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
+      const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+      const readout = document.getElementById('radio-inspect-freq');
+      if (readout) {
+        readout.className = isLocked ? 'glow-green' : 'glow-yellow';
+        readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+      }
+    }
     if (viewKey === 'INSPECT_PUZZLE_BOX' && zodiacHud) zodiacHud.classList.remove('hidden');
     if (viewKey === 'INSPECT_ASTROLABE' && mercuryHud) mercuryHud.classList.remove('hidden');
     if (viewKey === 'INSPECT_FIREPLACE' && prismHud) prismHud.classList.remove('hidden');

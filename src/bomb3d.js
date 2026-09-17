@@ -80,6 +80,10 @@ class Bomb3DEngine {
     // 6. Event Listeners
     window.addEventListener('resize', () => this.onWindowResize());
     this.renderer.domElement.addEventListener('click', (e) => this.onPointerClick(e));
+    this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+    this.renderer.domElement.addEventListener('pointerdown', (e) => {
+      if (e.button === 2) this.onPointerClick(e);
+    });
     this.renderer.domElement.addEventListener('mousemove', (e) => this.onPointerMove(e));
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') this.setView('OVERVIEW');
@@ -331,19 +335,47 @@ class Bomb3DEngine {
   }
 
   rotateRadioKnob(delta) {
-    if (!this.frequencyKnob) return;
-    this.frequencyKnob.rotation.y += delta;
+    if (this.frequencyKnob) {
+      this.frequencyKnob.rotation.y += delta;
+    }
+    if (this.envManager?.activeEnv?.shelfKnob) {
+      this.envManager.activeEnv.shelfKnob.rotation.z += delta;
+    }
     audio.playDialClick();
 
-    // Map rotation to MHz (100.0 - 200.0)
+    // Map rotation to MHz (100.0 - 200.0) in 0.5 MHz steps
     let freq = frequencyModule.currentFreq + (delta > 0 ? 0.5 : -0.5);
-    if (freq < 100.0) freq = 100.0;
-    if (freq > 200.0) freq = 200.0;
-    frequencyModule.tune(freq);
+    if (freq < 100.0) freq = 200.0;
+    if (freq > 200.0) freq = 100.0;
+    const isLocked = frequencyModule.tune(freq);
 
     network.broadcast({ type: 'FREQ_TUNE_UPDATE', freq: freq });
     const readout = document.getElementById('radio-inspect-freq');
-    if (readout) readout.innerText = `${freq.toFixed(1)} MHz`;
+    const radioHud = document.getElementById('radio-inspect-hud');
+    if (radioHud) radioHud.classList.remove('hidden');
+    if (readout) {
+      if (isLocked) {
+        readout.className = 'glow-green';
+        readout.innerText = `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)`;
+      } else {
+        readout.className = 'glow-yellow';
+        readout.innerText = `${freq.toFixed(1)} MHz`;
+      }
+    }
+
+    // Animate analog VU needle meters on the shelf
+    if (this.envManager?.activeEnv?.radioGauges) {
+      const needleAngle = isLocked ? -0.55 : (Math.sin(freq * 7) * 0.35);
+      this.envManager.activeEnv.radioGauges.forEach(n => {
+        n.rotation.z = needleAngle;
+      });
+    }
+
+    if (isLocked && !frequencyModule.disarmed) {
+      frequencyModule.disarmed = true;
+      audio.playDisarmed();
+      game.checkAllModulesDisarmed();
+    }
   }
 
   // --- Simon Glass Light Domes ---
@@ -485,6 +517,16 @@ class Bomb3DEngine {
         return;
       }
 
+      // Check click on Radio Frequency Knob on the bomb casing!
+      if (this.frequencyKnob) {
+        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
+        if (knobHits.length > 0) {
+          const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
+          this.rotateRadioKnob(delta);
+          return;
+        }
+      }
+
       // Clicked outside bomb case -> return to overview
       const bombHits = this.raycaster.intersectObjects(this.bombGroup.children, true);
       if (bombHits.length === 0) {
@@ -493,14 +535,17 @@ class Bomb3DEngine {
       }
     }
 
-    // If in INSPECT_RADIO, clicking knob rotates it clockwise; clicking background returns
+    // If in INSPECT_RADIO, clicking either knob rotates it; clicking background returns
     if (this.currentView === 'INSPECT_RADIO') {
-      if (this.frequencyKnob) {
-        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
-        if (knobHits.length > 0) {
-          this.rotateRadioKnob(0.3);
-          return;
-        }
+      const knobs = [this.frequencyKnob];
+      if (this.envManager?.activeEnv?.shelfKnob) {
+        knobs.push(this.envManager.activeEnv.shelfKnob);
+      }
+      const knobHits = this.raycaster.intersectObjects(knobs.filter(Boolean), true);
+      if (knobHits.length > 0) {
+        const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
+        this.rotateRadioKnob(delta);
+        return;
       }
       // Clicked outside radio on room wall -> return to overview
       const shelfHits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
@@ -575,11 +620,15 @@ class Bomb3DEngine {
     } else if (this.currentView === 'INSPECT_BOMB') {
       const hits = this.raycaster.intersectObjects([...this.clickableWires, ...this.clickableKeypad, ...this.simonPads]);
       if (hits.length > 0) hovering = true;
-    } else if (this.currentView === 'INSPECT_RADIO') {
-      if (this.frequencyKnob) {
+      if (!hovering && this.frequencyKnob) {
         const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
         if (knobHits.length > 0) hovering = true;
       }
+    } else if (this.currentView === 'INSPECT_RADIO') {
+      const knobs = [this.frequencyKnob];
+      if (this.envManager?.activeEnv?.shelfKnob) knobs.push(this.envManager.activeEnv.shelfKnob);
+      const knobHits = this.raycaster.intersectObjects(knobs.filter(Boolean), true);
+      if (knobHits.length > 0) hovering = true;
     }
     this.renderer.domElement.style.cursor = hovering ? 'pointer' : 'default';
   }

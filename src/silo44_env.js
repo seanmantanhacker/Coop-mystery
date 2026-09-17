@@ -712,6 +712,7 @@ class Silo44Environment {
     const knob = new THREE.Mesh(knobGeo, knobMat);
     knob.rotation.x = Math.PI / 2;
     knob.position.set(0.0, 0.14, 0.205);
+    this.shelfKnob = knob;
     shelfGroup.add(knob);
 
     shelfGroup.userData = { isHotspot: true, targetView: 'INSPECT_RADIO', label: 'MILITARY TRANSCEIVER' };
