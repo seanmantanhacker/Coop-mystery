@@ -131,12 +131,12 @@ class GameEngine {
     const startBtn = document.getElementById('btn-start-game');
     if (startBtn) {
       startBtn.disabled = true;
-      startBtn.innerText = 'WAITING FOR MISSION COMMANDER (HOST) TO LAUNCH...';
+      startBtn.innerText = 'SELECT YOUR OPERATIVE STATION ABOVE';
     }
 
     const statusText = document.getElementById('lobby-status-text');
     if (statusText) {
-      statusText.innerHTML = 'STATUS: <span class="glow-cyan">STAND BY FOR HOST LAUNCH</span>';
+      statusText.innerHTML = 'STATUS: <span class="glow-yellow">JOINED ROOM — PLEASE SELECT A STATION ABOVE</span>';
     }
   }
 
@@ -209,6 +209,15 @@ class GameEngine {
       this.syncRoomState();
       this.updateRosterUI();
     } else {
+      if (!network.isConnected()) {
+        this.pendingRoleClaim = roleKey;
+        const statusText = document.getElementById('lobby-status-text');
+        if (statusText) {
+          statusText.innerHTML = `STATUS: <span class="glow-yellow">CONNECTING... Will auto-assign ${roleKey.toUpperCase()} upon connection!</span>`;
+        }
+        return;
+      }
+      this.pendingRoleClaim = null;
       // Send claim request to Host
       network.broadcast({
         type: 'CLAIM_ROLE_REQUEST',
@@ -216,6 +225,15 @@ class GameEngine {
         clientId: network.clientId,
         label: network.clientLabel
       });
+    }
+  }
+
+  onNetworkConnected() {
+    if (this.pendingRoleClaim) {
+      console.log('[Game] Connection established! Auto-claiming queued role:', this.pendingRoleClaim);
+      const target = this.pendingRoleClaim;
+      this.pendingRoleClaim = null;
+      this.requestClaimRole(target);
     }
   }
 
@@ -352,10 +370,14 @@ class GameEngine {
     } else {
       if (startBtn) {
         startBtn.disabled = true;
-        startBtn.innerText = 'WAITING FOR MISSION COMMANDER (HOST) TO LAUNCH...';
+        startBtn.innerText = this.role 
+          ? 'STATION MANNED — WAITING FOR COMMANDER (HOST) TO LAUNCH' 
+          : 'SELECT YOUR OPERATIVE STATION ABOVE TO READY UP';
       }
       if (statusText) {
-        statusText.innerHTML = 'STATUS: <span class="glow-cyan">STAND BY FOR HOST LAUNCH</span>';
+        statusText.innerHTML = this.role 
+          ? 'STATUS: <span class="glow-green">READY! WAITING FOR COMMANDER (HOST) TO LAUNCH MISSION</span>' 
+          : 'STATUS: <span class="glow-yellow">ACTION REQUIRED: SELECT AN OPEN STATION ABOVE</span>';
       }
     }
   }
