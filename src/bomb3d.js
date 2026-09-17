@@ -316,28 +316,84 @@ class Bomb3DEngine {
     else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
   }
 
-  // --- Radio Frequency Rotary Module ---
+  // --- Module 3: RF Failsafe Jammer Relay (Links directly to Radio Transceiver on Wall) ---
   buildRadioModule(originX, originZ) {
-    // Metal Knurled Knob
-    const knobGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 32);
-    const knobMat = new THREE.MeshStandardMaterial({ color: 0x667788, metalness: 0.9, roughness: 0.2 });
-    this.frequencyKnob = new THREE.Mesh(knobGeo, knobMat);
-    this.frequencyKnob.position.set(originX, 1.55, originZ);
-    this.frequencyKnob.userData = { isKnob: true };
-    this.bombGroup.add(this.frequencyKnob);
+    this.rfModuleGroup = new THREE.Group();
+    this.rfModuleGroup.position.set(originX, 1.42, originZ);
 
-    // Indicator Notch on Knob
-    const notchGeo = new THREE.BoxGeometry(0.1, 0.32, 0.45);
-    const notchMat = new THREE.MeshBasicMaterial({ color: 0xffb700 });
-    const notch = new THREE.Mesh(notchGeo, notchMat);
-    notch.position.set(0, 0, 0.2);
-    this.frequencyKnob.add(notch);
+    // Shielded RF Receiver Junction Box
+    const boxGeo = new THREE.BoxGeometry(1.5, 0.22, 1.5);
+    const boxMat = new THREE.MeshStandardMaterial({
+      color: 0x181f28,
+      metalness: 0.85,
+      roughness: 0.35
+    });
+    const box = new THREE.Mesh(boxGeo, boxMat);
+    box.position.y = 0.11;
+    box.castShadow = true;
+    this.rfModuleGroup.add(box);
+
+    // Brass RF Induction Coil
+    const coilGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.42, 16);
+    const coilMat = new THREE.MeshStandardMaterial({
+      color: 0xc88b32,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+    const coil = new THREE.Mesh(coilGeo, coilMat);
+    coil.position.set(-0.35, 0.36, -0.3);
+    this.rfModuleGroup.add(coil);
+
+    // Glass Radio Valve / Vacuum Tube
+    const tubeGeo = new THREE.CylinderGeometry(0.13, 0.13, 0.42, 16);
+    const tubeMat = new THREE.MeshStandardMaterial({
+      color: 0xffeedd,
+      transparent: true,
+      opacity: 0.55,
+      roughness: 0.1
+    });
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.position.set(0.35, 0.36, -0.3);
+    this.rfModuleGroup.add(tube);
+
+    // Glowing Orange Cathode Filament
+    const filGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.26, 8);
+    const filMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
+    const fil = new THREE.Mesh(filGeo, filMat);
+    fil.position.set(0.35, 0.36, -0.3);
+    this.rfModuleGroup.add(fil);
+
+    // Status Indicator LED (Amber = Jammer Active, Green = Carrier Disarmed)
+    const ledGeo = new THREE.SphereGeometry(0.09, 16, 16);
+    this.rfStatusLedMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+    this.rfStatusLed = new THREE.Mesh(ledGeo, this.rfStatusLedMat);
+    this.rfStatusLed.position.set(0, 0.28, 0.35);
+    this.rfModuleGroup.add(this.rfStatusLed);
+
+    // Top Stencil / Label Plate
+    const labelGeo = new THREE.PlaneGeometry(1.2, 0.26);
+    const labelMat = new THREE.MeshStandardMaterial({ color: 0x0a0e14, roughness: 0.8 });
+    const labelPlate = new THREE.Mesh(labelGeo, labelMat);
+    labelPlate.rotation.x = -Math.PI / 2;
+    labelPlate.position.set(0, 0.23, 0.0);
+    this.rfModuleGroup.add(labelPlate);
+
+    this.rfModuleGroup.userData = {
+      isRfReceiver: true,
+      targetView: 'INSPECT_RADIO',
+      label: 'TUNE RADIO TRANSCEIVER ON WALL'
+    };
+    this.rfModuleGroup.traverse(c => {
+      if (c.isMesh) {
+        c.userData.isRfReceiver = true;
+        c.userData.targetView = 'INSPECT_RADIO';
+      }
+    });
+
+    this.bombGroup.add(this.rfModuleGroup);
   }
 
   rotateRadioKnob(delta) {
-    if (this.frequencyKnob) {
-      this.frequencyKnob.rotation.y += delta;
-    }
     if (this.envManager?.activeEnv?.shelfKnob) {
       this.envManager.activeEnv.shelfKnob.rotation.z += delta;
     }
@@ -373,6 +429,9 @@ class Bomb3DEngine {
 
     if (isLocked && !frequencyModule.disarmed) {
       frequencyModule.disarmed = true;
+      if (this.rfStatusLedMat) {
+        this.rfStatusLedMat.color.setHex(0x00ff66);
+      }
       audio.playDisarmed();
       game.checkAllModulesDisarmed();
     }
@@ -517,12 +576,12 @@ class Bomb3DEngine {
         return;
       }
 
-      // Check click on Radio Frequency Knob on the bomb casing!
-      if (this.frequencyKnob) {
-        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
-        if (knobHits.length > 0) {
-          const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
-          this.rotateRadioKnob(delta);
+      // Clicking the RF Jammer unit on the bomb zooms directly to the Military Transceiver on the wall!
+      if (this.rfModuleGroup) {
+        const rfHits = this.raycaster.intersectObjects(this.rfModuleGroup.children, true);
+        if (rfHits.length > 0) {
+          audio.playClick();
+          this.setView('INSPECT_RADIO');
           return;
         }
       }
@@ -535,17 +594,15 @@ class Bomb3DEngine {
       }
     }
 
-    // If in INSPECT_RADIO, clicking either knob rotates it; clicking background returns
+    // If in INSPECT_RADIO on East Wall, clicking the Bakelite tuning knob rotates it
     if (this.currentView === 'INSPECT_RADIO') {
-      const knobs = [this.frequencyKnob];
       if (this.envManager?.activeEnv?.shelfKnob) {
-        knobs.push(this.envManager.activeEnv.shelfKnob);
-      }
-      const knobHits = this.raycaster.intersectObjects(knobs.filter(Boolean), true);
-      if (knobHits.length > 0) {
-        const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
-        this.rotateRadioKnob(delta);
-        return;
+        const knobHits = this.raycaster.intersectObject(this.envManager.activeEnv.shelfKnob, true);
+        if (knobHits.length > 0) {
+          const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
+          this.rotateRadioKnob(delta);
+          return;
+        }
       }
       // Clicked outside radio on room wall -> return to overview
       const shelfHits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
@@ -620,15 +677,15 @@ class Bomb3DEngine {
     } else if (this.currentView === 'INSPECT_BOMB') {
       const hits = this.raycaster.intersectObjects([...this.clickableWires, ...this.clickableKeypad, ...this.simonPads]);
       if (hits.length > 0) hovering = true;
-      if (!hovering && this.frequencyKnob) {
-        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
-        if (knobHits.length > 0) hovering = true;
+      if (!hovering && this.rfModuleGroup) {
+        const rfHits = this.raycaster.intersectObjects(this.rfModuleGroup.children, true);
+        if (rfHits.length > 0) hovering = true;
       }
     } else if (this.currentView === 'INSPECT_RADIO') {
-      const knobs = [this.frequencyKnob];
-      if (this.envManager?.activeEnv?.shelfKnob) knobs.push(this.envManager.activeEnv.shelfKnob);
-      const knobHits = this.raycaster.intersectObjects(knobs.filter(Boolean), true);
-      if (knobHits.length > 0) hovering = true;
+      if (this.envManager?.activeEnv?.shelfKnob) {
+        const knobHits = this.raycaster.intersectObject(this.envManager.activeEnv.shelfKnob, true);
+        if (knobHits.length > 0) hovering = true;
+      }
     }
     this.renderer.domElement.style.cursor = hovering ? 'pointer' : 'default';
   }
