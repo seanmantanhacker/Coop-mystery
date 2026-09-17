@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPERATION: ZERO HOUR - Realistic Co-Op Point & Click Inspection</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- CDN Libraries: Three.js, PeerJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body class="crt-screen">
+
+  <div id="app">
+    <!-- TOP TACTICAL HEADER -->
+    <header class="tactical-header">
+      <div class="logo">
+        <span class="status-dot online"></span>
+        <span class="title">OPERATION: ZERO HOUR</span>
+        <span class="version">POINT & CLICK ESCAPE SPEC</span>
+      </div>
+      <div class="session-info">
+        <span id="room-display">ROOM: <strong class="text-highlight">DISCONNECTED</strong></span>
+        <span id="role-display">ROLE: <strong class="text-highlight">UNASSIGNED</strong></span>
+        <span id="level-display" class="hidden">LEVEL: <strong class="text-highlight" id="level-display-name">MAP 1: SILO 44</strong></span>
+        <button id="audio-toggle-btn" class="btn-icon">🔊 SOUND ON</button>
+      </div>
+    </header>
+
+    <!-- MAIN GAMEPLAY VIEWPORT -->
+    <main class="main-content">
+
+      <!-- ==================== LOBBY & ROLE SELECT ==================== -->
+      <section id="screen-lobby" class="active-screen">
+        <div class="lobby-card glass-panel">
+          <h1 class="glow-text">TACTICAL DEFUSAL NETWORK</h1>
+          <p class="subtitle">Point-and-Click Atmospheric Escape-Room Multiplayer</p>
+
+          <div class="lobby-controls">
+            <div class="input-group">
+              <label for="room-input">ROOM CODE:</label>
+              <input type="text" id="room-input" placeholder="ALPHA" maxlength="8" style="text-transform: uppercase;">
+            </div>
+            <div class="button-group">
+              <button id="btn-create-room" class="btn btn-primary">CREATE ROOM (HOST)</button>
+              <button id="btn-join-room" class="btn btn-secondary">JOIN ROOM</button>
+            </div>
+            <div class="network-mode-note">
+              <span>⚡ Tip: Open 3 browser tabs with Room Code "ALPHA" for instant local 3-screen co-op testing!</span>
+            </div>
+          </div>
+
+          <!-- Scenario / Map Selection -->
+          <div class="scenario-selection-box" id="scenario-selection-box">
+            <div class="scenario-header-row">
+              <h2>1. SELECT ESCAPE SCENARIO & MAP</h2>
+              <span id="scenario-host-notice" class="scenario-lock-notice hidden">🔒 LOCKED: Selected by Mission Commander (Host)</span>
+            </div>
+            <div class="scenario-grid">
+              <div class="scenario-card active" id="card-scenario-silo44" data-scenario="silo44" onclick="game.selectScenario('silo44')">
+                <div class="scenario-badge">MAP 1 // COLD WAR 1983</div>
+                <h3>SILO 44: THERMOBARIC INCIDENT</h3>
+                <p class="scenario-desc">Subterranean Soviet nuclear bunker. Iskra-7 warhead failsafe sequencer. Concrete blast vault reeking of motor oil and ozone.</p>
+                <div class="scenario-meta">
+                  <span>⏱️ 05:00 Base</span>
+                  <span>💀 High Danger</span>
+                  <span>🧩 4 Tech Puzzles</span>
+                </div>
+              </div>
+
+              <div class="scenario-card" id="card-scenario-alchemist" data-scenario="alchemist" onclick="game.selectScenario('alchemist')">
+                <div class="scenario-badge gold">MAP 2 // VICTORIAN GOTHIC 1888</div>
+                <h3>THE ALCHEMIST'S STUDY</h3>
+                <p class="scenario-desc">Lord Blackwood's locked manor library. Ticking Athanor Horologium, quicksilver vials, and flesh-dissolving phosgene gas.</p>
+                <div class="scenario-meta">
+                  <span>⏱️ 06:00 Base</span>
+                  <span>🔮 Master Difficulty</span>
+                  <span>⚙️ 4 Occult Puzzles</span>
+                </div>
+              </div>
+            </div>
+            <div class="scenario-briefing-action">
+              <button class="btn btn-outline" onclick="game.openLoreModal('briefing')">📖 READ FULL SCENARIO LORE & BRIEFING</button>
+            </div>
+          </div>
+
+          <div class="role-selection-section hidden" id="role-selection-box">
+            <h2>2. ASSIGN YOUR OPERATIVE STATION</h2>
+
+            <!-- Live Operatives Roster & Readiness Dashboard -->
+            <div class="roster-dashboard glass-panel">
+              <div class="roster-header">
+                <div class="roster-title">
+                  <span class="pulse-dot">●</span> MISSION OPERATIVES ROSTER
+                </div>
+                <div id="roster-readiness-badge" class="badge badge-warning">0 / 3 ROLES ASSIGNED</div>
+              </div>
+              <div class="roster-slots">
+                <div id="roster-slot-defuser" class="roster-slot-chip">
+                  <span class="slot-role">💣 DEFUSER:</span>
+                  <span id="roster-status-defuser" class="slot-badge open">OPEN SLOT</span>
+                </div>
+                <div id="roster-slot-manual" class="roster-slot-chip">
+                  <span class="slot-role">📜 MANUAL:</span>
+                  <span id="roster-status-manual" class="slot-badge open">OPEN SLOT</span>
+                </div>
+                <div id="roster-slot-intel" class="roster-slot-chip">
+                  <span class="slot-role">📡 INTEL:</span>
+                  <span id="roster-status-intel" class="slot-badge open">OPEN SLOT</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="role-grid">
+              
+              <div class="role-card" id="card-role-defuser" data-role="defuser">
+                <div class="role-icon">💣</div>
+                <h3>OPERATIVE 1: FIELD DEFUSER</h3>
+                <p>Atmospheric 3D room. Inspect tactile contraptions, cut wires, turn quicksilver valves, align zodiac rings, and pull the clock brake!</p>
+                <button id="btn-role-defuser" class="btn btn-role" onclick="game.toggleRole('defuser')">SELECT DEFUSER</button>
+              </div>
+
+              <div class="role-card" id="card-role-manual" data-role="manual">
+                <div class="role-icon">📜</div>
+                <h3>OPERATIVE 2: MANUAL SPECIALIST</h3>
+                <p>Atmospheric detective desk under warm lamp. Inspect the classified dossier or Blackwood's Hermetic Grimoire, and translate rules!</p>
+                <button id="btn-role-manual" class="btn btn-role" onclick="game.toggleRole('manual')">SELECT MANUAL</button>
+              </div>
+
+              <div class="role-card" id="card-role-intel" data-role="intel">
+                <div class="role-icon">📡</div>
+                <h3>OPERATIVE 3: INTEL ANALYST</h3>
+                <p>Surveillance & telemetry station. Zoom into CRT oscilloscope / celestial ephemeris, and operate the emergency coolant/steam valve!</p>
+                <button id="btn-role-intel" class="btn btn-role" onclick="game.toggleRole('intel')">SELECT INTEL</button>
+              </div>
+
+            </div>
+            
+            <div class="lobby-status-panel">
+              <div id="lobby-status-text" class="status-indicator">STATUS: <span class="glow-yellow">AWAITING OPERATIVES</span></div>
+              <button id="btn-start-game" class="btn btn-success btn-large" disabled>START DEFUSAL OPERATION</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== OPERATIVE 1: DEFUSER (BUNKER WORKBENCH) ==================== -->
+      <section id="screen-defuser" class="game-screen">
+        <!-- Floating HUD -->
+        <div class="defuser-hud">
+          <div class="timer-box glass-panel">
+            <span class="hud-label">DETONATION TIMER</span>
+            <div id="defuser-timer" class="digital-clock">05:00.00</div>
+          </div>
+          <div class="strikes-box glass-panel">
+            <span class="hud-label">STRIKES INCURRED</span>
+            <div class="strike-indicators">
+              <span id="strike-1" class="strike-led">X</span>
+              <span id="strike-2" class="strike-led">X</span>
+              <span id="strike-3" class="strike-led">X</span>
+            </div>
+          </div>
+          <div class="mission-level-display glass-panel">
+            <span class="hud-label">OPERATION LEVEL / MAP:</span>
+            <div id="defuser-level-badge" class="level-indicator-text">
+              <span class="pulse-dot">●</span>
+              <span id="defuser-level-title">MAP 1: SILO 44</span>
+            </div>
+          </div>
+          <button id="btn-step-back" class="btn btn-primary btn-step-back hidden" onclick="bomb3D.setView('OVERVIEW')">
+            ← STEP BACK TO ROOM
+          </button>
+        </div>
+
+        <!-- Radio Inspect Control Bar (Silo 44) -->
+        <div id="radio-inspect-hud" class="radio-floating-hud glass-panel hidden">
+          <span>📻 ROTATE TUNER KNOB (CLICK KNOB TO ADVANCE FREQUENCY):</span>
+          <span id="radio-inspect-freq" class="glow-yellow">100.0 MHz</span>
+        </div>
+
+        <!-- Victorian Module 1: Zodiac Rings HUD -->
+        <div id="zodiac-inspect-hud" class="module-inspect-hud glass-panel hidden">
+          <div class="hud-title">♈ ASTROLOGICAL ZODIAC CONCENTRIC RINGS</div>
+          <div class="ring-controls-grid">
+            <div class="ring-ctrl">
+              <span class="ctrl-label">OUTER (HOUSE)</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateOuter(-1)">◀</button>
+                <span id="zodiac-outer-readout" class="ring-val glow-yellow">♏ Scorpio</span>
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateOuter(1)">▶</button>
+              </div>
+            </div>
+            <div class="ring-ctrl">
+              <span class="ctrl-label">MIDDLE (PLANET)</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateMiddle(-1)">◀</button>
+                <span id="zodiac-middle-readout" class="ring-val glow-yellow">☉ Sun</span>
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateMiddle(1)">▶</button>
+              </div>
+            </div>
+            <div class="ring-ctrl">
+              <span class="ctrl-label">INNER (ELEMENT)</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateInner(-1)">◀</button>
+                <span id="zodiac-inner-readout" class="ring-val glow-yellow">🜂 Fire</span>
+                <button class="btn btn-ctrl" onclick="zodiacModule.rotateInner(1)">▶</button>
+              </div>
+            </div>
+          </div>
+          <p class="caption-guidance">Align target symbols under the 12 o'clock golden vernier needle according to the Grimoire.</p>
+        </div>
+
+        <!-- Victorian Module 2: Mercury Manometer HUD -->
+        <div id="mercury-inspect-hud" class="module-inspect-hud glass-panel hidden">
+          <div class="hud-title">☿ QUICKSILVER MANOMETER LEVELER</div>
+          <div class="mercury-tubes-display">
+            <div class="tube-col">
+              <span class="tube-name">VIAL α (SULFUR)</span>
+              <div class="tube-meter"><div id="mercury-bar-alpha" class="mercury-liquid" style="height: 50%;"></div></div>
+              <span id="mercury-val-alpha" class="tube-val glow-yellow">60 drams</span>
+            </div>
+            <div class="tube-col">
+              <span class="tube-name">VIAL β (MERCURY)</span>
+              <div class="tube-meter"><div id="mercury-bar-beta" class="mercury-liquid" style="height: 33%;"></div></div>
+              <span id="mercury-val-beta" class="tube-val glow-yellow">40 drams</span>
+            </div>
+            <div class="tube-col">
+              <span class="tube-name">VIAL γ (SALT)</span>
+              <div class="tube-meter"><div id="mercury-bar-gamma" class="mercury-liquid" style="height: 66%;"></div></div>
+              <span id="mercury-val-gamma" class="tube-val glow-yellow">80 drams</span>
+            </div>
+          </div>
+          <div class="valve-btn-row">
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, 5)">VALVE 1 (α ◀ β)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, -5)">VALVE 1 (α ▶ β)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, 5)">VALVE 2 (β ◀ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, -5)">VALVE 2 (β ▶ γ)</button>
+          </div>
+          <p class="caption-guidance">Turn thumb valves to balance fluids into hydrostatic equilibrium according to the Grimoire ratios.</p>
+        </div>
+
+        <!-- Victorian Module 3: Prismatic Light HUD -->
+        <div id="prism-inspect-hud" class="module-inspect-hud glass-panel hidden">
+          <div class="hud-title">💎 PRISMATIC OPTICAL CRYSTAL LENS</div>
+          <div class="prism-controls-grid">
+            <div class="prism-ctrl">
+              <span class="ctrl-label">PRISM 1 (FLINT)</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="prismModule.adjustPrism1(-5)">-5°</button>
+                <span id="prism1-angle-val" class="ring-val glow-yellow">20°</span>
+                <button class="btn btn-ctrl" onclick="prismModule.adjustPrism1(5)">+5°</button>
+              </div>
+            </div>
+            <div class="prism-ctrl">
+              <span class="ctrl-label">FILTER SLOT</span>
+              <div class="filter-btn-group">
+                <button class="btn btn-filter" onclick="prismModule.setFilter('none')">NONE</button>
+                <button class="btn btn-filter" style="color:#ffaa00;" onclick="prismModule.setFilter('amber')">AMBER</button>
+                <button class="btn btn-filter" style="color:#00aaff;" onclick="prismModule.setFilter('blue')">AZURE</button>
+                <button class="btn btn-filter" style="color:#00ff88;" onclick="prismModule.setFilter('green')">EMERALD</button>
+                <button class="btn btn-filter" style="color:#ff3333;" onclick="prismModule.setFilter('red')">RED</button>
+              </div>
+            </div>
+            <div class="prism-ctrl">
+              <span class="ctrl-label">PRISM 2 (CALCITE)</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="prismModule.adjustPrism2(-5)">-5°</button>
+                <span id="prism2-angle-val" class="ring-val glow-yellow">35°</span>
+                <button class="btn btn-ctrl" onclick="prismModule.adjustPrism2(5)">+5°</button>
+              </div>
+            </div>
+          </div>
+          <div class="spectrum-meter-display">
+            <span>SYNTHESIZED WAVELENGTH: <strong id="prism-wavelength-val" class="glow-green">589 nm</strong></span>
+          </div>
+          <p class="caption-guidance">Refract the arc-beam through prisms and colored filter until the wavelength matches target!</p>
+        </div>
+
+        <!-- Victorian Module 4: Clockwork Escapement HUD -->
+        <div id="escapement-inspect-hud" class="module-inspect-hud glass-panel hidden">
+          <div class="hud-title">🕰️ CLOCKWORK ESCAPEMENT & GRANDFATHER CHIME</div>
+          <div class="chime-listener-card">
+            <div>CHIME DETECTOR: <strong id="escapement-chime-melody" class="glow-yellow">LISTENING FOR CHIME SEQUENCE...</strong></div>
+            <div>CURRENT STRIKE: <span id="escapement-strike-count" class="glow-green">SILENT</span></div>
+          </div>
+          <div class="escapement-lever-action">
+            <button id="btn-release-escapement" class="btn btn-warning btn-large" onclick="escapementModule.pullLever()">
+              ⚙️ TRIP DEADMAN BRAKE LEVER (RELEASE)
+            </button>
+          </div>
+          <p class="caption-guidance">⚠️ Consult Specialist & Analyst: Pull lever during the exact permitted note window of the chime!</p>
+        </div>
+
+        <!-- Three.js 3D Canvas -->
+        <div id="three-canvas-container"></div>
+      </section>
+
+
+      <!-- ==================== OPERATIVE 2: MANUAL SPECIALIST (DETECTIVE DESK) ==================== -->
+      <section id="screen-manual" class="game-screen">
+        <div class="room-viewport">
+          <!-- Step Back Button -->
+          <button id="manual-back-btn" class="btn btn-primary btn-step-back hidden" onclick="manualView.setView('DESK_OVERVIEW')">
+            ← STEP BACK TO DESK
+          </button>
+
+          <!-- ROOM OVERVIEW: THE DETECTIVE DESK -->
+          <div id="manual-desk-room" class="desk-room-scene">
+            <div class="lamp-light-cone"></div>
+            <div class="desk-surface">
+              <div class="desk-props">
+                <div class="prop coffee-mug">☕ COFFEE</div>
+                <div class="prop pen">✏️</div>
+              </div>
+
+              <!-- Hotspot 1: The Classified Binder -->
+              <div class="hotspot-card binder-hotspot" onclick="manualView.setView('INSPECT_BINDER')">
+                <div class="hotspot-pulse"></div>
+                <div class="hotspot-icon">📖</div>
+                <h3>CLASSIFIED DEFUSAL BINDER</h3>
+                <p>Click to open and inspect ordnance specifications</p>
+              </div>
+
+              <!-- Hotspot 2: Corkboard -->
+              <div class="hotspot-card corkboard-hotspot" onclick="manualView.setView('INSPECT_BOARD')">
+                <div class="hotspot-pulse"></div>
+                <div class="hotspot-icon">📌</div>
+                <h3>EVIDENCE BULLETIN BOARD</h3>
+                <p>Click to inspect polaroid photos and memos</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSPECT VIEW 1: OPEN CLASSIFIED BINDER -->
+          <div id="manual-binder-inspect" class="binder-inspect-modal hidden" onclick="if(event.target === this) manualView.setView('DESK_OVERVIEW')">
+            <div class="tactical-binder-cover">
+              <!-- Binder Navigation Tabs -->
+              <div class="binder-tabs">
+                <button class="binder-tab-btn active" onclick="manualView.goToSection(0)">01. WIRES</button>
+                <button class="binder-tab-btn" onclick="manualView.goToSection(1)">02. KEYPAD</button>
+                <button class="binder-tab-btn" onclick="manualView.goToSection(2)">03. FREQUENCY</button>
+                <button class="binder-tab-btn" onclick="manualView.goToSection(3)">04. SIMON</button>
+                <button class="binder-tab-btn" onclick="manualView.goToSection(4)">05. SERIAL</button>
+                <button class="binder-tab-btn binder-close-btn" onclick="manualView.setView('DESK_OVERVIEW')" title="Return to Desk">✕ CLOSE BINDER</button>
+              </div>
+
+              <!-- Aged Parchment Page -->
+              <div class="binder-page parchment-sheet">
+                <div id="binder-page-body"></div>
+                <div class="page-footer">
+                  <button class="btn btn-secondary" onclick="manualView.flipPage(-1)">← PREVIOUS PAGE</button>
+                  <span id="binder-page-num" class="page-number-text">PAGE 1 OF 5</span>
+                  <button class="btn btn-secondary" onclick="manualView.flipPage(1)">NEXT PAGE →</button>
+                  <button class="btn btn-secondary btn-close-modal" onclick="manualView.setView('DESK_OVERVIEW')">✕ RETURN TO DESK</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSPECT VIEW 2: EVIDENCE BULLETIN BOARD -->
+          <div id="manual-board-inspect" class="corkboard-inspect-modal hidden" onclick="if(event.target === this) manualView.setView('DESK_OVERVIEW')">
+            <div class="corkboard-frame">
+              <div class="corkboard-header">
+                <h2>INVESTIGATOR EVIDENCE PINBOARD</h2>
+                <button class="btn btn-secondary btn-close-modal" onclick="manualView.setView('DESK_OVERVIEW')">✕ CLOSE BOARD</button>
+              </div>
+              <div id="manual-board-content" class="corkboard-items">
+                <div class="polaroid-photo">
+                  <div class="photo-img">💣 BOMB CASING</div>
+                  <span>SUSPECT PACK: ORDNANCE-9</span>
+                </div>
+                <div class="sticky-memo">
+                  <h4>URGENT MEMO:</h4>
+                  <p>Intel Analyst can trigger +30s Coolant Stabilizer ONCE using the red missile switch!</p>
+                </div>
+                <div class="sticky-memo yellow">
+                  <h4>FREQUENCY ADVISORY:</h4>
+                  <p>Defuser must rotate dial to match Analyst's target frequency within ±0.5 MHz.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ==================== OPERATIVE 3: INTEL ANALYST (SURVEILLANCE CONSOLE) ==================== -->
+      <section id="screen-intel" class="game-screen">
+        <div class="room-viewport">
+          <!-- Step Back Button -->
+          <button id="intel-back-btn" class="btn btn-primary btn-step-back hidden" onclick="intelView.setView('CONSOLE_OVERVIEW')">
+            ← STEP BACK TO CONSOLE
+          </button>
+
+          <!-- ROOM OVERVIEW: THE 3-MONITOR SURVEILLANCE CONSOLE -->
+          <div id="intel-console-overview" class="surveillance-room-scene">
+            <div class="crt-monitor-array">
+              
+              <!-- Monitor 1: Left (Wireframe Telemetry) -->
+              <div class="crt-monitor-bezel" onclick="intelView.setView('INSPECT_DOSSIER')">
+                <div class="monitor-screen">
+                  <div class="screen-title">MONITOR 1: SCHEMATIC TELEMETRY</div>
+                  <canvas id="intel-wireframe-canvas" width="220" height="120"></canvas>
+                  <div class="click-hint">🔍 CLICK TO INSPECT DOSSIER</div>
+                </div>
+              </div>
+
+              <!-- Monitor 2: Center (Carrier Oscilloscope) -->
+              <div class="crt-monitor-bezel center-focus" onclick="intelView.setView('INSPECT_CENTER')">
+                <div class="monitor-screen">
+                  <div class="screen-title">MONITOR 2: CARRIER OSCILLOSCOPE</div>
+                  <div class="live-wave-preview">
+                    <span class="freq-preview-text">TARGET: <strong id="intel-dossier-target-freq">142.5 MHz</strong></span>
+                    <span id="intel-large-lock-badge" class="badge badge-error">CARRIER SEARCHING...</span>
+                  </div>
+                  <div class="click-hint glow-green">🔍 CLICK TO INSPECT OSCILLOSCOPE</div>
+                </div>
+              </div>
+
+              <!-- Monitor 3: Right (Physical Emergency Coolant Station) -->
+              <div class="crt-monitor-bezel" onclick="intelView.setView('INSPECT_EMERGENCY')">
+                <div class="monitor-screen">
+                  <div class="screen-title">CONSOLE: EMERGENCY COOLANT</div>
+                  <div class="missile-switch-preview">
+                    <div class="preview-guard-box">🚨 FLIP-GUARDED SWITCH</div>
+                    <span>(+30 SECONDS STABILIZER)</span>
+                  </div>
+                  <div class="click-hint glow-red">🔍 CLICK TO INSPECT SWITCH</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- INSPECT VIEW 1: ZOOMED IN OSCILLOSCOPE MONITOR -->
+          <div id="intel-inspect-center" class="monitor-inspect-modal hidden" onclick="if(event.target === this) intelView.setView('CONSOLE_OVERVIEW')">
+            <div class="monitor-inspect-frame">
+              <div class="monitor-header-bar">
+                <h2 id="intel-center-title">TACTICAL CARRIER FREQUENCY OSCILLOSCOPE</h2>
+                <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE OSCILLOSCOPE</button>
+              </div>
+              <div class="inspect-freq-stats">
+                <div><span id="intel-center-target-lbl">TARGET CARRIER:</span> <strong class="glow-yellow" id="inspect-target-readout">142.5 MHz</strong></div>
+                <div><span id="intel-center-current-lbl">DEFUSER CURRENT:</span> <strong class="glow-green" id="intel-dossier-current-freq">100.0 MHz</strong></div>
+              </div>
+              <canvas id="intel-large-oscilloscope" width="700" height="260"></canvas>
+              <p id="intel-center-caption" class="caption-guidance">Guide Operative 1 (Defuser) to rotate their radio dial until the sine wave locks onto the carrier grid!</p>
+            </div>
+          </div>
+
+          <!-- INSPECT VIEW 2: ZOOMED IN DOSSIER & TELEMETRY -->
+          <div id="intel-inspect-dossier" class="monitor-inspect-modal hidden" onclick="if(event.target === this) intelView.setView('CONSOLE_OVERVIEW')">
+            <div class="monitor-inspect-frame">
+              <div class="monitor-header-bar">
+                <h2>BOMB SPECIFICATION & ORDNANCE DOSSIER</h2>
+                <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE DOSSIER</button>
+              </div>
+              <div class="inspect-dossier-grid">
+                <div class="dossier-item">
+                  <span>SERIAL NUMBER:</span>
+                  <strong id="intel-dossier-serial" class="glow-green">A7-93K</strong>
+                </div>
+                <div class="dossier-item">
+                  <span>BATTERY COMPARTMENTS:</span>
+                  <strong id="intel-dossier-batt">2 CELLS</strong>
+                </div>
+                <div class="dossier-item">
+                  <span>INDICATOR RELAYS:</span>
+                  <strong id="intel-dossier-ind">FRK: ON | CAR: OFF</strong>
+                </div>
+              </div>
+              <p class="caption-guidance">Relay these crucial serial traits to the Manual Specialist to solve wire and keypad conditions!</p>
+            </div>
+          </div>
+
+          <!-- INSPECT VIEW 3: PHYSICAL MISSILE FLIP-GUARDED SWITCH -->
+          <div id="intel-inspect-emergency" class="monitor-inspect-modal hidden" onclick="if(event.target === this) intelView.setView('CONSOLE_OVERVIEW')">
+            <div class="missile-console-card">
+              <div class="monitor-header-bar">
+                <h2 id="intel-emergency-title">EMERGENCY COOLANT STABILIZER CONSOLE</h2>
+                <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE PANEL</button>
+              </div>
+              <p id="intel-emergency-warning" class="warning-text">⚠️ PROTOCOL: Flip open the safety guard cover, then throw the heavy toggle switch to inject coolant (+30s to Detonation Clock).</p>
+
+              <div class="physical-switch-unit">
+                <!-- Red Spring Loaded Flip Guard -->
+                <div id="missile-flip-guard" class="flip-guard-cover" onclick="intelView.toggleFlipGuard()">
+                  <div id="intel-guard-label" class="guard-label">LIFT GUARD</div>
+                </div>
+
+                <!-- Heavy Metal Toggle Lever -->
+                <div id="missile-toggle-lever" class="toggle-switch-lever" onclick="intelView.activateEmergencyToggle()">
+                  <div class="toggle-knob"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== OVERLAY: MISSION END ==================== -->
+      <div id="game-over-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-panel text-center">
+          <h1 id="end-title" class="end-heading">MISSION FAILED</h1>
+          <p id="end-subtitle" class="end-body">The bomb detonated! All operatives eliminated.</p>
+          <div class="end-stats">
+            <div>TIME REMAINING: <span id="end-time">00:00</span></div>
+            <div>STRIKES INCURRED: <span id="end-strikes">3</span></div>
+          </div>
+          <button class="btn btn-primary btn-large" onclick="location.reload()">RETURN TO LOBBY</button>
+        </div>
+      </div>
+
+      <!-- ==================== OVERLAY: LORE & ENVIRONMENTAL INSPECT ==================== -->
+      <div id="lore-inspect-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-panel lore-card-frame">
+          <div class="lore-header">
+            <h2 id="lore-modal-title">CLASSIFIED ENVIRONMENTAL DOCUMENT</h2>
+            <button class="btn-icon btn-close" onclick="game.closeLoreModal()">✕</button>
+          </div>
+          <div id="lore-modal-body" class="lore-body-scroll"></div>
+          <button class="btn btn-secondary btn-close-modal" onclick="game.closeLoreModal()">CLOSE DOCUMENT</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="src/textures.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/network.js"></script>
+  <script src="src/modules/wires.js"></script>
+  <script src="src/modules/keypad.js"></script>
+  <script src="src/modules/frequency.js"></script>
+  <script src="src/modules/simon.js"></script>
+  <script src="src/modules/zodiac.js"></script>
+  <script src="src/modules/mercury.js"></script>
+  <script src="src/modules/prism.js"></script>
+  <script src="src/modules/escapement.js"></script>
+  <script src="src/manual_view.js"></script>
+  <script src="src/intel_view.js"></script>
+  <script src="src/silo44_env.js"></script>
+  <script src="src/alchemist_env.js"></script>
+  <script src="src/environment_manager.js"></script>
+  <script src="src/game.js"></script>
+  <script src="src/bomb3d.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Chrome Test Profiles & Automation Artifacts
+.chrome-test-*
+chrome-profile-*
+*.log
+
+# Editor & IDE Directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node Dependencies & Package Locks (if added)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary Scratch Files
+scratch/
+tmp/
+*.tmp
