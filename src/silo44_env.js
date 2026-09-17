@@ -26,15 +26,15 @@ class Silo44Environment {
     // Camera Presets
     this.cameraPresets = {
       OVERVIEW: {
-        pos: new THREE.Vector3(0.0, 2.50, 4.40),
-        target: new THREE.Vector3(0.0, 1.15, 0.0),
+        pos: new THREE.Vector3(0.0, 2.35, 3.8),
+        target: new THREE.Vector3(0.0, 1.05, 0.0),
         fov: 52,
         label: 'BUNKER OVERVIEW'
       },
       INSPECT_BOMB: {
-        pos: new THREE.Vector3(0.0, 5.20, 3.20),
-        target: new THREE.Vector3(0.0, 1.40, 0.0),
-        fov: 48,
+        pos: new THREE.Vector3(0.0, 1.95, 0.95),
+        target: new THREE.Vector3(0.0, 1.15, 0.0),
+        fov: 40,
         label: 'TACTICAL ORDNANCE'
       },
       INSPECT_SCHEMATIC: {
@@ -42,12 +42,6 @@ class Silo44Environment {
         target: new THREE.Vector3(-3.90, 1.70, -1.8),
         fov: 44,
         label: 'DEFUSAL SCHEMATICS'
-      },
-      INSPECT_RADIO: {
-        pos: new THREE.Vector3(1.85, 1.78, -0.6),
-        target: new THREE.Vector3(3.60, 1.78, -0.6),
-        fov: 42,
-        label: 'MILITARY TRANSCEIVER'
       },
       INSPECT_KEYPAD: {
         pos: new THREE.Vector3(2.1, 1.5, -3.4),
@@ -69,7 +63,6 @@ class Silo44Environment {
     this.buildToolboxAndWrenches();
     this.buildEmergencyWallPhone();
     this.buildWallSchematicsBoard();
-    this.buildRadioTransceiverShelf();
     this.buildBlastDoorKeypad();
     this.buildOverheadCageLamp();
     this.setupLighting();
@@ -887,11 +880,7 @@ class Silo44Environment {
     const hSchematic = createRing('INSPECT_SCHEMATIC', new THREE.Vector3(-3.88, 1.7, -1.8), 'INSPECT WALL SCHEMATIC');
     hSchematic.rotation.set(0, Math.PI / 2, 0);
 
-    // Hotspot 3: Radio Transceiver on Shelf
-    const hRadio = createRing('INSPECT_RADIO', new THREE.Vector3(3.68, 1.8, -0.6), 'INSPECT RADIO TRANSCEIVER');
-    hRadio.rotation.set(0, -Math.PI / 2, 0);
-
-    // Hotspot 4: Blast Door Keypad
+    // Hotspot 3: Blast Door Keypad
     const hKeypad = createRing('INSPECT_KEYPAD', new THREE.Vector3(2.1, 1.5, -4.82), 'INSPECT BLAST KEYPAD');
     hKeypad.rotation.set(0, 0, 0);
   }

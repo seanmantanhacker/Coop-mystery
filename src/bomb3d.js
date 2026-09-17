@@ -27,6 +27,7 @@ class Bomb3DEngine {
     this.clickableKeypad = [];
     this.simonPads = [];
     this.frequencyKnob = null;
+    this.currentBombQuadrant = 'ALL'; // 'ALL', 'WIRES', 'KEYPAD', 'RADIO', 'SIMON'
     this.severedWires = [];
 
     // Animation Ticks
@@ -320,13 +321,13 @@ class Bomb3DEngine {
     else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
   }
 
-  // --- Module 3: RF Failsafe Jammer Relay (Links directly to Radio Transceiver on Wall) ---
+  // --- Module 3: Frequency Radio Tuner / Jammer (Bottom Left Quadrant) ---
   buildRadioModule(originX, originZ) {
     this.rfModuleGroup = new THREE.Group();
     this.rfModuleGroup.position.set(originX, 1.42, originZ);
 
     // Shielded RF Receiver Junction Box
-    const boxGeo = new THREE.BoxGeometry(1.5, 0.22, 1.5);
+    const boxGeo = new THREE.BoxGeometry(2.4, 0.22, 1.9);
     const boxMat = new THREE.MeshStandardMaterial({
       color: 0x181f28,
       metalness: 0.85,
@@ -345,7 +346,7 @@ class Bomb3DEngine {
       roughness: 0.2
     });
     const coil = new THREE.Mesh(coilGeo, coilMat);
-    coil.position.set(-0.35, 0.36, -0.3);
+    coil.position.set(-0.65, 0.36, -0.4);
     this.rfModuleGroup.add(coil);
 
     // Glass Radio Valve / Vacuum Tube
@@ -357,47 +358,58 @@ class Bomb3DEngine {
       roughness: 0.1
     });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
-    tube.position.set(0.35, 0.36, -0.3);
+    tube.position.set(-0.25, 0.36, -0.4);
     this.rfModuleGroup.add(tube);
 
     // Glowing Orange Cathode Filament
     const filGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.26, 8);
     const filMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
     const fil = new THREE.Mesh(filGeo, filMat);
-    fil.position.set(0.35, 0.36, -0.3);
+    fil.position.set(-0.25, 0.36, -0.4);
     this.rfModuleGroup.add(fil);
+
+    // Heavy Knurled Metal Tuning Knob (Directly on bomb deck)
+    const knobGeo = new THREE.CylinderGeometry(0.44, 0.44, 0.28, 32);
+    const knobMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, metalness: 0.92, roughness: 0.22 });
+    this.frequencyKnob = new THREE.Mesh(knobGeo, knobMat);
+    this.frequencyKnob.position.set(0.45, 0.30, 0.05);
+    this.frequencyKnob.userData = { isKnob: true, isRadioKnob: true };
+    this.rfModuleGroup.add(this.frequencyKnob);
+
+    // Indicator Notch on Knob
+    const notchGeo = new THREE.BoxGeometry(0.08, 0.30, 0.40);
+    const notchMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+    const notch = new THREE.Mesh(notchGeo, notchMat);
+    notch.position.set(0, 0, 0.18);
+    this.frequencyKnob.add(notch);
 
     // Status Indicator LED (Amber = Jammer Active, Green = Carrier Disarmed)
     const ledGeo = new THREE.SphereGeometry(0.09, 16, 16);
     this.rfStatusLedMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
     this.rfStatusLed = new THREE.Mesh(ledGeo, this.rfStatusLedMat);
-    this.rfStatusLed.position.set(0, 0.28, 0.35);
+    this.rfStatusLed.position.set(-0.65, 0.28, 0.4);
     this.rfModuleGroup.add(this.rfStatusLed);
 
-    // Top Stencil / Label Plate
-    const labelGeo = new THREE.PlaneGeometry(1.2, 0.26);
+    // Top Stencil / Frequency Plate
+    const labelGeo = new THREE.PlaneGeometry(1.6, 0.28);
     const labelMat = new THREE.MeshStandardMaterial({ color: 0x0a0e14, roughness: 0.8 });
     const labelPlate = new THREE.Mesh(labelGeo, labelMat);
     labelPlate.rotation.x = -Math.PI / 2;
-    labelPlate.position.set(0, 0.23, 0.0);
+    labelPlate.position.set(-0.1, 0.23, 0.0);
     this.rfModuleGroup.add(labelPlate);
 
     this.rfModuleGroup.userData = {
       isRfReceiver: true,
-      targetView: 'INSPECT_RADIO',
-      label: 'TUNE RADIO TRANSCEIVER ON WALL'
+      label: 'FREQUENCY JAMMER TUNER'
     };
-    this.rfModuleGroup.traverse(c => {
-      if (c.isMesh) {
-        c.userData.isRfReceiver = true;
-        c.userData.targetView = 'INSPECT_RADIO';
-      }
-    });
 
     this.bombGroup.add(this.rfModuleGroup);
   }
 
   rotateRadioKnob(delta) {
+    if (this.frequencyKnob) {
+      this.frequencyKnob.rotation.y += delta;
+    }
     if (this.envManager?.activeEnv?.shelfKnob) {
       this.envManager.activeEnv.shelfKnob.rotation.z += delta;
     }
@@ -421,14 +433,6 @@ class Bomb3DEngine {
         readout.className = 'glow-yellow';
         readout.innerText = `${freq.toFixed(1)} MHz`;
       }
-    }
-
-    // Animate analog VU needle meters on the shelf
-    if (this.envManager?.activeEnv?.radioGauges) {
-      const needleAngle = isLocked ? -0.55 : (Math.sin(freq * 7) * 0.35);
-      this.envManager.activeEnv.radioGauges.forEach(n => {
-        n.rotation.z = needleAngle;
-      });
     }
 
     if (isLocked && !frequencyModule.disarmed) {
@@ -487,7 +491,30 @@ class Bomb3DEngine {
         backBtn.classList.add('hidden');
       } else {
         backBtn.classList.remove('hidden');
+        backBtn.innerText = '← STEP BACK TO ROOM';
       }
+    }
+
+    const quadBar = document.getElementById('bomb-quadrant-bar');
+    const radioHud = document.getElementById('radio-inspect-hud');
+
+    if (viewMode === 'INSPECT_BOMB') {
+      this.currentBombQuadrant = 'ALL';
+      if (quadBar) quadBar.classList.remove('hidden');
+      if (radioHud) {
+        radioHud.classList.remove('hidden');
+        const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
+        const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+        const readout = document.getElementById('radio-inspect-freq');
+        if (readout) {
+          readout.className = isLocked ? 'glow-green' : 'glow-yellow';
+          readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+        }
+      }
+    } else {
+      this.currentBombQuadrant = null;
+      if (quadBar) quadBar.classList.add('hidden');
+      if (radioHud) radioHud.classList.add('hidden');
     }
 
     if (this.envManager) {
@@ -498,7 +525,6 @@ class Bomb3DEngine {
 
         // Responsive Aspect-Ratio Framing:
         // On narrow/portrait screens (phones & tablets), automatically adapt distance
-        // so that the entire subject width (bomb deck, table, etc.) remains fully in frame without clipping.
         const container = document.getElementById('three-canvas-container');
         const aspect = (container && container.clientHeight > 0)
           ? (container.clientWidth / container.clientHeight)
@@ -518,6 +544,102 @@ class Bomb3DEngine {
           this.camera.updateProjectionMatrix();
         }
       }
+    }
+  }
+
+  // 4-Quadrant Mobile/Desktop Zoom System for Bomb Deck
+  setBombQuadrant(quadrant) {
+    if (this.currentView !== 'INSPECT_BOMB') {
+      this.setView('INSPECT_BOMB');
+    }
+    this.currentBombQuadrant = quadrant;
+
+    // Update active class on toolbar buttons
+    const quadBar = document.getElementById('bomb-quadrant-bar');
+    if (quadBar) {
+      quadBar.querySelectorAll('.btn-quadrant').forEach(btn => {
+        if (btn.dataset.quadrant === quadrant) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // Update Step Back Button text
+    const backBtn = document.getElementById('btn-step-back');
+    if (backBtn) {
+      if (quadrant === 'ALL') {
+        backBtn.innerText = '← STEP BACK TO ROOM';
+      } else {
+        backBtn.innerText = '← BACK TO FULL BOMB';
+      }
+    }
+
+    if (typeof audio !== 'undefined' && audio.playZoom) audio.playZoom();
+
+    // 4 Quadrants on the bomb casing (deck is at y=1.41)
+    if (quadrant === 'WIRES') {
+      // Upper-Left: wiresModule
+      this.targetCameraTarget.set(-1.8, 1.45, 1.1);
+      this.targetCameraPos.set(-1.8, 2.50, 1.95);
+      this.camera.fov = 38;
+      this.camera.updateProjectionMatrix();
+    } else if (quadrant === 'KEYPAD') {
+      // Upper-Right: keypadModule
+      this.targetCameraTarget.set(1.8, 1.45, 1.1);
+      this.targetCameraPos.set(1.8, 2.50, 1.95);
+      this.camera.fov = 38;
+      this.camera.updateProjectionMatrix();
+    } else if (quadrant === 'RADIO') {
+      // Bottom-Left: frequencyModule
+      this.targetCameraTarget.set(-1.8, 1.45, -1.1);
+      this.targetCameraPos.set(-1.8, 2.50, -0.25);
+      this.camera.fov = 38;
+      this.camera.updateProjectionMatrix();
+      const radioHud = document.getElementById('radio-inspect-hud');
+      if (radioHud) radioHud.classList.remove('hidden');
+    } else if (quadrant === 'SIMON') {
+      // Bottom-Right: simonModule
+      this.targetCameraTarget.set(1.8, 1.45, -1.1);
+      this.targetCameraPos.set(1.8, 2.50, -0.25);
+      this.camera.fov = 38;
+      this.camera.updateProjectionMatrix();
+    } else {
+      // Full Bomb View
+      const preset = this.envManager?.activeEnv?.cameraPresets?.INSPECT_BOMB || {
+        pos: new THREE.Vector3(0.0, 1.95, 0.95),
+        target: new THREE.Vector3(0.0, 1.15, 0.0),
+        fov: 40
+      };
+      this.targetCameraTarget.copy(preset.target);
+
+      const container = document.getElementById('three-canvas-container');
+      const aspect = (container && container.clientHeight > 0)
+        ? (container.clientWidth / container.clientHeight)
+        : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
+
+      let distFactor = 1.0;
+      if (aspect < 1.25) {
+        distFactor = Math.max(1.0, 1.15 / aspect);
+      }
+
+      const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
+      offset.multiplyScalar(distFactor);
+      this.targetCameraPos.copy(preset.target).add(offset);
+
+      if (preset.fov && this.camera) {
+        this.camera.fov = preset.fov;
+        this.camera.updateProjectionMatrix();
+      }
+    }
+  }
+
+  handleStepBack() {
+    if (this.currentView === 'INSPECT_BOMB' && this.currentBombQuadrant && this.currentBombQuadrant !== 'ALL') {
+      this.setBombQuadrant('ALL');
+    } else {
+      this.setView('OVERVIEW');
     }
   }
 
@@ -553,7 +675,7 @@ class Bomb3DEngine {
           }
         }
 
-        // 2. Direct click on environment 3D props (Clock, Radio, Grimoire, Astrolabe, Clipboard, Fireplace, etc.)
+        // 2. Direct click on environment 3D props
         const propHits = this.raycaster.intersectObjects(this.envManager.activeEnv.group.children, true);
         for (let hit of propHits) {
           let curr = hit.object;
@@ -588,66 +710,78 @@ class Bomb3DEngine {
     }
 
     // ================= INSPECTION VIEWS =================
-    // If in INSPECT_BOMB, test Wires, Keypads, Simon
+    // If in INSPECT_BOMB, test Wires, Keypads, Simon, Radio Knob
     if (this.currentView === 'INSPECT_BOMB') {
+      // 1. Interactive Wires
       const wireHits = this.raycaster.intersectObjects(this.clickableWires);
       if (wireHits.length > 0) {
         this.cutWireIn3D(wireHits[0].object);
         return;
       }
 
+      // 2. Keypad Buttons
       const keyHits = this.raycaster.intersectObjects(this.clickableKeypad);
       if (keyHits.length > 0) {
         this.pressKeypadIn3D(keyHits[0].object);
         return;
       }
 
+      // 3. Simon Light Domes
       const simonHits = this.raycaster.intersectObjects(this.simonPads);
       if (simonHits.length > 0) {
         this.pressSimonIn3D(simonHits[0].object);
         return;
       }
 
-      // Clicking the RF Jammer unit on the bomb zooms directly to the Military Transceiver on the wall!
-      if (this.rfModuleGroup) {
-        const rfHits = this.raycaster.intersectObjects(this.rfModuleGroup.children, true);
-        if (rfHits.length > 0) {
-          audio.playClick();
-          this.setView('INSPECT_RADIO');
-          return;
-        }
-      }
-
-      // Clicked outside bomb case -> return to overview
-      const bombHits = this.raycaster.intersectObjects(this.bombGroup.children, true);
-      if (bombHits.length === 0) {
-        this.setView('OVERVIEW');
-        return;
-      }
-    }
-
-    // If in INSPECT_RADIO on East Wall, clicking the Bakelite tuning knob rotates it
-    if (this.currentView === 'INSPECT_RADIO') {
-      if (this.envManager?.activeEnv?.shelfKnob) {
-        const knobHits = this.raycaster.intersectObject(this.envManager.activeEnv.shelfKnob, true);
+      // 4. Radio Frequency Tuning Knob directly on bomb casing
+      if (this.frequencyKnob) {
+        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
         if (knobHits.length > 0) {
           const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
           this.rotateRadioKnob(delta);
           return;
         }
       }
-      // Clicked outside radio on room wall -> return to overview
-      const shelfHits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
-      const hitRadio = shelfHits.some(h => {
-        let c = h.object;
-        while (c) {
-          if (c.userData && c.userData.targetView === 'INSPECT_RADIO') return true;
-          c = c.parent;
+
+      // 5. Radio Frequency Module group click
+      if (this.rfModuleGroup) {
+        const rfHits = this.raycaster.intersectObjects(this.rfModuleGroup.children, true);
+        if (rfHits.length > 0) {
+          if (this.currentBombQuadrant === 'ALL' && window.innerWidth <= 860) {
+            this.setBombQuadrant('RADIO');
+          } else {
+            const delta = (event.button === 2 || event.shiftKey) ? -0.3 : 0.3;
+            this.rotateRadioKnob(delta);
+          }
+          return;
         }
-        return false;
-      });
-      if (!hitRadio) {
-        this.setView('OVERVIEW');
+      }
+
+      // 6. Mobile Tap-to-Zoom Quadrant on Bomb Deck (when in full bomb view)
+      if (this.currentBombQuadrant === 'ALL' && window.innerWidth <= 860) {
+        const bombHits = this.raycaster.intersectObjects(this.bombGroup.children, true);
+        if (bombHits.length > 0) {
+          const pt = bombHits[0].point;
+          if (pt.x < 0 && pt.z > 0) {
+            this.setBombQuadrant('WIRES');
+            return;
+          } else if (pt.x >= 0 && pt.z > 0) {
+            this.setBombQuadrant('KEYPAD');
+            return;
+          } else if (pt.x < 0 && pt.z <= 0) {
+            this.setBombQuadrant('RADIO');
+            return;
+          } else {
+            this.setBombQuadrant('SIMON');
+            return;
+          }
+        }
+      }
+
+      // 7. Clicked outside bomb case -> step back
+      const bombHits = this.raycaster.intersectObjects(this.bombGroup.children, true);
+      if (bombHits.length === 0) {
+        this.handleStepBack();
         return;
       }
     }
@@ -709,14 +843,13 @@ class Bomb3DEngine {
     } else if (this.currentView === 'INSPECT_BOMB') {
       const hits = this.raycaster.intersectObjects([...this.clickableWires, ...this.clickableKeypad, ...this.simonPads]);
       if (hits.length > 0) hovering = true;
+      if (!hovering && this.frequencyKnob) {
+        const knobHits = this.raycaster.intersectObject(this.frequencyKnob, true);
+        if (knobHits.length > 0) hovering = true;
+      }
       if (!hovering && this.rfModuleGroup) {
         const rfHits = this.raycaster.intersectObjects(this.rfModuleGroup.children, true);
         if (rfHits.length > 0) hovering = true;
-      }
-    } else if (this.currentView === 'INSPECT_RADIO') {
-      if (this.envManager?.activeEnv?.shelfKnob) {
-        const knobHits = this.raycaster.intersectObject(this.envManager.activeEnv.shelfKnob, true);
-        if (knobHits.length > 0) hovering = true;
       }
     }
     this.renderer.domElement.style.cursor = hovering ? 'pointer' : 'default';

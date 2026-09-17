@@ -170,14 +170,33 @@
               <span id="defuser-level-title">MAP 1: SILO 44</span>
             </div>
           </div>
-          <button id="btn-step-back" class="btn btn-primary btn-step-back hidden" onclick="bomb3D.setView('OVERVIEW')">
+          <button id="btn-step-back" class="btn btn-primary btn-step-back hidden" onclick="bomb3D.handleStepBack()">
             ← STEP BACK TO ROOM
+          </button>
+        </div>
+
+        <!-- Bomb 4-Quadrant Mobile Zoom Switcher Bar -->
+        <div id="bomb-quadrant-bar" class="bomb-quadrant-bar hidden">
+          <button class="btn btn-quadrant active" data-quadrant="ALL" onclick="bomb3D.setBombQuadrant('ALL')">
+            <span class="quad-icon">🔍</span> FULL BOMB
+          </button>
+          <button class="btn btn-quadrant" data-quadrant="WIRES" onclick="bomb3D.setBombQuadrant('WIRES')">
+            <span class="quad-indicator">◤</span> WIRES
+          </button>
+          <button class="btn btn-quadrant" data-quadrant="KEYPAD" onclick="bomb3D.setBombQuadrant('KEYPAD')">
+            <span class="quad-indicator">◥</span> KEYPAD
+          </button>
+          <button class="btn btn-quadrant" data-quadrant="RADIO" onclick="bomb3D.setBombQuadrant('RADIO')">
+            <span class="quad-indicator">◣</span> RF JAMMER
+          </button>
+          <button class="btn btn-quadrant" data-quadrant="SIMON" onclick="bomb3D.setBombQuadrant('SIMON')">
+            <span class="quad-indicator">◢</span> SIMON
           </button>
         </div>
 
         <!-- Radio Inspect Control Bar (Silo 44) -->
         <div id="radio-inspect-hud" class="radio-floating-hud glass-panel hidden">
-          <span>📻 ROTATE TUNER KNOB (CLICK KNOB TO ADVANCE FREQUENCY):</span>
+          <span>📻 RF JAMMER TUNER (CLICK KNOB ON BOMB DECK TO ADVANCE FREQUENCY):</span>
           <span id="radio-inspect-freq" class="glow-yellow">100.0 MHz</span>
         </div>
 
