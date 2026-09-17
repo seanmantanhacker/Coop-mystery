@@ -147,7 +147,7 @@ class ManualViewEngine {
 
         <div class="parchment-rule-box">
           <h3>5-Wire Assemblies:</h3>
-          <p>• If last wire is <strong>Black</strong> & serial contains an <strong>EVEN</strong> digit, cut the <strong>4th wire</strong>.</p>
+          <p>• If last wire is <strong>Black</strong> & serial end digit is <strong>EVEN</strong>, cut the <strong>4th wire</strong>.</p>
           <p>• Otherwise, if exactly 1 <strong>Red</strong> wire & >1 <strong>Yellow</strong> wire, cut the <strong>1st wire</strong>.</p>
           <p>• Otherwise, if 0 <strong>Black</strong> wires, cut the <strong>2nd wire</strong>.</p>
           <p>• Otherwise, cut the <strong>1st wire</strong>.</p>
