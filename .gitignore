@@ -5,7 +5,7 @@ ehthumbs.db
 desktop.ini
 
 # Chrome Test Profiles & Automation Artifacts
-.chrome-test-*
+.chrome-*
 chrome-profile-*
 *.log
 

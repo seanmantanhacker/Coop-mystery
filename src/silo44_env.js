@@ -26,15 +26,15 @@ class Silo44Environment {
     // Camera Presets
     this.cameraPresets = {
       OVERVIEW: {
-        pos: new THREE.Vector3(0.0, 2.35, 3.8),
-        target: new THREE.Vector3(0.0, 1.05, 0.0),
+        pos: new THREE.Vector3(0.0, 2.50, 4.40),
+        target: new THREE.Vector3(0.0, 1.15, 0.0),
         fov: 52,
         label: 'BUNKER OVERVIEW'
       },
       INSPECT_BOMB: {
-        pos: new THREE.Vector3(0.0, 1.95, 0.95),
-        target: new THREE.Vector3(0.0, 1.15, 0.0),
-        fov: 40,
+        pos: new THREE.Vector3(0.0, 5.20, 3.20),
+        target: new THREE.Vector3(0.0, 1.40, 0.0),
+        fov: 48,
         label: 'TACTICAL ORDNANCE'
       },
       INSPECT_SCHEMATIC: {

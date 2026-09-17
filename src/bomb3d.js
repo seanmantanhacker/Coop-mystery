@@ -494,8 +494,25 @@ class Bomb3DEngine {
       this.envManager.setView(viewMode);
       if (this.envManager.activeEnv && this.envManager.activeEnv.cameraPresets[viewMode]) {
         const preset = this.envManager.activeEnv.cameraPresets[viewMode];
-        this.targetCameraPos.copy(preset.pos);
         this.targetCameraTarget.copy(preset.target);
+
+        // Responsive Aspect-Ratio Framing:
+        // On narrow/portrait screens (phones & tablets), automatically adapt distance
+        // so that the entire subject width (bomb deck, table, etc.) remains fully in frame without clipping.
+        const container = document.getElementById('three-canvas-container');
+        const aspect = (container && container.clientHeight > 0)
+          ? (container.clientWidth / container.clientHeight)
+          : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
+
+        let distFactor = 1.0;
+        if (aspect < 1.25) {
+          distFactor = Math.max(1.0, 1.15 / aspect);
+        }
+
+        const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
+        offset.multiplyScalar(distFactor);
+        this.targetCameraPos.copy(preset.target).add(offset);
+
         if (preset.fov && this.camera) {
           this.camera.fov = preset.fov;
           this.camera.updateProjectionMatrix();
@@ -712,6 +729,10 @@ class Bomb3DEngine {
     this.camera.aspect = container.clientWidth / container.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(container.clientWidth, container.clientHeight);
+
+    if (this.currentView) {
+      this.setView(this.currentView);
+    }
   }
 
   animate() {
