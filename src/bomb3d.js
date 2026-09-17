@@ -80,6 +80,10 @@ class Bomb3DEngine {
     // 6. Event Listeners
     window.addEventListener('resize', () => this.onWindowResize());
     this.renderer.domElement.addEventListener('click', (e) => this.onPointerClick(e));
+    this.renderer.domElement.addEventListener('touchend', (e) => {
+      if (e.cancelable) e.preventDefault();
+      this.onPointerClick(e);
+    }, { passive: false });
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     this.renderer.domElement.addEventListener('pointerdown', (e) => {
       if (e.button === 2) this.onPointerClick(e);
@@ -502,8 +506,19 @@ class Bomb3DEngine {
 
   onPointerClick(event) {
     const rect = this.renderer.domElement.getBoundingClientRect();
-    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    let cx = event.clientX;
+    let cy = event.clientY;
+    if (cx === undefined && event.touches && event.touches.length > 0) {
+      cx = event.touches[0].clientX;
+      cy = event.touches[0].clientY;
+    } else if (cx === undefined && event.changedTouches && event.changedTouches.length > 0) {
+      cx = event.changedTouches[0].clientX;
+      cy = event.changedTouches[0].clientY;
+    }
+    if (cx === undefined || cy === undefined) return;
+
+    this.mouse.x = ((cx - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((cy - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
 

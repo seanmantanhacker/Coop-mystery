@@ -53,7 +53,14 @@ class IntelViewEngine {
       if (overview) overview.classList.remove('hidden');
       if (backBtn) backBtn.classList.add('hidden');
     } else if (viewMode === 'INSPECT_CENTER') {
-      if (inspectCenter) inspectCenter.classList.remove('hidden');
+      if (inspectCenter) {
+        inspectCenter.classList.remove('hidden');
+        const osc = document.getElementById('intel-large-oscilloscope');
+        if (osc && osc.parentElement) {
+          const availWidth = Math.max(280, Math.min(700, osc.parentElement.clientWidth - 32));
+          osc.width = availWidth;
+        }
+      }
       if (backBtn) backBtn.classList.remove('hidden');
     } else if (viewMode === 'INSPECT_DOSSIER') {
       if (inspectDossier) inspectDossier.classList.remove('hidden');

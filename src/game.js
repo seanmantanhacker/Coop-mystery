@@ -552,6 +552,10 @@ class GameEngine {
     }
   }
 
+  checkAllModulesDisarmed() {
+    this.checkVictory();
+  }
+
   triggerEmergencyOverride() {
     if (this.overrideUsed || this.gameEnded) return;
 
