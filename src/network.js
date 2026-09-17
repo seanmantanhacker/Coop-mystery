@@ -32,6 +32,9 @@ class NetworkEngine {
       this.retryTimer = null;
     }
 
+    this.isRegistered = false;
+    this.showInviteButton();
+
     // 1. Setup Local BroadcastChannel (Guarantees instant zero-lag multi-tab testing)
     if (this.broadcastChannel) {
       this.broadcastChannel.close();
@@ -64,10 +67,12 @@ class NetworkEngine {
 
       this.peer.on('open', (id) => {
         console.log('[Network] PeerJS ID Opened:', id, 'Role:', this.clientLabel);
+        this.isRegistered = true;
         this.updateRoomDisplay();
 
         if (this.isHost) {
-          this.setNetworkBanner(`🟢 <strong style="color:#00ffaa">HOST READY:</strong> Room "${this.roomCode}" active. Tell friends to input code <strong>${this.roomCode}</strong> and click JOIN ROOM.`);
+          this.setNetworkBanner(`🟢 <strong style="color:#00ffaa">HOST READY:</strong> Room "<strong>${this.roomCode}</strong>" is live on the network! Share code with friends or copy the invite link.`);
+          this.showInviteButton();
         } else {
           this.setNetworkBanner(`🔄 Connecting to Host for Room <strong>${this.roomCode}</strong>...`);
           this.connectToHost();
@@ -83,12 +88,18 @@ class NetworkEngine {
 
       this.peer.on('error', (err) => {
         console.warn('[Network] PeerJS error:', err);
+        this.isRegistered = false;
         if (err.type === 'unavailable-id') {
-          const altCode = `${this.roomCode}${Math.floor(Math.random() * 900 + 100)}`;
-          const msg = `⚠️ ROOM CODE "${this.roomCode}" IS ALREADY IN USE! Change room code to <strong>${altCode}</strong> and click CREATE ROOM.`;
-          this.setNetworkBanner(`<span style="color:#ff6b6b">${msg}</span>`);
+          const altCode = `${this.roomCode}${Math.floor(Math.random() * 90 + 10)}`;
+          const msg = `⚠️ Room code "${this.roomCode}" was previously reserved! Auto-switching to unique code: <strong>${altCode}</strong>...`;
+          this.setNetworkBanner(`<span style="color:#ffcc00">${msg}</span>`);
+          const inputEl = document.getElementById('room-input');
+          if (inputEl) inputEl.value = altCode;
+          setTimeout(() => {
+            this.init(altCode, true);
+          }, 800);
         } else if (err.type === 'peer-unavailable') {
-          const msg = `🔄 Host not detected yet for room "${this.roomCode}". Ensure the Host clicked "CREATE ROOM (HOST)" on their PC! (Retrying automatically...)`;
+          const msg = `🔄 Host not detected yet for room "${this.roomCode}". Ensure Host clicked "CREATE ROOM" first! (Attempt ${this.connectAttempts} - retrying...)`;
           this.setNetworkBanner(`<span style="color:#ffcc00">${msg}</span>`);
         }
         this.updateRoomDisplay();
@@ -256,20 +267,48 @@ class NetworkEngine {
     this.onMessageCallbacks.forEach(cb => cb(data));
   }
 
+  showInviteButton() {
+    const btn = document.getElementById('btn-copy-invite');
+    if (btn) {
+      if (this.isHost && this.roomCode) {
+        btn.classList.remove('hidden');
+        btn.onclick = () => {
+          const url = `${window.location.origin}${window.location.pathname}?room=${this.roomCode}`;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+              btn.innerText = '✅ INVITE LINK COPIED!';
+              setTimeout(() => { btn.innerText = '📋 COPY INVITE LINK'; }, 2500);
+            }).catch(() => {
+              prompt('Copy this invite link for your friends:', url);
+            });
+          } else {
+            prompt('Copy this invite link for your friends:', url);
+          }
+        };
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
+  }
+
   updateRoomDisplay() {
     const el = document.getElementById('room-display');
     if (el) {
       let statusBadge = '';
       if (this.isHost) {
         const activePeers = this.connections.filter(c => c.open).length;
-        statusBadge = activePeers > 0 
-          ? `<span style="color:#00ffaa; margin-left:6px;">● ONLINE (${activePeers} OPERATIVE${activePeers > 1 ? 'S' : ''})</span>`
-          : `<span style="color:#ffcc00; margin-left:6px;">○ WAITING FOR PEERS</span>`;
+        if (!this.isRegistered) {
+          statusBadge = `<span style="color:#ffcc00; margin-left:6px;">🔄 INITIALIZING HOST...</span>`;
+        } else if (activePeers > 0) {
+          statusBadge = `<span style="color:#00ffaa; margin-left:6px;">🟢 ONLINE (${activePeers} OPERATIVE${activePeers > 1 ? 'S' : ''})</span>`;
+        } else {
+          statusBadge = `<span style="color:#00ffaa; margin-left:6px;">🟢 HOST READY (WAITING FOR PEERS)</span>`;
+        }
       } else {
         const isConn = this.hostConnection && this.hostConnection.open;
         statusBadge = isConn 
-          ? `<span style="color:#00ffaa; margin-left:6px;">● CONNECTED TO HOST</span>`
-          : `<span style="color:#ffcc00; margin-left:6px;">🔄 CONNECTING...</span>`;
+          ? `<span style="color:#00ffaa; margin-left:6px;">🟢 CONNECTED TO HOST</span>`
+          : `<span style="color:#ffcc00; margin-left:6px;">🔄 CONNECTING... (${this.connectAttempts > 0 ? 'ATTEMPT ' + this.connectAttempts : 'SEARCHING HOST'})</span>`;
       }
       el.innerHTML = `ROOM: <strong class="text-highlight">${this.roomCode}</strong> (${this.isHost ? 'HOST' : 'CLIENT'}) ${statusBadge}`;
     }

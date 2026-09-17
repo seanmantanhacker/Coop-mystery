@@ -95,6 +95,22 @@ class GameEngine {
           this.handlePeerDisconnected(lostClientId);
         }
       });
+
+      // Auto-detect ?room= query parameter or prefill unique room code
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRoom = urlParams.get('room');
+        if (urlRoom && roomInput) {
+          roomInput.value = urlRoom.toUpperCase();
+          const banner = document.getElementById('lobby-network-banner');
+          if (banner) {
+            banner.innerHTML = `<span>🔗 Invite link detected for room <strong>${urlRoom.toUpperCase()}</strong>! Click <strong>JOIN ROOM</strong> to connect.</span>`;
+          }
+        } else if (roomInput && !roomInput.value) {
+          const prefixes = ['SILO', 'KOLA', 'VAULT', 'APEX', 'RADAR', 'TITAN'];
+          roomInput.value = prefixes[Math.floor(Math.random() * prefixes.length)] + Math.floor(Math.random() * 90 + 10);
+        }
+      } catch(e) {}
     };
 
     if (document.readyState === 'loading') {

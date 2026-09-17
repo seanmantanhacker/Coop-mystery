@@ -40,14 +40,15 @@
           <div class="lobby-controls">
             <div class="input-group">
               <label for="room-input">ROOM CODE:</label>
-              <input type="text" id="room-input" placeholder="ALPHA" maxlength="8" style="text-transform: uppercase;">
+              <input type="text" id="room-input" placeholder="e.g. SILO44" maxlength="12" style="text-transform: uppercase;">
+              <button id="btn-copy-invite" class="btn btn-secondary hidden" style="margin-top: 6px; font-size: 0.85rem;">📋 COPY INVITE LINK</button>
             </div>
             <div class="button-group">
               <button id="btn-create-room" class="btn btn-primary">CREATE ROOM (HOST)</button>
               <button id="btn-join-room" class="btn btn-secondary">JOIN ROOM</button>
             </div>
-            <div class="network-mode-note">
-              <span>⚡ Tip: Open 3 browser tabs with Room Code "ALPHA" for instant local 3-screen co-op testing!</span>
+            <div id="lobby-network-banner" class="network-mode-note">
+              <span>⚡ Tip: Host clicks CREATE ROOM (HOST) first, then operatives join with the same code or link.</span>
             </div>
           </div>
 
