@@ -69,7 +69,7 @@
                 <h3>SILO 44: THERMOBARIC INCIDENT</h3>
                 <p class="scenario-desc">Subterranean Soviet nuclear bunker. Iskra-7 warhead failsafe sequencer. Concrete blast vault reeking of motor oil and ozone.</p>
                 <div class="scenario-meta">
-                  <span>⏱️ 05:00 Base</span>
+                  <span>⏱️ 08:00 Base</span>
                   <span>💀 High Danger</span>
                   <span>🧩 4 Tech Puzzles</span>
                 </div>
@@ -158,7 +158,7 @@
         <div class="defuser-hud">
           <div class="timer-box glass-panel">
             <span class="hud-label">DETONATION TIMER</span>
-            <div id="defuser-timer" class="digital-clock">05:00.00</div>
+            <div id="defuser-timer" class="digital-clock">08:00.00</div>
           </div>
           <div class="strikes-box glass-panel">
             <span class="hud-label">STRIKES INCURRED</span>
@@ -470,15 +470,15 @@
                 </div>
               </div>
 
-              <!-- Monitor 3: Right (Physical Emergency Coolant Station) -->
+              <!-- Monitor 3: Right (Physical Emergency Coolant Station & Math Relay) -->
               <div class="crt-monitor-bezel" onclick="intelView.setView('INSPECT_EMERGENCY')">
                 <div class="monitor-screen">
-                  <div class="screen-title">CONSOLE: EMERGENCY COOLANT</div>
+                  <div class="screen-title" id="intel-monitor3-title">CONSOLE: EMERGENCY OVERRIDE</div>
                   <div class="missile-switch-preview">
-                    <div class="preview-guard-box">🚨 FLIP-GUARDED SWITCH</div>
-                    <span>(+30 SECONDS STABILIZER)</span>
+                    <div class="preview-guard-box" id="intel-switch-preview-status">🚨 MATH RELAY & LEVER</div>
+                    <span id="intel-switch-preview-bonus">(+2 MINUTE STABILIZER)</span>
                   </div>
-                  <div class="click-hint glow-red">🔍 CLICK TO INSPECT SWITCH</div>
+                  <div class="click-hint glow-red" id="intel-switch-click-hint">🔍 CLICK TO INSPECT MATH OVERRIDE</div>
                 </div>
               </div>
 
@@ -529,14 +529,34 @@
             </div>
           </div>
 
-          <!-- INSPECT VIEW 3: PHYSICAL MISSILE FLIP-GUARDED SWITCH -->
+          <!-- INSPECT VIEW 3: PHYSICAL MISSILE FLIP-GUARDED SWITCH & MATH OVERRIDE -->
           <div id="intel-inspect-emergency" class="monitor-inspect-modal hidden" onclick="if(event.target === this) intelView.setView('CONSOLE_OVERVIEW')">
             <div class="missile-console-card">
               <div class="monitor-header-bar">
                 <h2 id="intel-emergency-title">EMERGENCY COOLANT STABILIZER CONSOLE</h2>
                 <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE PANEL</button>
               </div>
-              <p id="intel-emergency-warning" class="warning-text">⚠️ PROTOCOL: Flip open the safety guard cover, then throw the heavy toggle switch to inject coolant (+30s to Detonation Clock).</p>
+              <p id="intel-emergency-warning" class="warning-text">⚠️ PROTOCOL: Solve the cryptographic mathematical equation below to unlock the coolant valve (+2:00 to Detonation Clock, single use).</p>
+
+              <!-- Interactive Mathematical Computation Relay -->
+              <div class="intel-math-terminal" id="intel-math-terminal">
+                <div class="math-terminal-header">
+                  <span class="math-terminal-tag">⚡ OVERRIDE TELEMETRY CALCULATION</span>
+                  <span id="math-status-badge" class="badge badge-warning">LOCK: COMPUTATION REQUIRED</span>
+                </div>
+                
+                <div class="math-problem-display">
+                  <span class="math-prompt-label">SOLVE EQUATION:</span>
+                  <div class="math-equation-box" id="math-equation-text">14 × 6 - 23 = ?</div>
+                </div>
+
+                <div class="math-input-row">
+                  <input type="number" id="math-answer-input" class="math-input" placeholder="ENTER RESULT" onkeydown="if(event.key==='Enter') intelView.submitMathAnswer()" />
+                  <button id="btn-submit-math" class="btn btn-primary btn-math-submit" onclick="intelView.submitMathAnswer()">VERIFY & UNLOCK</button>
+                </div>
+
+                <div id="math-feedback-msg" class="math-feedback-text">Solve correctly to unlock the emergency injection lever (+2 min).</div>
+              </div>
 
               <div class="physical-switch-unit">
                 <!-- Red Spring Loaded Flip Guard -->
@@ -545,10 +565,11 @@
                 </div>
 
                 <!-- Heavy Metal Toggle Lever -->
-                <div id="missile-toggle-lever" class="toggle-switch-lever" onclick="intelView.activateEmergencyToggle()">
+                <div id="missile-toggle-lever" class="toggle-switch-lever locked" onclick="intelView.activateEmergencyToggle()">
                   <div class="toggle-knob"></div>
                 </div>
               </div>
+              <div id="switch-lock-status-text" class="switch-lock-caption">🔒 LEVER LOCKED — SOLVE MATH EQUATION ABOVE</div>
             </div>
           </div>
 

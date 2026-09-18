@@ -257,6 +257,27 @@ class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.45);
   }
 
+  // Tactical Error Buzzer Tone
+  playBuzz() {
+    if (this.muted) return;
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(105, this.ctx.currentTime + 0.1);
+
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.25);
+  }
+
   playDisarmed() {
     if (this.muted) return;
     this.init();

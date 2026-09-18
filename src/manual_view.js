@@ -205,22 +205,38 @@ class ManualViewEngine {
           <span class="stamp-box">LIGHT LOGIC</span>
           <h2>SECTION 04: SIMON SAYS LIGHT ARRAY</h2>
         </div>
-        <p class="classified-caption">WATCH THE FLASHING SEQUENCE. RESPONSE KEY DIFFERS BASED ON SERIAL VOWELS AND CURRENT STRIKES.</p>
+        <p class="classified-caption">Check the bomb serial number. Table 1: contains vowel. Table 2: no vowel.</p>
 
+        <h4 style="margin: 8px 0 4px 0; color: #00f0ff; font-family: var(--font-tactical);">TABLE 1</h4>
         <div class="simon-table-container">
           <table class="simon-table">
             <thead>
-              <tr><th>FLASH COLOR</th><th>0 STRIKES</th><th>1 STRIKE</th><th>2 STRIKES</th></tr>
+              <tr><th>FLASH COLOR</th><th>0 STRIKES</th><th>1+ STRIKES</th></tr>
             </thead>
             <tbody>
-              <tr><td class="col-red">RED</td><td>BLUE</td><td>YELLOW</td><td>GREEN</td></tr>
-              <tr><td class="col-blue">BLUE</td><td>RED</td><td>GREEN</td><td>RED</td></tr>
-              <tr><td class="col-green">GREEN</td><td>YELLOW</td><td>BLUE</td><td>YELLOW</td></tr>
-              <tr><td class="col-yellow">YELLOW</td><td>GREEN</td><td>RED</td><td>BLUE</td></tr>
+              <tr><td class="col-red">RED</td><td>BLUE</td><td>YELLOW</td></tr>
+              <tr><td class="col-blue">BLUE</td><td>RED</td><td>GREEN</td></tr>
+              <tr><td class="col-green">GREEN</td><td>YELLOW</td><td>BLUE</td></tr>
+              <tr><td class="col-yellow">YELLOW</td><td>GREEN</td><td>RED</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="matrix-footnote">Repeat entire sequence from the beginning after each successful step.</p>
+
+        <h4 style="margin: 12px 0 4px 0; color: #ffb700; font-family: var(--font-tactical);">TABLE 2</h4>
+        <div class="simon-table-container">
+          <table class="simon-table">
+            <thead>
+              <tr><th>FLASH COLOR</th><th>0 STRIKES</th><th>1+ STRIKES</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-red">RED</td><td>BLUE</td><td>RED</td></tr>
+              <tr><td class="col-blue">BLUE</td><td>YELLOW</td><td>BLUE</td></tr>
+              <tr><td class="col-green">GREEN</td><td>GREEN</td><td>YELLOW</td></tr>
+              <tr><td class="col-yellow">YELLOW</td><td>RED</td><td>GREEN</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="matrix-footnote">Repeat sequence from beginning after each step.</p>
       `,
 
       // Page 4: Serial Codes
@@ -346,7 +362,7 @@ class ManualViewEngine {
         </div>
         <div class="sticky-memo">
           <h4>URGENT TACTICAL MEMO:</h4>
-          <p>Intel Analyst can trigger +30s Coolant Stabilizer ONCE using the red missile switch!</p>
+          <p>Intel Analyst can solve the math telemetry equation to trigger a +2 Minute (+120s) Detonation Clock extension ONCE!</p>
         </div>
         <div class="sticky-memo yellow">
           <h4>FREQUENCY ADVISORY:</h4>

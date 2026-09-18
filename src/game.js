@@ -10,7 +10,7 @@ class GameEngine {
     this.scenario = 'silo44'; // 'silo44' or 'alchemist'
     this.role = null; // 'defuser', 'manual', 'intel'
     this.roomCode = '';
-    this.timerSeconds = 300;
+    this.timerSeconds = 480;
     this.timerInterval = null;
     this.strikes = 0;
     this.serialNumber = 'A3-89K';
@@ -227,7 +227,7 @@ class GameEngine {
 
     this.scenario = scenarioId;
     this.roomState.scenario = scenarioId;
-    this.timerSeconds = (scenarioId === 'silo44') ? 300 : 360;
+    this.timerSeconds = (scenarioId === 'silo44') ? 480 : 360;
 
     this.updateScenarioUI(scenarioId);
 
@@ -525,7 +525,7 @@ class GameEngine {
     };
 
     if (this.scenario === 'silo44') {
-      this.timerSeconds = 300;
+      this.timerSeconds = 480;
       if (window.wiresModule) window.wiresModule.generate(seed, this.serialNumber);
       if (window.keypadModule) window.keypadModule.generate(seed + 10, this.indicators.FRK);
       if (window.frequencyModule) {
@@ -627,11 +627,18 @@ class GameEngine {
     if (this.overrideUsed || this.gameEnded) return;
 
     this.overrideUsed = true;
-    this.timerSeconds += 30;
+    this.timerSeconds += 120; // +2 minutes (120 seconds) - one time use
     if (window.audio) window.audio.playDisarmed();
 
-    network.broadcast({ type: 'OVERRIDE_ACTIVATED', seconds: this.timerSeconds });
+    network.broadcast({ 
+      type: 'OVERRIDE_ACTIVATED', 
+      seconds: this.timerSeconds,
+      bonus: 120,
+      source: 'INTEL_MATH_OVERRIDE'
+    });
     this.updateClockDisplays();
+
+    this.showToast('⏱️ INTEL OVERRIDE: +2 MINUTES ADDED TO CLOCK!');
   }
 
   triggerVictory() {
@@ -893,7 +900,10 @@ class GameEngine {
 
     } else if (data.type === 'OVERRIDE_ACTIVATED') {
       this.timerSeconds = data.seconds;
+      this.overrideUsed = true;
       this.updateClockDisplays();
+      if (window.audio) window.audio.playDisarmed();
+      this.showToast('⏱️ INTEL OVERRIDE: +2 MINUTES ADDED TO CLOCK!');
 
     } else if (data.type === 'FREQ_TUNE_UPDATE') {
       if (window.frequencyModule) {

@@ -12,6 +12,10 @@ class IntelViewEngine {
     this.toggleActivated = false;
     this.oscilloscopeAnimId = null;
 
+    // Mathematical Equation Time Bonus Helper
+    this.mathSolved = false;
+    this.mathProblem = null;
+
     // Keyboard shortcut: Escape returns to Console Overview
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
@@ -24,6 +28,9 @@ class IntelViewEngine {
 
   init(scenario = 'silo44') {
     this.scenario = scenario;
+    this.toggleActivated = false;
+    this.mathSolved = false;
+    this.generateMathProblem();
     this.setView('CONSOLE_OVERVIEW');
     this.updateDossierData();
     this.startOscilloscope();
@@ -32,7 +39,145 @@ class IntelViewEngine {
 
   setScenario(scenario) {
     this.scenario = scenario;
+    this.generateMathProblem();
     this.updateDossierData();
+  }
+
+  generateMathProblem() {
+    // Procedurally generates a balanced tactical arithmetic equation
+    const types = ['mul_add', 'mul_sub', 'compound'];
+    const selected = types[Math.floor(Math.random() * types.length)];
+    let text = '';
+    let answer = 0;
+
+    if (selected === 'mul_add') {
+      const a = Math.floor(Math.random() * 12) + 6; // 6 to 17
+      const b = Math.floor(Math.random() * 8) + 4;  // 4 to 11
+      const c = Math.floor(Math.random() * 35) + 10; // 10 to 44
+      answer = (a * b) + c;
+      text = `${a} × ${b} + ${c} = ?`;
+    } else if (selected === 'mul_sub') {
+      const a = Math.floor(Math.random() * 14) + 7; // 7 to 20
+      const b = Math.floor(Math.random() * 8) + 5;  // 5 to 12
+      const c = Math.floor(Math.random() * 25) + 10; // 10 to 34
+      answer = (a * b) - c;
+      text = `${a} × ${b} - ${c} = ?`;
+    } else {
+      const a = Math.floor(Math.random() * 30) + 15;
+      const b = Math.floor(Math.random() * 30) + 15;
+      const c = Math.floor(Math.random() * 4) + 2;
+      answer = (a + b) * c;
+      text = `(${a} + ${b}) × ${c} = ?`;
+    }
+
+    this.mathProblem = { text, answer };
+    this.updateMathUI();
+  }
+
+  updateMathUI() {
+    const eqEl = document.getElementById('math-equation-text');
+    const badgeEl = document.getElementById('math-status-badge');
+    const feedEl = document.getElementById('math-feedback-msg');
+    const lever = document.getElementById('missile-toggle-lever');
+    const lockCaption = document.getElementById('switch-lock-status-text');
+    const input = document.getElementById('math-answer-input');
+    const submitBtn = document.getElementById('btn-submit-math');
+
+    if (!this.mathProblem) return;
+
+    if (eqEl) {
+      eqEl.innerText = this.mathSolved 
+        ? `${this.mathProblem.text.replace(' = ?', '')} = ${this.mathProblem.answer} [SOLVED]` 
+        : this.mathProblem.text;
+    }
+
+    if (window.game && window.game.overrideUsed) {
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-success';
+        badgeEl.innerText = 'OVERRIDE DISPATCHED: +02:00 APPLIED';
+      }
+      if (feedEl) {
+        feedEl.innerHTML = '<span class="glow-green">✓ +2:00 Detonation Clock extension used. (Single use limit reached).</span>';
+      }
+      if (lever) {
+        lever.classList.remove('locked');
+        lever.classList.add('activated');
+      }
+      if (lockCaption) {
+        lockCaption.innerText = '✓ OVERRIDE DISCHARGED (+2 MINUTES ADDED)';
+        lockCaption.style.color = '#00ff88';
+      }
+      if (input) input.disabled = true;
+      if (submitBtn) submitBtn.disabled = true;
+      return;
+    }
+
+    if (this.mathSolved) {
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-success';
+        badgeEl.innerText = 'CALCULATION ACCEPTED: LEVER UNLOCKED';
+      }
+      if (feedEl) {
+        feedEl.innerHTML = '<span class="glow-green">✓ Checksum validated! Flip guard and throw lever to add +2 Minutes.</span>';
+      }
+      if (lever) lever.classList.remove('locked');
+      if (lockCaption) {
+        lockCaption.innerText = '🔓 LEVER UNLOCKED — FLIP GUARD AND THROW LEVER';
+        lockCaption.style.color = '#00ffcc';
+      }
+      if (input) input.disabled = true;
+      if (submitBtn) submitBtn.disabled = true;
+    } else {
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-warning';
+        badgeEl.innerText = 'LOCK: COMPUTATION REQUIRED';
+      }
+      if (feedEl) {
+        feedEl.innerHTML = 'Solve correctly to unlock the emergency injection lever (+2 min).';
+      }
+      if (lever) {
+        lever.classList.add('locked');
+        lever.classList.remove('activated');
+      }
+      if (lockCaption) {
+        lockCaption.innerText = '🔒 LEVER LOCKED — SOLVE MATH EQUATION ABOVE';
+        lockCaption.style.color = '#ff99aa';
+      }
+      if (input) input.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  submitMathAnswer() {
+    if (this.mathSolved || (window.game && window.game.overrideUsed)) return;
+
+    const input = document.getElementById('math-answer-input');
+    const feedEl = document.getElementById('math-feedback-msg');
+    if (!input || !this.mathProblem) return;
+
+    const userVal = parseInt(input.value.trim(), 10);
+    if (isNaN(userVal)) {
+      if (feedEl) feedEl.innerHTML = '<span class="glow-red">⚠️ Please input a numeric answer.</span>';
+      if (window.audio) window.audio.playBuzz();
+      return;
+    }
+
+    if (userVal === this.mathProblem.answer) {
+      // Correct! Unlock the lever
+      this.mathSolved = true;
+      if (window.audio) window.audio.playDisarmed();
+      this.updateMathUI();
+      if (window.game && window.game.showToast) {
+        window.game.showToast('🔓 CHECKSUM VERIFIED! Emergency lever unlocked.');
+      }
+    } else {
+      // Incorrect
+      if (window.audio) window.audio.playStrike();
+      if (feedEl) {
+        feedEl.innerHTML = `<span class="glow-red">✖ CHECKSUM MISMATCH (${userVal} ≠ TARGET). Recalculate!</span>`;
+      }
+      input.select();
+    }
   }
 
   setView(viewMode) {
@@ -68,6 +213,7 @@ class IntelViewEngine {
     } else if (viewMode === 'INSPECT_EMERGENCY') {
       if (inspectEmergency) inspectEmergency.classList.remove('hidden');
       if (backBtn) backBtn.classList.remove('hidden');
+      this.updateMathUI();
     }
   }
 
@@ -82,6 +228,11 @@ class IntelViewEngine {
   }
 
   activateEmergencyToggle() {
+    if (!this.mathSolved) {
+      alert('ACCESS DENIED: Solve the mathematical equation above first to unlock the emergency lever!');
+      if (window.audio) window.audio.playBuzz();
+      return;
+    }
     if (!this.flipGuardOpen && this.scenario === 'silo44') {
       alert('SAFETY LOCK ENGAGED: Flip open the red safety cover first!');
       return;
@@ -95,6 +246,7 @@ class IntelViewEngine {
     if (toggle) toggle.classList.add('activated');
 
     if (window.game) window.game.triggerEmergencyOverride();
+    this.updateMathUI();
   }
 
   copyTelemetry() {
@@ -145,7 +297,7 @@ class IntelViewEngine {
       if (currentLbl) currentLbl.innerText = 'DEFUSER CURRENT:';
       if (captionEl) captionEl.innerText = 'Guide Operative 1 (Defuser) to rotate their radio dial until the sine wave locks onto the carrier grid!';
       if (emergTitle) emergTitle.innerText = 'EMERGENCY COOLANT STABILIZER CONSOLE';
-      if (emergWarning) emergWarning.innerText = '⚠️ PROTOCOL: Flip open the safety guard cover, then throw the heavy toggle switch to inject coolant (+30s to Detonation Clock).';
+      if (emergWarning) emergWarning.innerText = '⚠️ PROTOCOL: Solve the cryptographic mathematical equation below to unlock the coolant valve (+2:00 to Detonation Clock, single use).';
       if (guardLabel) guardLabel.innerText = 'LIFT GUARD';
 
       if (serialEl) serialEl.innerText = window.game ? window.game.serialNumber : 'A7-93K';
