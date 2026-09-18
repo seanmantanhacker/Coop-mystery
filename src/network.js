@@ -22,6 +22,10 @@ class NetworkEngine {
     this.connectAttempts = 0;
   }
 
+  isConnected() {
+    return this.isHost || !!this.hostConnection || (this.peer && !this.peer.disconnected);
+  }
+
   init(roomCode, isHost) {
     this.roomCode = roomCode.toUpperCase();
     this.isHost = isHost;

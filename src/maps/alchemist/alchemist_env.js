@@ -55,6 +55,12 @@ class AlchemistStudyEnvironment {
         target: new THREE.Vector3(3.60, 1.95, -4.50),
         fov: 40,
         label: 'GRANDFATHER CLOCK DIAL'
+      },
+      INSPECT_FIREPLACE: {
+        pos: new THREE.Vector3(-3.05, 1.82, 0.00),
+        target: new THREE.Vector3(-4.35, 1.68, 0.00),
+        fov: 42,
+        label: 'PRISMATIC OPTICAL BENCH & LIGHT ARC'
       }
     };
   }
@@ -628,10 +634,287 @@ class AlchemistStudyEnvironment {
     this.fireParticles = new THREE.Points(pGeo, pMat);
     fireGroup.add(this.fireParticles);
 
-    fireGroup.userData = { isHotspot: true, targetView: 'INSPECT_FIREPLACE', label: 'STONE FIREPLACE' };
-    fireGroup.traverse(c => { if (c.isMesh) c.userData.targetView = 'INSPECT_FIREPLACE'; });
+    // Build the Victorian Optical Prism Bench on the Fireplace Mantel Shelf!
+    this.buildPrismaticOpticalBench(fireGroup);
+
+    fireGroup.userData = { isHotspot: true, targetView: 'INSPECT_FIREPLACE', label: 'PRISMATIC OPTICAL BENCH & LIGHT ARC' };
+    fireGroup.traverse(c => { if (c.isMesh && !c.userData.targetView) c.userData.targetView = 'INSPECT_FIREPLACE'; });
     this.fireGroup = fireGroup;
     this.group.add(fireGroup);
+  }
+
+  // Prismatic Optical Bench with Arc Lamp, Rotating Prism Crystals & Color Filter Slot
+  buildPrismaticOpticalBench(fireGroup) {
+    const benchGroup = new THREE.Group();
+    // Positioned on the limestone mantel shelf (local X along mantel, Y height above floor, Z depth)
+    benchGroup.position.set(0.0, 1.64, 0.08);
+
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      metalness: 0.9,
+      roughness: 0.22
+    });
+    const ironMat = new THREE.MeshStandardMaterial({
+      color: 0x1f2428,
+      metalness: 0.7,
+      roughness: 0.4
+    });
+
+    // 1. Dual Polished Brass Optical Rails
+    [-0.04, 0.04].forEach(dz => {
+      const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.30, 16), brassMat);
+      rail.rotation.z = Math.PI / 2;
+      rail.position.set(0.0, 0.02, dz);
+      rail.castShadow = true;
+      benchGroup.add(rail);
+    });
+
+    // Rail End Pillow Blocks
+    [-0.64, 0.64].forEach(dx => {
+      const block = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.16), ironMat);
+      block.position.set(dx, 0.02, 0.0);
+      benchGroup.add(block);
+    });
+
+    // 2. Arc Lamp Housing (X = -0.52)
+    const lampStand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.08, 16), ironMat);
+    lampStand.position.set(-0.52, 0.04, 0.0);
+    benchGroup.add(lampStand);
+
+    const lampBody = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 24), brassMat);
+    lampBody.rotation.z = Math.PI / 2;
+    lampBody.position.set(-0.52, 0.11, 0.0);
+    benchGroup.add(lampBody);
+
+    // Chimney & Venting Rings
+    const chimney = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.028, 0.09, 16), brassMat);
+    chimney.position.set(-0.52, 0.20, 0.0);
+    benchGroup.add(chimney);
+
+    // Condenser Lens
+    const lensMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffeedd,
+      transmission: 0.85,
+      roughness: 0.05,
+      ior: 1.5
+    });
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.02, 20), lensMat);
+    lens.rotation.z = Math.PI / 2;
+    lens.position.set(-0.44, 0.11, 0.0);
+    benchGroup.add(lens);
+
+    // Inner Arc Light
+    this.arcLightPrism = new THREE.PointLight(0xffea88, 2.0, 2.5);
+    this.arcLightPrism.position.set(-0.40, 0.11, 0.0);
+    benchGroup.add(this.arcLightPrism);
+
+    // 3. Prism 1 Stage (Flint Glass Crystal) at X = -0.22
+    const p1Stage = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.06, 24), brassMat);
+    p1Stage.position.set(-0.22, 0.04, 0.0);
+    benchGroup.add(p1Stage);
+
+    // Vernier degree ring
+    const p1Ring = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.005, 8, 32), ironMat);
+    p1Ring.rotation.x = Math.PI / 2;
+    p1Ring.position.set(-0.22, 0.07, 0.0);
+    benchGroup.add(p1Ring);
+
+    // Prism 1 Crystal (Equilateral Triangular Prism)
+    const crystalMat1 = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transmission: 0.94,
+      opacity: 1,
+      transparent: true,
+      roughness: 0.04,
+      ior: 1.66,
+      reflectivity: 0.6,
+      clearcoat: 1.0
+    });
+    this.prism1Mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.10, 3), crystalMat1);
+    this.prism1Mesh.position.set(-0.22, 0.125, 0.0);
+    this.prism1Mesh.castShadow = true;
+    this.prism1Mesh.userData = {
+      isPrism1: true,
+      isHotspot: true,
+      targetView: 'INSPECT_FIREPLACE',
+      label: 'PRISM 1 (FLINT CRYSTAL)'
+    };
+    benchGroup.add(this.prism1Mesh);
+
+    // 4. Chromatic Filter Slot at X = 0.00
+    const filterStand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.06, 16), ironMat);
+    filterStand.position.set(0.0, 0.04, 0.0);
+    benchGroup.add(filterStand);
+
+    const filterFrame = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.008, 8, 24), brassMat);
+    filterFrame.rotation.y = Math.PI / 2;
+    filterFrame.position.set(0.0, 0.125, 0.0);
+    benchGroup.add(filterFrame);
+
+    // Filter Glass Disc
+    this.filterGlassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffaa00,
+      emissive: 0xff6600,
+      emissiveIntensity: 0.8,
+      transparent: true,
+      opacity: 0.82,
+      roughness: 0.1,
+      transmission: 0.6
+    });
+    this.filterMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.01, 24), this.filterGlassMat);
+    this.filterMesh.rotation.z = Math.PI / 2;
+    this.filterMesh.position.set(0.0, 0.125, 0.0);
+    this.filterMesh.userData = {
+      isFilter: true,
+      isHotspot: true,
+      targetView: 'INSPECT_FIREPLACE',
+      label: 'CHROMATIC FILTER SLOT'
+    };
+    benchGroup.add(this.filterMesh);
+
+    // 5. Prism 2 Stage (Calcite Crystal) at X = +0.22
+    const p2Stage = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.06, 24), brassMat);
+    p2Stage.position.set(0.22, 0.04, 0.0);
+    benchGroup.add(p2Stage);
+
+    const p2Ring = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.005, 8, 32), ironMat);
+    p2Ring.rotation.x = Math.PI / 2;
+    p2Ring.position.set(0.22, 0.07, 0.0);
+    benchGroup.add(p2Ring);
+
+    // Prism 2 Crystal (Equilateral Triangular Prism)
+    const crystalMat2 = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transmission: 0.94,
+      opacity: 1,
+      transparent: true,
+      roughness: 0.04,
+      ior: 1.55,
+      reflectivity: 0.6,
+      clearcoat: 1.0
+    });
+    this.prism2Mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.10, 3), crystalMat2);
+    this.prism2Mesh.position.set(0.22, 0.125, 0.0);
+    this.prism2Mesh.castShadow = true;
+    this.prism2Mesh.userData = {
+      isPrism2: true,
+      isHotspot: true,
+      targetView: 'INSPECT_FIREPLACE',
+      label: 'PRISM 2 (CALCITE CRYSTAL)'
+    };
+    benchGroup.add(this.prism2Mesh);
+
+    // 6. Target Spectral Detector Screen at X = +0.52
+    const targetStand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.06, 16), ironMat);
+    targetStand.position.set(0.52, 0.04, 0.0);
+    benchGroup.add(targetStand);
+
+    const targetPlate = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.14, 0.12), brassMat);
+    targetPlate.position.set(0.52, 0.125, 0.0);
+    benchGroup.add(targetPlate);
+
+    const frostedScale = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.10, 0.08),
+      new THREE.MeshBasicMaterial({ color: 0xeeffaa, transparent: true, opacity: 0.85 })
+    );
+    frostedScale.rotation.y = -Math.PI / 2;
+    frostedScale.position.set(0.512, 0.125, 0.0);
+    benchGroup.add(frostedScale);
+
+    // 7. Glowing Refracted Light Beams
+    // Incident Beam (Arc Lamp -> Prism 1)
+    const incBeamGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.22, 12);
+    const incBeamMat = new THREE.MeshBasicMaterial({
+      color: 0xffea88,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending
+    });
+    const incBeam = new THREE.Mesh(incBeamGeo, incBeamMat);
+    incBeam.rotation.z = Math.PI / 2;
+    incBeam.position.set(-0.33, 0.115, 0.0);
+    benchGroup.add(incBeam);
+
+    // Inter-prism Refracted Beam (Prism 1 -> Filter -> Prism 2)
+    const midBeamGeo = new THREE.CylinderGeometry(0.009, 0.009, 0.44, 12);
+    this.outputBeamMat = new THREE.MeshBasicMaterial({
+      color: 0xffaa00,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+    const midBeam = new THREE.Mesh(midBeamGeo, this.outputBeamMat);
+    midBeam.rotation.z = Math.PI / 2;
+    midBeam.position.set(0.0, 0.12, 0.0);
+    benchGroup.add(midBeam);
+
+    // Final Refracted Beam (Prism 2 -> Target Screen)
+    const outBeamGeo = new THREE.CylinderGeometry(0.008, 0.014, 0.30, 12);
+    const outBeam = new THREE.Mesh(outBeamGeo, this.outputBeamMat);
+    outBeam.rotation.z = Math.PI / 2;
+    outBeam.position.set(0.37, 0.12, 0.0);
+    benchGroup.add(outBeam);
+
+    benchGroup.userData = {
+      isHotspot: true,
+      targetView: 'INSPECT_FIREPLACE',
+      label: 'PRISMATIC OPTICAL BENCH'
+    };
+    benchGroup.traverse(c => {
+      if (c.isMesh && !c.userData.targetView) {
+        c.userData.targetView = 'INSPECT_FIREPLACE';
+      }
+    });
+
+    this.benchGroup = benchGroup;
+    fireGroup.add(benchGroup);
+
+    // Initialize 3D prisms to active module state if available
+    if (window.prismModule) {
+      this.updatePrismsIn3D(
+        window.prismModule.prism1Angle,
+        window.prismModule.prism2Angle,
+        window.prismModule.activeFilter
+      );
+    }
+  }
+
+  // Update 3D Prisms and Spectral Light Beam in real-time!
+  updatePrismsIn3D(p1Angle = 20, p2Angle = 35, filter = 'none') {
+    if (this.prism1Mesh) {
+      this.prism1Mesh.rotation.y = THREE.MathUtils.degToRad(p1Angle);
+    }
+    if (this.prism2Mesh) {
+      this.prism2Mesh.rotation.y = THREE.MathUtils.degToRad(p2Angle);
+    }
+    if (this.filterMesh && this.filterGlassMat) {
+      const colors = {
+        none: 0xffffff,
+        amber: 0xffaa00,
+        blue: 0x00aaff,
+        green: 0x00ff88,
+        red: 0xff3333
+      };
+      const emissives = {
+        none: 0x111111,
+        amber: 0xff8800,
+        blue: 0x0066cc,
+        green: 0x00cc44,
+        red: 0xcc1111
+      };
+      const col = colors[filter] || 0xffffff;
+      const em = emissives[filter] || 0x111111;
+      this.filterGlassMat.color.setHex(col);
+      this.filterGlassMat.emissive.setHex(em);
+      this.filterGlassMat.opacity = (filter === 'none') ? 0.35 : 0.88;
+
+      if (this.outputBeamMat) {
+        this.outputBeamMat.color.setHex(col);
+      }
+      if (this.arcLightPrism) {
+        this.arcLightPrism.color.setHex(col === 0xffffff ? 0xffea88 : col);
+      }
+    }
   }
 
   // 10. Ornate Brass Puzzle Box (Desk Center Right)
@@ -882,6 +1165,9 @@ class AlchemistStudyEnvironment {
     // Hotspot 4: Grandfather Clock Dial
     const hClock = createOccultRing('INSPECT_CLOCK', new THREE.Vector3(3.52, 2.05, -4.52), 'INSPECT CLOCKWORK DIAL');
     hClock.rotation.set(0, -Math.PI / 4, 0);
+
+    // Hotspot 5: Prismatic Optical Bench (Fireplace Mantel Shelf at X = -4.15)
+    createOccultRing('INSPECT_FIREPLACE', new THREE.Vector3(-4.15, 1.67, 0.0), 'INSPECT PRISMATIC OPTICAL BENCH');
   }
 
   // Animation Frame Loop
@@ -949,3 +1235,6 @@ class AlchemistStudyEnvironment {
     this.scene.remove(this.group);
   }
 }
+
+window.AlchemistStudyEnvironment = AlchemistStudyEnvironment;
+

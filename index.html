@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>OPERATION: ZERO HOUR - Realistic Co-Op Point & Click Inspection</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="src/maps/silo44/silo44.css">
+  <link rel="stylesheet" href="src/maps/alchemist/alchemist.css">
+  <link rel="stylesheet" href="src/maps/morgue/morgue.css">
   
   <!-- Modern Tactical & Antique Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,6 +86,17 @@
                   <span>⏱️ 06:00 Base</span>
                   <span>🔮 Master Difficulty</span>
                   <span>⚙️ 4 Occult Puzzles</span>
+                </div>
+              </div>
+
+              <div class="scenario-card" id="card-scenario-morgue" data-scenario="morgue" onclick="game.selectScenario('morgue')">
+                <div class="scenario-badge cyan">MAP 3 // CLINICAL FORENSICS 1994</div>
+                <h3>THE LOCKED MORGUE</h3>
+                <p class="scenario-desc">Ward 9 sub-basement autopsy theater. Deceased pathologist, pressurized neurotoxin release, and sealed magnetic airlock.</p>
+                <div class="scenario-meta">
+                  <span>⏱️ 15:00 Base</span>
+                  <span>☣️ Expert Difficulty</span>
+                  <span>🔬 4 Forensic Puzzles</span>
                 </div>
               </div>
             </div>
@@ -196,6 +210,50 @@
           </button>
           <button class="btn btn-quadrant" data-quadrant="SIMON" onclick="bomb3D.setBombQuadrant('SIMON')">
             <span class="quad-indicator">◢</span> SIMON
+          </button>
+        </div>
+
+        <!-- Alchemist Study Apparatus Navigation Bar -->
+        <div id="alchemist-apparatus-bar" class="alchemist-apparatus-bar hidden">
+          <button class="btn btn-apparatus active" data-view="OVERVIEW" onclick="bomb3D.setView('OVERVIEW')">
+            <span class="app-icon">🏛️</span> OVERVIEW
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_PUZZLE_BOX" onclick="bomb3D.setView('INSPECT_PUZZLE_BOX')">
+            <span class="app-icon">☿</span> MERCURY
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_ASTROLABE" onclick="bomb3D.setView('INSPECT_ASTROLABE')">
+            <span class="app-icon">♈</span> ZODIAC
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_FIREPLACE" onclick="bomb3D.setView('INSPECT_FIREPLACE')">
+            <span class="app-icon">💎</span> PRISM
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_CLOCK" onclick="bomb3D.setView('INSPECT_CLOCK')">
+            <span class="app-icon">🕰️</span> CLOCK
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_GRIMOIRE" onclick="bomb3D.setView('INSPECT_GRIMOIRE')">
+            <span class="app-icon">📖</span> GRIMOIRE
+          </button>
+        </div>
+
+        <!-- Morgue Apparatus Navigation Bar -->
+        <div id="morgue-apparatus-bar" class="morgue-apparatus-bar hidden">
+          <button class="btn btn-apparatus active" data-view="OVERVIEW" onclick="bomb3D.setView('OVERVIEW')">
+            <span class="app-icon">🏥</span> OVERVIEW
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_TOXICOLOGY" onclick="bomb3D.setView('INSPECT_TOXICOLOGY')">
+            <span class="app-icon">🧪</span> TOXICOLOGY
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_AUTOPSY" onclick="bomb3D.setView('INSPECT_AUTOPSY')">
+            <span class="app-icon">🔬</span> AUTOPSY
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_DOOR" onclick="bomb3D.setView('INSPECT_DOOR')">
+            <span class="app-icon">🔢</span> AIRLOCK PIN
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_VENT" onclick="bomb3D.setView('INSPECT_VENT')">
+            <span class="app-icon">💨</span> AIR DAMPER
+          </button>
+          <button class="btn btn-apparatus" data-view="INSPECT_LOG" onclick="bomb3D.setView('INSPECT_LOG')">
+            <span class="app-icon">📼</span> DICTAPHONE
           </button>
         </div>
 
@@ -347,6 +405,166 @@
             </button>
           </div>
           <p class="caption-guidance">⚠️ Consult Specialist & Analyst: Pull lever during the exact permitted note window of the chime!</p>
+        </div>
+
+        <!-- Morgue Module 1: Toxicology Assay HUD -->
+        <div id="toxicology-inspect-hud" class="module-inspect-hud clinical-hud glass-panel hidden">
+          <div class="hud-header-bar">
+            <div class="hud-title">🧪 TWO-TIER CLINICAL TOXICOLOGY ASSAY</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
+          <div id="tox-status-badge" class="badge badge-warning">TITRATION INCOMPLETE</div>
+          
+          <div style="margin: 8px 0; font-size: 0.88rem; color: #b0bec5;">
+            <strong>CADAVER PHYSICAL SYMPTOMS:</strong>
+            <p id="tox-symptoms-text" class="glow-cyan" style="margin: 4px 0;">Observing specimen...</p>
+          </div>
+
+          <div class="centrifuge-action-box">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="tox-assay-light" style="display:inline-block; width:14px; height:14px; border-radius:50%; background:#37474f;"></span>
+              <strong id="tox-assay-result">SAMPLE UNCENTRIFUGED</strong>
+            </div>
+            <button class="btn btn-ctrl" style="margin-top:8px;" onclick="toxicologyModule.runCentrifuge()">
+              🌀 SPIN SAMPLE CENTRIFUGE
+            </button>
+          </div>
+
+          <div class="titration-control-card">
+            <div style="font-weight:bold; font-size:0.85rem; color:#5ce1e6; margin-bottom:6px;">ANTIDOTE TITRATION VOLUMES:</div>
+            <div class="mercury-tubes-display" style="gap:12px;">
+              <div class="tube-col">
+                <span id="tox-lbl-a" class="tube-name">REAGENT A</span>
+                <div class="tube-meter"><div id="tox-bar-a" class="mercury-liquid" style="background:#5ce1e6; height:0%;"></div></div>
+                <span id="tox-val-a" class="tube-val glow-cyan">0 mL</span>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', -5)">-5</button>
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', 5)">+5</button>
+                </div>
+              </div>
+              <div class="tube-col">
+                <span id="tox-lbl-b" class="tube-name">REAGENT B</span>
+                <div class="tube-meter"><div id="tox-bar-b" class="mercury-liquid" style="background:#ab47bc; height:0%;"></div></div>
+                <span id="tox-val-b" class="tube-val glow-cyan">0 mL</span>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', -5)">-5</button>
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', 5)">+5</button>
+                </div>
+              </div>
+              <div class="tube-col">
+                <span id="tox-lbl-c" class="tube-name">REAGENT C</span>
+                <div class="tube-meter"><div id="tox-bar-c" class="mercury-liquid" style="background:#ffd54f; height:0%;"></div></div>
+                <span id="tox-val-c" class="tube-val glow-cyan">0 mL</span>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', -5)">-5</button>
+                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', 5)">+5</button>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:center; margin-top:10px;">
+              <button class="btn btn-primary" onclick="toxicologyModule.titrateAntidote()">💉 INJECT TITRATED ANTIDOTE</button>
+            </div>
+          </div>
+          <p class="caption-guidance">Spin sample centrifuge, then match titration volumes from the Archivist's formula.</p>
+        </div>
+
+        <!-- Morgue Module 2: Autopsy Wound Inspector HUD -->
+        <div id="autopsy-inspect-hud" class="module-inspect-hud clinical-hud glass-panel hidden">
+          <div class="hud-header-bar">
+            <div class="hud-title">🔬 FORENSIC AUTOPSY &amp; WOUND BALLISTICS</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
+          <div id="autopsy-status-badge" class="badge badge-warning">PATHOLOGY INCOMPLETE</div>
+
+          <div class="autopsy-wounds-container" style="background:rgba(0,0,0,0.3); border-radius:6px; padding:10px;">
+            <div id="autopsy-wound-id" style="font-weight:bold; color:#5ce1e6; font-size:0.95rem;">INSPECTION TARGET: WOUND #1</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0; font-size:0.85rem;">
+              <div>ANATOMICAL LOCATION: <strong id="autopsy-wound-loc" class="glow-cyan">Thoracic Left</strong></div>
+              <div>CALIPER DEPTH: <strong id="autopsy-wound-depth" class="glow-cyan">1.8 cm</strong></div>
+              <div>INCISION STRIKE ANGLE: <strong id="autopsy-wound-angle" class="glow-cyan">42°</strong></div>
+              <div>TISSUE REACTION: <strong id="autopsy-wound-reaction" class="glow-red">HYPEREMIC (Coagulated)</strong></div>
+            </div>
+            <div style="font-size:0.85rem; color:#b0bec5; font-style:italic;" id="autopsy-wound-desc">Clean incised margins.</div>
+            
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <button class="btn btn-ctrl" onclick="autopsyModule.selectWound(autopsyModule.selectedWoundIdx - 1)">◀ PREVIOUS WOUND</button>
+              <button class="btn btn-ctrl" onclick="autopsyModule.selectWound(autopsyModule.selectedWoundIdx + 1)">NEXT WOUND ▶</button>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div style="font-weight:bold; font-size:0.85rem; color:#5ce1e6; margin-bottom:6px;">INDICT FORENSIC SUSPECT (MURDER WEAPON MATCH):</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <button class="btn btn-ctrl" onclick="autopsyModule.confirmCulprit('dr_allen')">🔪 DR. ALLEN (SCALPEL #10 / T4)</button>
+              <button class="btn btn-ctrl" onclick="autopsyModule.confirmCulprit('nurse_miller')">✂️ NURSE MILLER (SHEARS / T2)</button>
+              <button class="btn btn-ctrl" onclick="autopsyModule.confirmCulprit('guard_harris')">🛡️ GUARD HARRIS (BATON / T3)</button>
+              <button class="btn btn-ctrl" onclick="autopsyModule.confirmCulprit('orderly_vance')">🪚 ORDERLY VANCE (SAW / T1)</button>
+            </div>
+          </div>
+          <p class="caption-guidance">Analyze caliper widths & vital tissue reactions, then indict the matching suspect.</p>
+        </div>
+
+        <!-- Morgue Module 3: Security Keypad HUD -->
+        <div id="morgue-keypad-inspect-hud" class="module-inspect-hud clinical-hud glass-panel hidden">
+          <div class="hud-header-bar">
+            <div class="hud-title">🔢 AIRLOCK SECURITY KEYPAD BYPASS</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
+          <div id="morgue-keypad-badge" class="badge badge-warning">DOOR SECURED: PIN REQUIRED</div>
+
+          <div class="morgue-keypad-box">
+            <div id="morgue-keypad-readout" class="keypad-lcd-display">_ _ _ _</div>
+            <div class="keypad-matrix-grid">
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('1')">1</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('2')">2</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('3')">3</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('4')">4</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('5')">5</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('6')">6</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('7')">7</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('8')">8</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('9')">9</button>
+              <button class="btn btn-keypad-num" style="color:#ff5252;" onclick="morgueKeypadModule.clear()">CLR</button>
+              <button class="btn btn-keypad-num" onclick="morgueKeypadModule.pressDigit('0')">0</button>
+              <button class="btn btn-keypad-num" style="color:#00e676;" onclick="morgueKeypadModule.submit()">ENT</button>
+            </div>
+          </div>
+          <p class="caption-guidance">Enter the derived 4-digit PIN calculated from Victim Birth Year, Vital Wounds &amp; Killer Tier.</p>
+        </div>
+
+        <!-- Morgue Module 4: Life Support & Ventilation HUD -->
+        <div id="life-support-inspect-hud" class="module-inspect-hud clinical-hud glass-panel hidden">
+          <div class="hud-header-bar">
+            <div class="hud-title">💨 LIFE SUPPORT &amp; AIR DAMPER EXHAUST</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
+          <div id="ls-status-badge" class="badge badge-warning">AIR EXTRACTION ACTIVE</div>
+
+          <div class="gas-gauge-meter-wrapper">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#b0bec5;">
+              <span>ATMOSPHERIC NEUROTOXIN:</span>
+              <strong id="ls-gas-ppm" class="glow-red">45 PPM</strong>
+            </div>
+            <div class="gas-meter-bar-track">
+              <div id="life-gas-meter-fill" class="gas-meter-bar-fill"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; font-size:0.85rem;">
+              <div>CURRENT INTAKE PSI: <strong id="ls-current-psi" class="glow-yellow">48.0 PSI</strong></div>
+              <div>TARGET EQUALIZED PSI: <strong id="ls-target-psi" class="glow-cyan">36.5 PSI</strong></div>
+              <div>CRYO-CHAMBER TEMP: <strong id="ls-cryo-temp" class="glow-cyan">2.8°C</strong></div>
+            </div>
+            <div style="display:flex; justify-content:center; gap:8px; margin-top:8px;">
+              <button class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(-1.0)">-1.0 PSI</button>
+              <button class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(1.0)">+1.0 PSI</button>
+            </div>
+          </div>
+
+          <div class="vent-lever-row">
+            <button id="btn-pull-damper-lever" class="btn btn-vent-damper" onclick="lifeSupportModule.pullDamperLever()">
+              ⚠️ PULL EMERGENCY MECHANICAL AIR DAMPER
+            </button>
+          </div>
+          <p class="caption-guidance">Equalize pressure to target (or request Dispatch [VENT_FLUSH]), then pull the emergency damper lever.</p>
         </div>
 
         <!-- Three.js 3D Canvas -->
@@ -514,6 +732,7 @@
                 <h2>BOMB SPECIFICATION & ORDNANCE DOSSIER</h2>
                 <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE DOSSIER</button>
               </div>
+              <div class="dossier-grid">
                 <div class="dossier-item">
                   <span id="intel-dossier-serial-lbl">SERIAL NUMBER:</span>
                   <strong id="intel-dossier-serial" class="glow-green">A7-93K</strong>
@@ -616,22 +835,44 @@
     </main>
   </div>
 
-  <!-- Application Scripts -->
+  <!-- Shared Infrastructure Scripts -->
   <script src="src/textures.js"></script>
   <script src="src/audio.js"></script>
   <script src="src/network.js"></script>
-  <script src="src/modules/wires.js"></script>
-  <script src="src/modules/keypad.js"></script>
-  <script src="src/modules/frequency.js"></script>
-  <script src="src/modules/simon.js"></script>
-  <script src="src/modules/zodiac.js"></script>
-  <script src="src/modules/mercury.js"></script>
-  <script src="src/modules/prism.js"></script>
-  <script src="src/modules/escapement.js"></script>
+
+  <!-- Map 1: Silo 44 (Cold War Incident) -->
+  <script src="src/maps/silo44/modules/wires.js"></script>
+  <script src="src/maps/silo44/modules/keypad.js"></script>
+  <script src="src/maps/silo44/modules/frequency.js"></script>
+  <script src="src/maps/silo44/modules/simon.js"></script>
+  <script src="src/maps/silo44/silo44_env.js"></script>
+  <script src="src/maps/silo44/silo44_manual.js"></script>
+  <script src="src/maps/silo44/silo44_intel.js"></script>
+  <script src="src/maps/silo44/silo44_config.js"></script>
+
+  <!-- Map 2: The Alchemist's Study (Victorian Crypt) -->
+  <script src="src/maps/alchemist/modules/zodiac.js"></script>
+  <script src="src/maps/alchemist/modules/mercury.js"></script>
+  <script src="src/maps/alchemist/modules/prism.js"></script>
+  <script src="src/maps/alchemist/modules/escapement.js"></script>
+  <script src="src/maps/alchemist/alchemist_env.js"></script>
+  <script src="src/maps/alchemist/alchemist_manual.js"></script>
+  <script src="src/maps/alchemist/alchemist_intel.js"></script>
+  <script src="src/maps/alchemist/alchemist_config.js"></script>
+
+  <!-- Map 3: The Locked Morgue (Clinical Forensics 1994) -->
+  <script src="src/maps/morgue/modules/toxicology.js"></script>
+  <script src="src/maps/morgue/modules/autopsy.js"></script>
+  <script src="src/maps/morgue/modules/morgue_keypad.js"></script>
+  <script src="src/maps/morgue/modules/life_support.js"></script>
+  <script src="src/maps/morgue/morgue_env.js"></script>
+  <script src="src/maps/morgue/morgue_manual.js"></script>
+  <script src="src/maps/morgue/morgue_intel.js"></script>
+  <script src="src/maps/morgue/morgue_config.js"></script>
+
+  <!-- Core Game Engines & Controllers -->
   <script src="src/manual_view.js"></script>
   <script src="src/intel_view.js"></script>
-  <script src="src/silo44_env.js"></script>
-  <script src="src/alchemist_env.js"></script>
   <script src="src/environment_manager.js"></script>
   <script src="src/game.js"></script>
   <script src="src/bomb3d.js"></script>

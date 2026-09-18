@@ -82,6 +82,14 @@ class PrismModule {
 
     this.updateDOM();
 
+    // Update physical 3D crystal prisms & spectral beam in the Defuser's room
+    if (window.bomb3D && window.bomb3D.envManager && window.bomb3D.envManager.activeEnv) {
+      const env = window.bomb3D.envManager.activeEnv;
+      if (typeof env.updatePrismsIn3D === 'function') {
+        env.updatePrismsIn3D(this.prism1Angle, this.prism2Angle, this.activeFilter);
+      }
+    }
+
     // Broadcast live wavelength tuning to Intel Operative
     if (window.network && window.network.broadcast) {
       window.network.broadcast({

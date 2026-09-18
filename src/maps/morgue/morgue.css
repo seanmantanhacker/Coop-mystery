@@ -1,0 +1,412 @@
+/* ==========================================================================
+   OPERATION: ZERO HOUR - MAP 3: THE LOCKED MORGUE THEME & MODULE STYLES
+   Sterile Hospital Tile, Clinical Ice Cyan (#5ce1e6), Biohazard Warnings
+   ========================================================================== */
+
+/* Scenario Card & Badges */
+.scenario-badge.cyan {
+  background: rgba(92, 225, 230, 0.18);
+  color: #5ce1e6;
+  border: 1px solid rgba(92, 225, 230, 0.5);
+}
+
+#card-scenario-morgue.active {
+  border-color: #5ce1e6;
+  box-shadow: 0 0 24px rgba(92, 225, 230, 0.35);
+}
+
+/* Glow Text Utilities */
+.glow-cyan {
+  color: #5ce1e6;
+  text-shadow: 0 0 10px rgba(92, 225, 230, 0.6);
+}
+
+/* Morgue Apparatus Navigation Bar */
+.morgue-apparatus-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(10, 20, 28, 0.9);
+  padding: 6px 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(92, 225, 230, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(92, 225, 230, 0.2);
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.morgue-apparatus-bar .btn-apparatus {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(92, 225, 230, 0.2);
+  color: #b0bec5;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.morgue-apparatus-bar .btn-apparatus:hover {
+  background: rgba(92, 225, 230, 0.15);
+  border-color: #5ce1e6;
+  color: #ffffff;
+}
+
+.morgue-apparatus-bar .btn-apparatus.active {
+  background: rgba(92, 225, 230, 0.25);
+  border-color: #5ce1e6;
+  color: #5ce1e6;
+  box-shadow: 0 0 14px rgba(92, 225, 230, 0.45);
+}
+
+/* Morgue Module Inspect HUD Panels */
+.module-inspect-hud.clinical-hud {
+  border-color: rgba(92, 225, 230, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(92, 225, 230, 0.2);
+}
+
+.module-inspect-hud.clinical-hud .hud-header-bar {
+  border-bottom: 1px solid rgba(92, 225, 230, 0.3);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.module-inspect-hud.clinical-hud .hud-title {
+  color: #5ce1e6;
+  font-size: 1.05rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Toxicology Controls */
+.tox-assay-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 12px 0;
+}
+
+.reagent-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reagent-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.reagent-btn:hover {
+  background: rgba(92, 225, 230, 0.15);
+  border-color: #5ce1e6;
+}
+
+.reagent-btn.active {
+  background: rgba(92, 225, 230, 0.25);
+  border-color: #5ce1e6;
+  color: #5ce1e6;
+  font-weight: bold;
+}
+
+.centrifuge-action-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed rgba(92, 225, 230, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.precipitate-readout {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.92rem;
+  margin-top: 8px;
+  min-height: 24px;
+}
+
+.titration-control-card {
+  background: rgba(10, 20, 30, 0.5);
+  border: 1px solid rgba(92, 225, 230, 0.25);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+
+.titration-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+/* Autopsy Wound Inspector */
+.autopsy-wounds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin: 10px 0;
+}
+
+.wound-card {
+  background: rgba(15, 25, 35, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+}
+
+.wound-card:hover {
+  border-color: rgba(92, 225, 230, 0.4);
+}
+
+.wound-card.vital-wound {
+  border-left: 4px solid #ff1744;
+}
+
+.wound-card.postmortem-wound {
+  border-left: 4px solid #78909c;
+}
+
+.wound-site-name {
+  font-weight: bold;
+  color: #eceff1;
+  font-size: 0.9rem;
+}
+
+.wound-meta {
+  font-size: 0.8rem;
+  color: #90a4ae;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.vital-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.vital-tag.vital {
+  background: rgba(255, 23, 68, 0.2);
+  border: 1px solid #ff1744;
+  color: #ff5252;
+}
+
+.vital-tag.postmortem {
+  background: rgba(120, 144, 156, 0.2);
+  border: 1px solid #78909c;
+  color: #b0bec5;
+}
+
+/* Keypad 12-Button Matrix */
+.morgue-keypad-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.keypad-lcd-display {
+  background: #041017;
+  border: 2px solid #5ce1e6;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.8rem;
+  color: #5ce1e6;
+  letter-spacing: 8px;
+  text-shadow: 0 0 12px rgba(92, 225, 230, 0.7);
+  min-width: 180px;
+  text-align: center;
+}
+
+.keypad-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 220px;
+}
+
+.btn-keypad-num {
+  background: rgba(20, 32, 45, 0.85);
+  border: 1px solid rgba(92, 225, 230, 0.3);
+  color: #e0f7fa;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.25rem;
+  padding: 12px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-keypad-num:hover {
+  background: rgba(92, 225, 230, 0.25);
+  border-color: #5ce1e6;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn-keypad-num:active {
+  transform: translateY(1px);
+}
+
+/* Life Support & Ventilation HUD */
+.gas-gauge-meter-wrapper {
+  background: #0a141e;
+  border: 1px solid rgba(92, 225, 230, 0.3);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 10px 0;
+}
+
+.gas-meter-bar-track {
+  width: 100%;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  margin: 8px 0;
+}
+
+.gas-meter-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00e676, #ffd600, #ff1744);
+  width: 35%;
+  transition: width 0.3s ease;
+}
+
+.vent-lever-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.btn-vent-damper {
+  background: linear-gradient(180deg, #d32f2f, #b71c1c);
+  border: 2px solid #ff5252;
+  color: #ffffff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: bold;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(211, 47, 47, 0.5);
+  transition: all 0.2s ease;
+}
+
+.btn-vent-damper:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f44336, #c62828);
+  box-shadow: 0 0 20px rgba(255, 82, 82, 0.7);
+}
+
+.btn-vent-damper:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Archivist Forensic Manual Dossier Styles */
+.clinical-header h2 {
+  color: #00838f;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.forensic-stamp {
+  border: 2px solid #00838f !important;
+  color: #00838f !important;
+  font-weight: bold;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.clinical-rule-box {
+  background: rgba(224, 247, 250, 0.5) !important;
+  border-left: 4px solid #00838f !important;
+}
+
+.formula-callout {
+  background: rgba(0, 131, 143, 0.1);
+  border: 1px dashed #00838f;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 10px 0;
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: bold;
+  color: #006064;
+  font-size: 0.95rem;
+}
+
+.morgue-table th {
+  background: #006064 !important;
+  color: #ffffff !important;
+}
+
+.dossier-list, .dossier-ordered-list {
+  margin: 8px 0 8px 20px;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+/* Mobile Responsive Adaptations */
+@media (max-width: 860px) {
+  .morgue-apparatus-bar {
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    padding: 4px 8px;
+    gap: 4px;
+    max-width: 96vw;
+    overflow-x: auto;
+  }
+
+  .morgue-apparatus-bar .btn-apparatus {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .tox-assay-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .keypad-matrix-grid {
+    width: 190px;
+    gap: 8px;
+  }
+
+  .btn-keypad-num {
+    padding: 10px 0;
+    font-size: 1.1rem;
+  }
+}

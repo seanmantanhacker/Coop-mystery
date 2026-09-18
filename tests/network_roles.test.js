@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const WebSocket = globalThis.WebSocket;
 
-const ARTIFACT_DIR = 'C:\\Users\\priba\\.gemini\\antigravity\\brain\\f5eef211-4988-4f0a-84f7-dd4ee4fcd707';
+const ARTIFACT_DIR = process.env.ARTIFACT_DIR || 'C:\\Users\\LENOVO\\.gemini\\antigravity-ide\\brain\\59195771-93a1-4c45-a53d-5895ada2a187';
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
 async function runMultiTabRoleTests() {

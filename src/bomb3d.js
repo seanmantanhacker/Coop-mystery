@@ -123,10 +123,13 @@ class Bomb3DEngine {
     if (titleEl) {
       if (mapId === 'silo44') {
         titleEl.innerText = 'MAP 1: SILO 44 (BUNKER)';
-        if (badgeEl) badgeEl.classList.remove('gold');
-      } else {
+        if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.remove('cyan'); }
+      } else if (mapId === 'alchemist') {
         titleEl.innerText = "MAP 2: THE ALCHEMIST'S STUDY";
-        if (badgeEl) badgeEl.classList.add('gold');
+        if (badgeEl) { badgeEl.classList.add('gold'); badgeEl.classList.remove('cyan'); }
+      } else if (mapId === 'morgue') {
+        titleEl.innerText = "MAP 3: THE LOCKED MORGUE";
+        if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.add('cyan'); }
       }
     }
     this.setView('OVERVIEW');
@@ -649,38 +652,92 @@ class Bomb3DEngine {
     // Ensure step-back button visibility is updated immediately
     const backBtn = document.getElementById('btn-step-back');
     if (backBtn) {
-      if (viewMode === 'OVERVIEW') {
+      if (viewMode === 'OVERVIEW' || this.currentMap === 'alchemist' || this.currentMap === 'morgue') {
         backBtn.classList.add('hidden');
       } else {
         backBtn.classList.remove('hidden');
-        backBtn.innerText = '← STEP BACK TO ROOM';
+        if (viewMode === 'INSPECT_BOMB' && this.currentBombQuadrant && this.currentBombQuadrant !== 'ALL') {
+          backBtn.innerText = '← BACK TO FULL BOMB';
+        } else {
+          backBtn.innerText = '← STEP BACK TO ROOM';
+        }
       }
     }
 
     const quadBar = document.getElementById('bomb-quadrant-bar');
     const radioHud = document.getElementById('radio-inspect-hud');
 
-    if (viewMode === 'INSPECT_BOMB') {
-      this.currentBombQuadrant = 'ALL';
-      if (quadBar) quadBar.classList.remove('hidden');
-      if (radioHud) {
-        const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
-        const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
-        const readout = document.getElementById('radio-inspect-freq');
-        if (readout) {
-          readout.className = isLocked ? 'glow-green' : 'glow-yellow';
-          readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+    if (this.currentMap === 'silo44') {
+      if (viewMode === 'INSPECT_BOMB') {
+        this.currentBombQuadrant = 'ALL';
+        if (quadBar) {
+          quadBar.classList.remove('hidden');
+          quadBar.querySelectorAll('.btn-quadrant').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.quadrant === 'ALL');
+          });
         }
-        if (window.innerWidth > 860) {
+        if (radioHud) radioHud.classList.add('hidden');
+      } else if (viewMode === 'INSPECT_RADIO') {
+        this.currentBombQuadrant = 'RADIO';
+        if (quadBar) {
+          quadBar.classList.remove('hidden');
+          quadBar.querySelectorAll('.btn-quadrant').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.quadrant === 'RADIO');
+          });
+        }
+        if (radioHud) {
           radioHud.classList.remove('hidden');
-        } else {
-          radioHud.classList.add('hidden');
+          const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
+          const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+          const readout = document.getElementById('radio-inspect-freq');
+          if (readout) {
+            readout.className = isLocked ? 'glow-green' : 'glow-yellow';
+            readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+          }
         }
+      } else {
+        this.currentBombQuadrant = null;
+        if (quadBar) quadBar.classList.add('hidden');
+        if (radioHud) radioHud.classList.add('hidden');
       }
     } else {
-      this.currentBombQuadrant = null;
       if (quadBar) quadBar.classList.add('hidden');
       if (radioHud) radioHud.classList.add('hidden');
+    }
+
+    // Alchemist Apparatus Navigation Bar
+    const alchemistBar = document.getElementById('alchemist-apparatus-bar');
+    if (alchemistBar) {
+      if (this.currentMap === 'alchemist') {
+        // On mobile, hide apparatus bar during module inspection to give full height to puzzle controls
+        if (window.innerWidth <= 860 && viewMode !== 'OVERVIEW') {
+          alchemistBar.classList.add('hidden');
+        } else {
+          alchemistBar.classList.remove('hidden');
+          alchemistBar.querySelectorAll('.btn-apparatus').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewMode);
+          });
+        }
+      } else {
+        alchemistBar.classList.add('hidden');
+      }
+    }
+
+    // Morgue Apparatus Navigation Bar
+    const morgueBar = document.getElementById('morgue-apparatus-bar');
+    if (morgueBar) {
+      if (this.currentMap === 'morgue') {
+        if (window.innerWidth <= 860 && viewMode !== 'OVERVIEW') {
+          morgueBar.classList.add('hidden');
+        } else {
+          morgueBar.classList.remove('hidden');
+          morgueBar.querySelectorAll('.btn-apparatus').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === viewMode);
+          });
+        }
+      } else {
+        morgueBar.classList.add('hidden');
+      }
     }
 
     if (this.envManager) {
@@ -711,10 +768,10 @@ class Bomb3DEngine {
             this.camera.updateProjectionMatrix();
           }
         } else {
-          // For inspect modes, distance scaling is safe since targets are in the room center:
+          // For inspect modes, prevent pushing camera through walls on narrow portrait mobile screens
           let distFactor = 1.0;
           if (aspect < 1.25) {
-            distFactor = Math.max(1.0, 1.15 / aspect);
+            distFactor = Math.min(1.28, Math.max(1.0, 1.10 / aspect));
           }
 
           const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
@@ -722,7 +779,11 @@ class Bomb3DEngine {
           this.targetCameraPos.copy(preset.target).add(offset);
 
           if (preset.fov && this.camera) {
-            this.camera.fov = preset.fov;
+            let fov = preset.fov;
+            if (aspect < 1.25) {
+              fov = Math.min(58, Math.round(fov * (1.08 / Math.max(0.68, aspect))));
+            }
+            this.camera.fov = fov;
             this.camera.updateProjectionMatrix();
           }
         }
@@ -766,6 +827,13 @@ class Bomb3DEngine {
     if (radioHud) {
       if (quadrant === 'RADIO') {
         radioHud.classList.remove('hidden');
+        const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
+        const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+        const readout = document.getElementById('radio-inspect-freq');
+        if (readout) {
+          readout.className = isLocked ? 'glow-green' : 'glow-yellow';
+          readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+        }
       } else {
         radioHud.classList.add('hidden');
       }
@@ -832,7 +900,10 @@ class Bomb3DEngine {
   }
 
   handleStepBack() {
-    const hudIds = ['radio-inspect-hud', 'zodiac-inspect-hud', 'mercury-inspect-hud', 'prism-inspect-hud', 'escapement-inspect-hud'];
+    const hudIds = [
+      'radio-inspect-hud', 'zodiac-inspect-hud', 'mercury-inspect-hud', 'prism-inspect-hud', 'escapement-inspect-hud',
+      'toxicology-inspect-hud', 'autopsy-inspect-hud', 'morgue-keypad-inspect-hud', 'life-support-inspect-hud'
+    ];
     hudIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.add('hidden');
@@ -985,6 +1056,38 @@ class Bomb3DEngine {
       if (bombHits.length === 0) {
         this.handleStepBack();
         return;
+      }
+    }
+
+    // Direct 3D interaction in INSPECT_FIREPLACE (clicking Prism 1, Prism 2, or Filter)
+    if (this.currentView === 'INSPECT_FIREPLACE') {
+      const hits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
+      for (let h of hits) {
+        let obj = h.object;
+        while (obj && obj !== this.envManager?.activeEnv?.group) {
+          if (obj.userData) {
+            if (obj.userData.isPrism1) {
+              const delta = (event.button === 2 || event.shiftKey) ? -5 : 5;
+              if (window.prismModule) window.prismModule.adjustPrism1(delta);
+              return;
+            }
+            if (obj.userData.isPrism2) {
+              const delta = (event.button === 2 || event.shiftKey) ? -5 : 5;
+              if (window.prismModule) window.prismModule.adjustPrism2(delta);
+              return;
+            }
+            if (obj.userData.isFilter) {
+              if (window.prismModule) {
+                const filters = ['none', 'amber', 'blue', 'green', 'red'];
+                const curIdx = filters.indexOf(window.prismModule.activeFilter);
+                const nextF = filters[(curIdx + 1) % filters.length];
+                window.prismModule.setFilter(nextF);
+              }
+              return;
+            }
+          }
+          obj = obj.parent;
+        }
       }
     }
 

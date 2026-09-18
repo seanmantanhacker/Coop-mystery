@@ -1,0 +1,264 @@
+/* ==========================================================================
+   OPERATION: ZERO HOUR - MAP 1: SILO 44 SPECIFIC STYLES
+   Theme: Cold War Soviet Nuclear Bunker (Gunmetal, Cyan, Amber, Phosphor)
+   ========================================================================== */
+
+/* Bomb 4-Quadrant Switcher Bar */
+.bomb-quadrant-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(9, 14, 22, 0.94);
+  border: 1px solid var(--border-metal-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 12px;
+  border-radius: 30px;
+  z-index: 500;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 240, 255, 0.2);
+  max-width: 96vw;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.bomb-quadrant-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.btn-quadrant {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-family: var(--font-tactical);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: rgba(18, 26, 36, 0.9);
+  border: 1px solid var(--border-metal);
+  color: var(--color-muted);
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+.btn-quadrant:hover {
+  border-color: var(--color-primary);
+  color: #fff;
+  background: rgba(0, 240, 255, 0.12);
+}
+.btn-quadrant.active {
+  background: var(--color-primary);
+  color: #05080c;
+  font-weight: 700;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.7);
+}
+
+/* Radio Floating HUD Overlay */
+.radio-floating-hud {
+  position: absolute;
+  bottom: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(94vw, 480px);
+  padding: 12px 18px;
+  z-index: 450;
+  background: rgba(8, 14, 22, 0.96);
+  border: 2px solid var(--border-glow);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.35);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.radio-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+  padding-bottom: 6px;
+}
+.hud-title-mini {
+  font-family: var(--font-tactical);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.8px;
+}
+.btn-mini-close {
+  padding: 3px 8px !important;
+  font-size: 0.72rem !important;
+  min-height: 26px !important;
+}
+.radio-readout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border-metal);
+}
+.radio-label {
+  font-family: var(--font-tactical);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+.radio-tune-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.btn-tune {
+  padding: 7px 4px !important;
+  font-size: 0.82rem !important;
+  font-family: var(--font-mono);
+  font-weight: 700 !important;
+  text-align: center;
+  min-height: 34px;
+}
+
+/* Silo 44 Manual Specialist: Simon Table & Matrix Preview */
+.simon-table-container {
+  overflow-x: auto;
+  margin: 10px 0 16px 0;
+}
+.simon-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: left;
+}
+.simon-table th, .simon-table td {
+  padding: 8px 12px;
+  border: 1px solid #c9bda4;
+}
+.simon-table th {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1a222e;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.col-red { color: #b71c1c; font-weight: bold; }
+.col-blue { color: #0d47a1; font-weight: bold; }
+.col-green { color: #1b5e20; font-weight: bold; }
+.col-yellow { color: #e65100; font-weight: bold; }
+
+.keypad-matrix-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0 16px 0;
+}
+.matrix-column {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid #c9bda4;
+  border-radius: 4px;
+  padding: 10px;
+}
+.matrix-column h4 {
+  font-family: var(--font-tactical);
+  font-size: 0.85rem;
+  color: #1a222e;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed #c9bda4;
+  padding-bottom: 4px;
+}
+.sym-list {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 3px;
+  color: #2b3a4a;
+}
+.matrix-footnote {
+  font-size: 0.82rem;
+  color: #556270;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Silo 44 Intel Analyst: CRT Oscilloscope & Dossier */
+#intel-large-oscilloscope {
+  width: 100%;
+  height: 240px;
+  background: #03080c;
+  border: 2px solid #00ff88;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  display: block;
+}
+
+.dossier-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+/* ==================== SILO 44 MOBILE RESPONSIVE ==================== */
+@media (max-width: 860px) {
+  .bomb-quadrant-bar {
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    padding: 4px 6px;
+    gap: 4px;
+    max-width: 98vw;
+  }
+  .btn-quadrant {
+    padding: 6px 8px !important;
+    font-size: 0.70rem !important;
+    min-height: 32px !important;
+    gap: 4px !important;
+  }
+  .radio-floating-hud {
+    bottom: max(54px, calc(env(safe-area-inset-bottom, 8px) + 46px)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(96vw, 390px) !important;
+    padding: 8px 10px !important;
+  }
+  .radio-tune-buttons {
+    gap: 4px;
+  }
+  .radio-tune-buttons .btn {
+    min-height: 30px;
+    padding: 4px 6px;
+    font-size: 0.74rem;
+  }
+  #intel-large-oscilloscope {
+    height: 190px;
+  }
+  .keypad-matrix-preview {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .simon-table th, .simon-table td {
+    padding: 5px 3px !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .bomb-quadrant-bar {
+    width: 98vw;
+    justify-content: space-around;
+  }
+  .btn-quadrant {
+    font-size: 0.68rem !important;
+    padding: 4px 6px !important;
+  }
+  .btn-tune {
+    font-size: 0.72rem !important;
+    padding: 4px 2px !important;
+  }
+  #intel-large-oscilloscope {
+    height: 165px;
+  }
+}

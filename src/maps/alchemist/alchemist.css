@@ -1,0 +1,390 @@
+/* ==========================================================================
+   OPERATION: ZERO HOUR - MAP 2: THE ALCHEMIST'S STUDY SPECIFIC STYLES
+   Theme: Victorian Gothic Occult Clockwork Manor (Mahogany, Brass, Vellum)
+   ========================================================================== */
+
+/* Gold Accents & Badges */
+.scenario-badge.gold {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-brass);
+  color: var(--gold-brass);
+}
+.level-indicator-text.gold {
+  color: var(--gold-brass);
+}
+.level-indicator-text.gold .pulse-dot {
+  color: var(--gold-brass);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+}
+
+/* Alchemist Apparatus Navigation Bar */
+.alchemist-apparatus-bar {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(18, 12, 8, 0.94);
+  border: 1px solid var(--gold-brass-dim);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 12px;
+  border-radius: 30px;
+  z-index: 500;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.85), 0 0 16px rgba(212, 175, 55, 0.25);
+  max-width: 96vw;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.alchemist-apparatus-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.btn-apparatus {
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-family: var(--font-gothic);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: rgba(28, 18, 12, 0.9);
+  border: 1px solid #5a4025;
+  color: var(--gold-brass);
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+.btn-apparatus:hover {
+  border-color: var(--gold-brass);
+  color: #fff;
+  background: rgba(212, 175, 55, 0.18);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+.btn-apparatus.active {
+  background: var(--gold-brass);
+  color: #0c0805;
+  font-weight: 700;
+  border-color: var(--gold-brass);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.7);
+}
+.btn-apparatus .app-icon {
+  font-size: 1rem;
+}
+
+/* Common Victorian Module Inspect HUD Overlay */
+.module-inspect-hud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 580px);
+  max-height: 86vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px 24px;
+  z-index: 950;
+  border: 2px solid var(--gold-brass-dim);
+  border-radius: 10px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.92), 0 0 20px rgba(212, 175, 55, 0.15);
+  background: rgba(18, 12, 8, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hud-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--gold-brass-dim);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.hud-title {
+  font-family: var(--font-gothic);
+  font-size: 1.05rem;
+  color: var(--gold-brass);
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Module 1: Zodiac Rings HUD */
+.ring-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+.ring-ctrl {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--gold-brass-dim);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+.ctrl-label {
+  display: block;
+  font-family: var(--font-gothic);
+  font-size: 0.78rem;
+  color: var(--gold-brass);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+.ring-val {
+  font-family: var(--font-gothic);
+  font-size: 0.98rem;
+  font-weight: 700;
+  min-width: 85px;
+}
+
+/* Module 2: Mercury Manometer HUD */
+.mercury-tubes-display {
+  display: flex;
+  justify-content: space-around;
+  margin: 16px 0;
+  gap: 12px;
+}
+.tube-col, .tube-unit {
+  text-align: center;
+}
+.tube-name {
+  font-family: var(--font-gothic);
+  font-size: 0.82rem;
+  color: var(--gold-brass);
+  margin-bottom: 6px;
+}
+.tube-meter {
+  height: 120px;
+  width: 36px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #5a422d;
+  border-radius: 18px;
+  position: relative;
+  margin: 0 auto 6px auto;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+.mercury-liquid, .tube-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #f0f6ff 0%, #b8c8d8 50%, #8899aa 100%);
+  border-top: 2px solid #ffffff;
+  border-radius: 0 0 15px 15px;
+  transition: height 0.25s ease-out;
+  box-shadow: 0 0 10px rgba(220, 235, 255, 0.8);
+}
+.tube-val {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: #e0eaf4;
+  font-weight: bold;
+}
+.valve-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Module 3: Prism Goniometer HUD */
+.prism-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+.prism-ctrl {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--gold-brass-dim);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+.filter-btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.btn-filter {
+  padding: 6px 10px !important;
+  font-size: 0.74rem !important;
+  font-weight: 700;
+  border: 1px solid var(--border-metal);
+  background: rgba(0,0,0,0.5);
+  color: var(--color-muted);
+}
+.btn-filter.active {
+  border-color: var(--gold-brass);
+  color: #05080c;
+  background: var(--gold-brass);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+}
+.spectrum-meter-display {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  padding: 8px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--gold-brass-dim);
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+/* Module 4: Clockwork Escapement HUD */
+.chime-listener-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--gold-brass-dim);
+  border-radius: 6px;
+  padding: 14px;
+  margin: 12px 0;
+  font-family: var(--font-gothic);
+  font-size: 0.90rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.escapement-lever-action {
+  margin: 16px 0 10px 0;
+  text-align: center;
+}
+
+/* ==================== ALCHEMIST MOBILE RESPONSIVE ==================== */
+@media (max-width: 860px) {
+  .alchemist-apparatus-bar {
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    padding: 4px 6px;
+    gap: 4px;
+    max-width: 98vw;
+  }
+  .btn-apparatus {
+    padding: 6px 8px !important;
+    font-size: 0.68rem !important;
+    min-height: 32px !important;
+    gap: 4px !important;
+  }
+  .module-inspect-hud {
+    top: auto !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 12px 10px !important;
+    width: 96vw !important;
+    max-height: calc(100dvh - 90px) !important;
+  }
+  .hud-title {
+    font-size: 0.85rem !important;
+    letter-spacing: 0.3px !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+  }
+  .ring-controls-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;
+  }
+  .ring-ctrl {
+    padding: 7px 6px !important;
+  }
+  .ctrl-label {
+    font-size: 0.68rem !important;
+    margin-bottom: 4px !important;
+  }
+  .ring-val {
+    font-size: 0.88rem !important;
+    min-width: 75px !important;
+  }
+  .btn-ctrl {
+    padding: 5px 10px !important;
+    min-height: 32px !important;
+    font-size: 0.82rem !important;
+  }
+  .mercury-tubes-display {
+    gap: 6px !important;
+    margin: 10px 0 !important;
+  }
+  .tube-name {
+    font-size: 0.70rem !important;
+  }
+  .tube-meter {
+    height: 85px !important;
+    width: 26px !important;
+  }
+  .tube-val {
+    font-size: 0.76rem !important;
+  }
+  .valve-btn-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+    margin-top: 8px !important;
+  }
+  .valve-btn-row .btn {
+    font-size: 0.68rem !important;
+    padding: 6px 4px !important;
+    min-height: 32px !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+  }
+  .prism-controls-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;
+  }
+  .prism-ctrl {
+    padding: 7px 6px !important;
+  }
+  .filter-btn-group {
+    gap: 4px !important;
+  }
+  .btn-filter {
+    padding: 5px 8px !important;
+    font-size: 0.68rem !important;
+    min-height: 28px !important;
+  }
+  .spectrum-meter-display {
+    font-size: 0.90rem !important;
+    margin: 8px 0 !important;
+  }
+  .chime-listener-card {
+    padding: 10px !important;
+    margin: 8px 0 !important;
+    font-size: 0.82rem !important;
+    gap: 5px !important;
+  }
+  .escapement-lever-action {
+    margin: 10px 0 6px !important;
+  }
+  .caption-guidance {
+    font-size: 0.70rem !important;
+    margin-top: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .module-inspect-hud {
+    padding: 10px 8px !important;
+    width: 98vw !important;
+  }
+  .tube-meter {
+    height: 75px !important;
+    width: 24px !important;
+  }
+}

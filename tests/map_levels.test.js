@@ -73,7 +73,7 @@ async function runMapLevelTest() {
     mobile: false
   });
 
-  const artDir = 'C:\\Users\\priba\\.gemini\\antigravity\\brain\\f5eef211-4988-4f0a-84f7-dd4ee4fcd707';
+  const artDir = process.env.ARTIFACT_DIR || 'C:\\Users\\LENOVO\\.gemini\\antigravity-ide\\brain\\59195771-93a1-4c45-a53d-5895ada2a187';
 
   try {
     console.log('\n--- TEST 1: CHOOSE MAP 1 (SILO 44) IN LOBBY & LAUNCH ---');

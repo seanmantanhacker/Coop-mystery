@@ -34,13 +34,20 @@ class EscapeRoomEnvironmentManager {
 
     this.activeMapId = mapId;
 
-    if (mapId === 'silo44') {
-      this.activeEnv = new Silo44Environment(this.engine.scene);
-    } else if (mapId === 'alchemist') {
-      this.activeEnv = new AlchemistStudyEnvironment(this.engine.scene);
+    let EnvClass = null;
+    if (window.ESCAPE_MAPS && window.ESCAPE_MAPS[mapId]) {
+      EnvClass = window.ESCAPE_MAPS[mapId].getEnvClass();
+    }
+    if (!EnvClass) {
+      if (mapId === 'silo44') EnvClass = window.Silo44Environment;
+      else if (mapId === 'alchemist') EnvClass = window.AlchemistStudyEnvironment;
+      else if (mapId === 'morgue') EnvClass = window.MorgueEnvironment;
     }
 
-    this.activeEnv.build();
+    if (EnvClass) {
+      this.activeEnv = new EnvClass(this.engine.scene);
+      this.activeEnv.build();
+    }
     this.setView('OVERVIEW', true);
   }
 
@@ -77,7 +84,7 @@ class EscapeRoomEnvironmentManager {
     // Update HUD overlays
     const backBtn = document.getElementById('btn-step-back');
     if (backBtn) {
-      if (viewKey === 'OVERVIEW') {
+      if (viewKey === 'OVERVIEW' || this.activeMapId === 'alchemist' || this.activeMapId === 'morgue') {
         backBtn.classList.add('hidden');
       } else {
         backBtn.classList.remove('hidden');
@@ -90,7 +97,13 @@ class EscapeRoomEnvironmentManager {
     const prismHud = document.getElementById('prism-inspect-hud');
     const escapementHud = document.getElementById('escapement-inspect-hud');
 
-    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud].forEach(el => {
+    // Morgue HUDs
+    const toxHud = document.getElementById('toxicology-inspect-hud');
+    const autopsyHud = document.getElementById('autopsy-inspect-hud');
+    const keypadHud = document.getElementById('morgue-keypad-inspect-hud');
+    const lifeHud = document.getElementById('life-support-inspect-hud');
+
+    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud, toxHud, autopsyHud, keypadHud, lifeHud].forEach(el => {
       if (el) el.classList.add('hidden');
     });
 
@@ -109,6 +122,24 @@ class EscapeRoomEnvironmentManager {
     if (viewKey === 'INSPECT_FIREPLACE' && prismHud) prismHud.classList.remove('hidden');
     if (viewKey === 'INSPECT_CLOCK' && escapementHud) escapementHud.classList.remove('hidden');
 
+    // Morgue Module Inspection HUDs
+    if (viewKey === 'INSPECT_TOXICOLOGY' && toxHud) {
+      toxHud.classList.remove('hidden');
+      if (window.toxicologyModule) window.toxicologyModule.updateDOM();
+    }
+    if (viewKey === 'INSPECT_AUTOPSY' && autopsyHud) {
+      autopsyHud.classList.remove('hidden');
+      if (window.autopsyModule) window.autopsyModule.updateDOM();
+    }
+    if (viewKey === 'INSPECT_DOOR' && keypadHud) {
+      keypadHud.classList.remove('hidden');
+      if (window.morgueKeypadModule) window.morgueKeypadModule.updateDOM();
+    }
+    if (viewKey === 'INSPECT_VENT' && lifeHud) {
+      lifeHud.classList.remove('hidden');
+      if (window.lifeSupportModule) window.lifeSupportModule.updateDOM();
+    }
+
     // Trigger Lore Document Modals
     if (viewKey === 'INSPECT_GRIMOIRE' && window.game) {
       window.game.openLoreModal('journal');
@@ -120,6 +151,8 @@ class EscapeRoomEnvironmentManager {
       window.game.openLoreModal('dictaphone');
     } else if (viewKey === 'INSPECT_PHONOGRAPH' && window.game) {
       window.game.openLoreModal('phonograph');
+    } else if (viewKey === 'INSPECT_LOG' && window.game) {
+      window.game.openLoreModal('morgue_dictaphone');
     }
   }
 

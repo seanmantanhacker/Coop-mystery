@@ -44,22 +44,23 @@ Three.js 3D Environment        Binder Detective Desk               Surveillance 
 - **Audio Synthesizer Signature** (`src/audio.js`):
   - Mechanical ticks (`playClockTick`), clicks, buzzers, and disarmed chimes.
 
-### Step 2: Build the 3D Room & Camera Director (`src/<map>_env.js`)
-1. Create a class `class MyNewEnvironment`:
-   - `constructor(scene)`: Initialize `this.group = new THREE.Group()`, `this.hotspots = []`.
-   - `cameraPresets`: Define `OVERVIEW`, plus one inspect preset per module:
-     ```javascript
-     this.cameraPresets = {
-       OVERVIEW: { pos: new THREE.Vector3(0, 2.5, 4.5), target: new THREE.Vector3(0, 1.1, 0), fov: 50, label: 'ROOM OVERVIEW' },
-       INSPECT_MODULE1: { pos: new THREE.Vector3(-1.2, 1.4, 0.4), target: new THREE.Vector3(-1.2, 1.0, 0), fov: 38, label: 'MODULE 1' },
-       // ...
-     };
-     ```
-2. Build physical room geometry (walls, floor grates, lighting fixtures, dynamic shadows).
-3. Place interactive hotspot rings (`createHotspotRing(targetView, position, label)`).
-4. Register the new environment inside `EscapeRoomEnvironmentManager.loadMap(mapId)` in `src/environment_manager.js`.
+### Step 2: Create Isolated Map Directory Structure (`src/maps/<mapId>/`)
+Every map is completely self-contained in its own directory to guarantee that editing one map never impacts another:
+```
+src/maps/<mapId>/
+├── <mapId>.css            # Map theme colors, HUD inspect panels, mobile responsive rules
+├── <mapId>_config.js      # Map registration in window.ESCAPE_MAPS with timer, specs, victory
+├── <mapId>_env.js         # 3D Three.js room geometry, lighting, camera presets, hotspot rings
+├── <mapId>_manual.js      # Manual Specialist renderer (tabs, decoding tables, lore memos)
+├── <mapId>_intel.js       # Intel Analyst renderer (CRT visualizer, telemetry dossier)
+└── modules/               # 4 deterministic puzzle modules
+    ├── module1.js
+    ├── module2.js
+    ├── module3.js
+    └── module4.js
+```
 
-### Step 3: Implement 4 Deterministic Puzzle Modules (`src/modules/<puzzle>.js`)
+### Step 3: Implement 4 Deterministic Puzzle Modules (`src/maps/<mapId>/modules/`)
 Each module must be a standalone class stored on `window.<moduleName>`:
 ```javascript
 class MyPuzzleModule {
@@ -88,31 +89,71 @@ class MyPuzzleModule {
 }
 ```
 
-### Step 4: Write Manual Specialist Binder Pages (`src/manual_view.js`)
-1. Add tab button in `renderTabs()`.
-2. Write concise, mysterious, yet unambiguous rule pages in `renderPage()`:
-   - **Do not over-explain or spoil**: Follow the *Clue Brevity Invariant* (e.g. "Table 1: with vowel, Table 2: no vowel").
-   - **Zero Dead Rules**: Every rule stated must genuinely affect a puzzle; never put fake rules for cosmetic features.
+### Step 4: Build the 3D Room & Camera Director (`src/maps/<mapId>/<mapId>_env.js`)
+1. Create class `<MapName>Environment`:
+   - `constructor(scene)`: Initialize `this.group = new THREE.Group()`, `this.hotspots = []`.
+   - `cameraPresets`: Define `OVERVIEW`, plus one inspect preset per module:
+     ```javascript
+     this.cameraPresets = {
+       OVERVIEW: { pos: new THREE.Vector3(0, 2.5, 4.5), target: new THREE.Vector3(0, 1.1, 0), fov: 50, label: 'ROOM OVERVIEW' },
+       INSPECT_MODULE1: { pos: new THREE.Vector3(-1.2, 1.4, 0.4), target: new THREE.Vector3(-1.2, 1.0, 0), fov: 38, label: 'MODULE 1' },
+       // ...
+     };
+     ```
+2. Build physical room geometry (walls, lighting, dynamic shadows).
+3. Place interactive hotspot rings (`createHotspotRing(targetView, position, label)`).
 
-### Step 5: Update Intel Analyst Console (`src/intel_view.js`)
-1. Configure live sensor readouts in `updateDossierData()`:
-   - Target frequency, wavelength, atmospheric pressure, or rune telemetry.
-2. Render visual signal canvas (Oscilloscope, Ephemeris, or Sonar grid).
-3. Connect the **Emergency Override Math Terminal**:
-   - Single-use per mission.
-   - Procedural arithmetic equation (`generateMathProblem()`).
-   - Entering correct answer unlocks the lever to add **+2:00 (+120s)** Detonation Clock extension.
-   - Synchronized across players via PeerJS broadcast `OVERRIDE_ACTIVATED`.
+### Step 5: Write Manual Specialist Pages (`src/maps/<mapId>/<mapId>_manual.js`)
+Create `<MapName>ManualView` containing:
+- `renderTabs()`: Tab bar with badge icons.
+- `renderPage(pageKey)`: Clean, cryptic, unambiguous decryption tables and instructions.
+- Follow the *Clue Brevity Invariant*: Zero dead rules, high communication clarity.
+- Provide a `render(activePage)` entrypoint that injects into `#manual-content` and `#manual-tabs`.
 
-### Step 6: Register in Central Game Engine (`src/game.js` & `index.html`)
-1. Add scenario card in `index.html` under `#scenario-selection-box` with:
-   - Title, badge, description, and base timer (e.g. `⏱️ 08:00 Base`).
-2. Update `selectScenario(scenarioId)` and `generateMissionSpecs(seed)` in `src/game.js`:
-   - Set starting timer seconds (`this.timerSeconds = ...`).
-   - Trigger generation for all 4 modules.
-3. Update `checkVictory()` in `src/game.js`:
-   - Verify that all 4 modules return `disarmed === true`.
-   - Broadcast `MISSION_VICTORY` and trigger end-game modal.
+### Step 6: Write Intel Analyst Console (`src/maps/<mapId>/<mapId>_intel.js`)
+Create `<MapName>IntelView` containing:
+- `render()`: Setup the dossier cards and visual sensor canvas (Oscilloscope, Ephemeris, Spectrophotometer, etc.).
+- `update(specs, currentFreq)`: Refresh live sensor telemetry and canvas animation.
+- Shared Emergency Override (+2m) is automatically hooked by the shared `IntelViewController`.
+
+### Step 7: Register Map in `window.ESCAPE_MAPS` (`src/maps/<mapId>/<mapId>_config.js`)
+Register the map object:
+```javascript
+window.ESCAPE_MAPS = window.ESCAPE_MAPS || {};
+window.ESCAPE_MAPS['my_map'] = {
+  id: 'my_map',
+  name: 'Operation Code Name',
+  subtitle: 'Location / Threat Type',
+  baseTimer: 480, // Base countdown in seconds
+  getEnvClass: () => window.MyMapEnvironment,
+  getManualRenderer: (controller) => new window.MyMapManualView(controller),
+  getIntelRenderer: (controller) => new window.MyMapIntelView(controller),
+  generateSpecs: (seed, game) => {
+    // Generate mission specs & seed all 4 modules
+    return { ... };
+  },
+  checkVictory: (game) => {
+    // Return true if all 4 modules are disarmed
+    return module1.disarmed && module2.disarmed && module3.disarmed && module4.disarmed;
+  }
+};
+```
+
+### Step 8: Load in `index.html`
+1. Include `<link rel="stylesheet" href="src/maps/<mapId>/<mapId>.css">` in `<head>`.
+2. Include the map scripts before shared controllers:
+   ```html
+   <!-- Map: My Map -->
+   <script src="src/maps/<mapId>/modules/module1.js"></script>
+   <script src="src/maps/<mapId>/modules/module2.js"></script>
+   <script src="src/maps/<mapId>/modules/module3.js"></script>
+   <script src="src/maps/<mapId>/modules/module4.js"></script>
+   <script src="src/maps/<mapId>/<mapId>_env.js"></script>
+   <script src="src/maps/<mapId>/<mapId>_manual.js"></script>
+   <script src="src/maps/<mapId>/<mapId>_intel.js"></script>
+   <script src="src/maps/<mapId>/<mapId>_config.js"></script>
+   ```
+3. Add the scenario card in the lobby scenario selector.
 
 ---
 

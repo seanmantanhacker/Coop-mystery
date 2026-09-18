@@ -218,8 +218,8 @@ class GameEngine {
   }
 
   selectScenario(scenarioId) {
-    // Only Host can change the map/scenario!
-    if (!network.isHost) {
+    // Only restrict map selection if connected as a client to another host
+    if (network.roomCode && !network.isHost) {
       if (window.audio) window.audio.playBuzz();
       console.warn('[Security] Map selection restricted to Mission Commander (Host)');
       return;
@@ -227,7 +227,8 @@ class GameEngine {
 
     this.scenario = scenarioId;
     this.roomState.scenario = scenarioId;
-    this.timerSeconds = (scenarioId === 'silo44') ? 480 : 360;
+    const mapConfig = window.ESCAPE_MAPS ? window.ESCAPE_MAPS[scenarioId] : null;
+    this.timerSeconds = mapConfig ? mapConfig.baseTimer : ((scenarioId === 'silo44') ? 480 : 360);
 
     this.updateScenarioUI(scenarioId);
 
@@ -242,9 +243,13 @@ class GameEngine {
 
     const titleEl = document.getElementById('current-scenario-title');
     if (titleEl) {
-      titleEl.innerText = (scenarioId === 'silo44') 
-        ? 'SILO 44: THE COLD WAR THERMOBARIC INCIDENT' 
-        : "THE ALCHEMIST'S STUDY: LORD BLACKWOOD'S CLOCKWORK CRYPT";
+      if (scenarioId === 'silo44') {
+        titleEl.innerText = 'SILO 44: THE COLD WAR THERMOBARIC INCIDENT';
+      } else if (scenarioId === 'alchemist') {
+        titleEl.innerText = "THE ALCHEMIST'S STUDY: LORD BLACKWOOD'S CLOCKWORK CRYPT";
+      } else if (scenarioId === 'morgue') {
+        titleEl.innerText = 'THE LOCKED MORGUE: WARD 9 AUTOPSY THEATER';
+      }
     }
   }
 
@@ -471,7 +476,13 @@ class GameEngine {
     const levelName = document.getElementById('level-display-name');
     if (levelDisplay && levelName) {
       levelDisplay.classList.remove('hidden');
-      levelName.innerText = (this.scenario === 'silo44') ? 'MAP 1 // SILO 44' : "MAP 2 // THE ALCHEMIST'S STUDY";
+      if (this.scenario === 'silo44') {
+        levelName.innerText = 'MAP 1 // SILO 44';
+      } else if (this.scenario === 'alchemist') {
+        levelName.innerText = "MAP 2 // THE ALCHEMIST'S STUDY";
+      } else if (this.scenario === 'morgue') {
+        levelName.innerText = "MAP 3 // THE LOCKED MORGUE";
+      }
     }
 
     if (this.role === 'defuser') {
@@ -524,7 +535,10 @@ class GameEngine {
       CAR: (seed % 3 === 0)
     };
 
-    if (this.scenario === 'silo44') {
+    const mapConfig = window.ESCAPE_MAPS ? window.ESCAPE_MAPS[this.scenario] : null;
+    if (mapConfig && mapConfig.generateSpecs) {
+      mapConfig.generateSpecs(seed, this);
+    } else if (this.scenario === 'silo44') {
       this.timerSeconds = 480;
       if (window.wiresModule) window.wiresModule.generate(seed, this.serialNumber);
       if (window.keypadModule) window.keypadModule.generate(seed + 10, this.indicators.FRK);
@@ -599,8 +613,11 @@ class GameEngine {
 
   checkVictory() {
     let allSolved = false;
+    const mapConfig = window.ESCAPE_MAPS ? window.ESCAPE_MAPS[this.scenario] : null;
 
-    if (this.scenario === 'silo44') {
+    if (mapConfig && mapConfig.checkVictory) {
+      allSolved = mapConfig.checkVictory(this);
+    } else if (this.scenario === 'silo44') {
       const wSolved = window.wiresModule ? window.wiresModule.disarmed : false;
       const kSolved = window.keypadModule ? window.keypadModule.disarmed : false;
       const fSolved = window.frequencyModule ? window.frequencyModule.disarmed : false;
@@ -652,15 +669,23 @@ class GameEngine {
     const subtitle = document.getElementById('end-subtitle');
 
     if (title) {
-      title.innerText = (this.scenario === 'silo44') 
-        ? 'PERIMETR CASCADE HALTED - SILO DISARMED' 
-        : 'SOLOMON PORTCULLIS UNLOCKED - MAGNUM OPUS PRESERVED';
+      if (this.scenario === 'silo44') {
+        title.innerText = 'PERIMETR CASCADE HALTED - SILO DISARMED';
+      } else if (this.scenario === 'alchemist') {
+        title.innerText = 'SOLOMON PORTCULLIS UNLOCKED - MAGNUM OPUS PRESERVED';
+      } else if (this.scenario === 'morgue') {
+        title.innerText = 'MORGUE BIO-SEAL BREACHED - CASE SOLVED';
+      }
       title.className = 'end-heading victory';
     }
     if (subtitle) {
-      subtitle.innerText = (this.scenario === 'silo44')
-        ? 'The Iskra-7 warhead failsafe is safely neutralized. World saved from nuclear exchange.'
-        : 'The Athanor Horologium has ceased ticking. The phosgene vitriol gas vents have safely closed!';
+      if (this.scenario === 'silo44') {
+        subtitle.innerText = 'The Iskra-7 warhead failsafe is safely neutralized. World saved from nuclear exchange.';
+      } else if (this.scenario === 'alchemist') {
+        subtitle.innerText = 'The Athanor Horologium has ceased ticking. The phosgene vitriol gas vents have safely closed!';
+      } else if (this.scenario === 'morgue') {
+        subtitle.innerText = 'The airlock doors are released, the neural gas dampers are sealed, and the forensic homicide case is solved!';
+      }
     }
 
     const defTimer = document.getElementById('defuser-timer');
@@ -682,13 +707,25 @@ class GameEngine {
     const subtitle = document.getElementById('end-subtitle');
 
     if (title) {
-      title.innerText = (this.scenario === 'silo44') ? 'THERMOBARIC COLLAPSE!' : 'VITRIOL GAS DETONATION!';
+      if (this.scenario === 'silo44') {
+        title.innerText = 'THERMOBARIC COLLAPSE!';
+      } else if (this.scenario === 'alchemist') {
+        title.innerText = 'VITRIOL GAS DETONATION!';
+      } else if (this.scenario === 'morgue') {
+        title.innerText = 'LETHAL NEUROTOXIN SATURATION!';
+      }
       title.className = 'end-heading loss';
     }
     if (subtitle) {
-      subtitle.innerText = reason === 'MAX_STRIKES' 
-        ? '3 strikes incurred. Anti-tamper failsafe triggered catastrophic detonation.' 
-        : 'Terminal countdown reached zero. All operatives compromised!';
+      if (reason === 'MAX_STRIKES') {
+        subtitle.innerText = (this.scenario === 'morgue')
+          ? '3 strikes incurred. Automatic biohazard lockdown triggered lethal purge.'
+          : '3 strikes incurred. Anti-tamper failsafe triggered catastrophic detonation.';
+      } else {
+        subtitle.innerText = (this.scenario === 'morgue')
+          ? 'Terminal 15:00 countdown expired. Chamber neurotoxin exceeded lethal saturation threshold!'
+          : 'Terminal countdown reached zero. All operatives compromised!';
+      }
     }
 
     const timeEl = document.getElementById('end-time');
@@ -756,7 +793,7 @@ class GameEngine {
             <p><strong>COMMUNICATION:</strong> Operatives 2 & 3 are tapped into sound-powered TA-57 field telephones and umbilical telemetry cables.</p>
           </div>
         `;
-      } else {
+      } else if (this.scenario === 'alchemist') {
         title.innerText = "CASE FILE: THE ALCHEMIST'S STUDY - LORD BLACKWOOD'S CLOCKWORK CRYPT";
         body.innerHTML = `
           <div class="lore-briefing-paper">
@@ -767,7 +804,30 @@ class GameEngine {
             <p><strong>COMMUNICATION:</strong> Acoustic speaking tubes through the granite walls and Cooke & Wheatstone needle telegraph.</p>
           </div>
         `;
+      } else if (this.scenario === 'morgue') {
+        title.innerText = "CASE FILE: THE LOCKED MORGUE - WARD 9 AUTOPSY THEATER";
+        body.innerHTML = `
+          <div class="lore-briefing-paper">
+            <h3>LOCATION: St. Jude Metropolitan Hospital // Sub-Basement Morgue (1994)</h3>
+            <p><strong>PREMISE:</strong> Chief Pathologist Dr. Harold Vance was discovered deceased atop the stainless steel autopsy table under suspicious circumstances.</p>
+            <p><strong>THE TRAP:</strong> The perpetrator triggered an emergency Level-4 Biohazard lockdown. The magnetic airlock doors are sealed, and an industrial neurotoxin release sequence is venting into the theater.</p>
+            <p><strong>THE CONSEQUENCE:</strong> Atmospheric gas saturation is climbing toward 1200 PPM. Operatives have exactly 15 minutes before lethal respiratory paralysis sets in.</p>
+            <p><strong>COMMUNICATION:</strong> Two-way cleanroom intercom to Dispatch and the Hospital Medical Archive.</p>
+          </div>
+        `;
       }
+    } else if (loreId === 'morgue_dictaphone') {
+      title.innerText = "CASSETTE DICTAPHONE: DR. HAROLD VANCE (TAPE #94-10)";
+      body.innerHTML = `
+        <div class="lore-audio-paper">
+          <p><strong>[SOUND: TAPE CLICK, MECHANICAL HUM OF REFRIGERATION UNITS]</strong></p>
+          <p><strong>VOICE (DR. VANCE):</strong> <em>"Date: October 24th, 1994... time is 23:40 hours. Performing post-mortem examination on unidentified John Doe brought in from the North Wing. Distinct odor of bitter almonds immediately apparent upon entering the vault."</em></p>
+          <p><em>"Cyanotic discoloration under the fingernails. Initial assay confirms cyanide intoxication... but wait. The lacerations across the thoracic wall... these were not inflicted ante-mortem. Look at the margins—no active erythema, no cellular retraction. Someone staged these wounds after death to mask the true trauma."</em></p>
+          <p><strong>[SOUND: HEAVY FOOTSTEPS, AIRLOCK PNEUMATIC SEAL ENGAGING]</strong></p>
+          <p><strong>VOICE (DR. VANCE):</strong> <em>"Who's there? Allen? Beatrice? What are you doing with the ventilation damper—hey! Turn that valve back! The door... MY GOD, THEY'VE SEALED THE—"</em></p>
+          <p><strong>[SOUND: HISS OF HIGH-PRESSURE GAS, STRUGGLE, TAPE SHUTS OFF]</strong></p>
+        </div>
+      `;
     }
 
     modal.classList.remove('hidden');
@@ -940,10 +1000,28 @@ class GameEngine {
         window.escapementModule.solved = true;
         if (window.escapementModule.destroy) window.escapementModule.destroy();
         window.escapementModule.updateDOM();
+      } else if (mod === 'toxicology' && window.toxicologyModule) {
+        window.toxicologyModule.solved = true;
+        window.toxicologyModule.updateDOM();
+      } else if (mod === 'autopsy' && window.autopsyModule) {
+        window.autopsyModule.solved = true;
+        window.autopsyModule.updateDOM();
+      } else if (mod === 'morgueKeypad' && window.morgueKeypadModule) {
+        window.morgueKeypadModule.solved = true;
+        window.morgueKeypadModule.updateDOM();
+      } else if (mod === 'lifeSupport' && window.lifeSupportModule) {
+        window.lifeSupportModule.solved = true;
+        window.lifeSupportModule.updateDOM();
       }
 
       if (window.audio) window.audio.playDisarmed();
       this.checkVictory();
+
+    } else if (data.type === 'MORGUE_REMOTE_TRIGGER') {
+      if (window.lifeSupportModule) {
+        if (data.action === 'VENT_FLUSH') window.lifeSupportModule.remoteTriggerVentFlush();
+        else if (data.action === 'POWER_RESET') window.lifeSupportModule.remoteTriggerPowerReset();
+      }
 
     } else if (data.type === 'MISSION_VICTORY') {
       this.triggerVictory();

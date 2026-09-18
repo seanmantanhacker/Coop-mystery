@@ -914,3 +914,6 @@ class Silo44Environment {
     this.scene.remove(this.group);
   }
 }
+
+window.Silo44Environment = Silo44Environment;
+
