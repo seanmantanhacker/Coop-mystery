@@ -6,6 +6,11 @@
   <title>OPERATION: ZERO HOUR - Realistic Co-Op Point & Click Inspection</title>
   <link rel="stylesheet" href="style.css">
   
+  <!-- Modern Tactical & Antique Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
   <!-- CDN Libraries: Three.js, PeerJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -196,13 +201,29 @@
 
         <!-- Radio Inspect Control Bar (Silo 44) -->
         <div id="radio-inspect-hud" class="radio-floating-hud glass-panel hidden">
-          <span>📻 RF JAMMER TUNER (CLICK KNOB ON BOMB DECK TO ADVANCE FREQUENCY):</span>
-          <span id="radio-inspect-freq" class="glow-yellow">100.0 MHz</span>
+          <div class="hud-header-bar radio-hud-header">
+            <span class="hud-title-mini">📻 RF JAMMER FREQUENCY TUNER</span>
+            <button class="btn btn-ctrl btn-close-modal btn-mini-close" onclick="bomb3D.handleStepBack()" title="Step back to full bomb">✕ BACK</button>
+          </div>
+          <div class="radio-readout-row">
+            <span class="radio-label">CARRIER:</span>
+            <span id="radio-inspect-freq" class="glow-yellow">100.0 MHz</span>
+          </div>
+          <div class="radio-tune-buttons">
+            <button class="btn btn-ctrl btn-tune" onclick="bomb3D.tuneFrequencyDelta(-1.0)" title="Step down 1.0 MHz">-1.0</button>
+            <button class="btn btn-ctrl btn-tune" onclick="bomb3D.tuneFrequencyDelta(-0.1)" title="Step down 0.1 MHz">-0.1</button>
+            <button class="btn btn-ctrl btn-tune" onclick="bomb3D.tuneFrequencyDelta(0.1)" title="Step up 0.1 MHz">+0.1</button>
+            <button class="btn btn-ctrl btn-tune" onclick="bomb3D.tuneFrequencyDelta(1.0)" title="Step up 1.0 MHz">+1.0</button>
+          </div>
+          <p class="caption-guidance">Use tuner buttons or click/tap knob on 3D deck to lock onto Analyst's target frequency.</p>
         </div>
 
         <!-- Victorian Module 1: Zodiac Rings HUD -->
         <div id="zodiac-inspect-hud" class="module-inspect-hud glass-panel hidden">
-          <div class="hud-title">♈ ASTROLOGICAL ZODIAC CONCENTRIC RINGS</div>
+          <div class="hud-header-bar">
+            <div class="hud-title">♈ ASTROLOGICAL ZODIAC CONCENTRIC RINGS</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
           <div class="ring-controls-grid">
             <div class="ring-ctrl">
               <span class="ctrl-label">OUTER (HOUSE)</span>
@@ -234,7 +255,10 @@
 
         <!-- Victorian Module 2: Mercury Manometer HUD -->
         <div id="mercury-inspect-hud" class="module-inspect-hud glass-panel hidden">
-          <div class="hud-title">☿ QUICKSILVER MANOMETER LEVELER</div>
+          <div class="hud-header-bar">
+            <div class="hud-title">☿ QUICKSILVER MANOMETER LEVELER</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
           <div class="mercury-tubes-display">
             <div class="tube-col">
               <span class="tube-name">VIAL α (SULFUR)</span>
@@ -263,7 +287,10 @@
 
         <!-- Victorian Module 3: Prismatic Light HUD -->
         <div id="prism-inspect-hud" class="module-inspect-hud glass-panel hidden">
-          <div class="hud-title">💎 PRISMATIC OPTICAL CRYSTAL LENS</div>
+          <div class="hud-header-bar">
+            <div class="hud-title">💎 PRISMATIC OPTICAL CRYSTAL LENS</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
           <div class="prism-controls-grid">
             <div class="prism-ctrl">
               <span class="ctrl-label">PRISM 1 (FLINT)</span>
@@ -300,7 +327,10 @@
 
         <!-- Victorian Module 4: Clockwork Escapement HUD -->
         <div id="escapement-inspect-hud" class="module-inspect-hud glass-panel hidden">
-          <div class="hud-title">🕰️ CLOCKWORK ESCAPEMENT & GRANDFATHER CHIME</div>
+          <div class="hud-header-bar">
+            <div class="hud-title">🕰️ CLOCKWORK ESCAPEMENT & GRANDFATHER CHIME</div>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
+          </div>
           <div class="chime-listener-card">
             <div>CHIME DETECTOR: <strong id="escapement-chime-melody" class="glow-yellow">LISTENING FOR CHIME SEQUENCE...</strong></div>
             <div>CURRENT STRIKE: <span id="escapement-strike-count" class="glow-green">SILENT</span></div>
@@ -492,6 +522,9 @@
                   <strong id="intel-dossier-ind">FRK: ON | CAR: OFF</strong>
                 </div>
               </div>
+              <div style="margin-top: 14px; text-align: center;">
+                <button class="btn btn-primary" id="btn-copy-telemetry" onclick="intelView.copyTelemetry()">📋 COPY TELEMETRY DATA</button>
+              </div>
               <p class="caption-guidance">Relay these crucial serial traits to the Manual Specialist to solve wire and keypad conditions!</p>
             </div>
           </div>
@@ -546,6 +579,9 @@
           <button class="btn btn-secondary btn-close-modal" onclick="game.closeLoreModal()">CLOSE DOCUMENT</button>
         </div>
       </div>
+
+      <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+      <div id="toast-container" class="toast-container"></div>
 
     </main>
   </div>

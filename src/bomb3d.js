@@ -91,7 +91,7 @@ class Bomb3DEngine {
     });
     this.renderer.domElement.addEventListener('mousemove', (e) => this.onPointerMove(e));
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.setView('OVERVIEW');
+      if (e.key === 'Escape') this.handleStepBack();
     });
 
     const backBtn = document.getElementById('btn-step-back');
@@ -99,7 +99,7 @@ class Bomb3DEngine {
       backBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.setView('OVERVIEW');
+        this.handleStepBack();
       });
     }
 
@@ -206,16 +206,16 @@ class Bomb3DEngine {
     // ================= 2. 3D MODULES ON DECK =================
 
     // --- MODULE 1: CATENARY CURVED WIRES (Top Left) ---
-    this.buildCatenaryWires(-1.8, 1.1);
+    this.buildCatenaryWires(-1.8, -1.1);
 
     // --- MODULE 2: MECHANICAL KEYPAD (Top Right) ---
-    this.buildMechanicalKeypad(1.8, 1.1);
+    this.buildMechanicalKeypad(1.8, -1.1);
 
     // --- MODULE 3: FREQUENCY RADIO TUNER (Bottom Left) ---
-    this.buildRadioModule(-1.8, -1.1);
+    this.buildRadioModule(-1.8, 1.1);
 
     // --- MODULE 4: SIMON GLASS DOMES (Bottom Right) ---
-    this.buildSimonDomes(1.8, -1.1);
+    this.buildSimonDomes(1.8, 1.1);
 
     // ================= 3. POINT-AND-CLICK HOTSPOT RINGS =================
     // Room-level hotspots are managed by Silo44Environment
@@ -406,22 +406,25 @@ class Bomb3DEngine {
     this.bombGroup.add(this.rfModuleGroup);
   }
 
-  rotateRadioKnob(delta) {
+  tuneFrequencyDelta(step) {
     if (this.frequencyKnob) {
-      this.frequencyKnob.rotation.y += delta;
+      this.frequencyKnob.rotation.y += (step > 0 ? 0.25 : -0.25);
     }
     if (this.envManager?.activeEnv?.shelfKnob) {
-      this.envManager.activeEnv.shelfKnob.rotation.z += delta;
+      this.envManager.activeEnv.shelfKnob.rotation.z += (step > 0 ? 0.25 : -0.25);
     }
-    audio.playDialClick();
+    if (typeof audio !== 'undefined' && audio.playDialClick) audio.playDialClick();
 
-    // Map rotation to MHz (100.0 - 200.0) in 0.5 MHz steps
-    let freq = frequencyModule.currentFreq + (delta > 0 ? 0.5 : -0.5);
+    if (!window.frequencyModule) return;
+    let freq = parseFloat((frequencyModule.currentFreq + step).toFixed(1));
     if (freq < 100.0) freq = 200.0;
     if (freq > 200.0) freq = 100.0;
     const isLocked = frequencyModule.tune(freq);
 
-    network.broadcast({ type: 'FREQ_TUNE_UPDATE', freq: freq });
+    if (typeof network !== 'undefined' && network.broadcast) {
+      network.broadcast({ type: 'FREQ_TUNE_UPDATE', freq: freq });
+    }
+
     const readout = document.getElementById('radio-inspect-freq');
     const radioHud = document.getElementById('radio-inspect-hud');
     if (radioHud) radioHud.classList.remove('hidden');
@@ -440,9 +443,13 @@ class Bomb3DEngine {
       if (this.rfStatusLedMat) {
         this.rfStatusLedMat.color.setHex(0x00ff66);
       }
-      audio.playDisarmed();
-      game.checkAllModulesDisarmed();
+      if (typeof audio !== 'undefined' && audio.playDisarmed) audio.playDisarmed();
+      if (typeof game !== 'undefined' && game.checkAllModulesDisarmed) game.checkAllModulesDisarmed();
     }
+  }
+
+  rotateRadioKnob(delta) {
+    this.tuneFrequencyDelta(delta > 0 ? 0.5 : -0.5);
   }
 
   // --- Simon Glass Light Domes ---
@@ -502,13 +509,17 @@ class Bomb3DEngine {
       this.currentBombQuadrant = 'ALL';
       if (quadBar) quadBar.classList.remove('hidden');
       if (radioHud) {
-        radioHud.classList.remove('hidden');
         const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
         const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
         const readout = document.getElementById('radio-inspect-freq');
         if (readout) {
           readout.className = isLocked ? 'glow-green' : 'glow-yellow';
           readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+        }
+        if (window.innerWidth > 860) {
+          radioHud.classList.remove('hidden');
+        } else {
+          radioHud.classList.add('hidden');
         }
       }
     } else {
@@ -524,24 +535,41 @@ class Bomb3DEngine {
         this.targetCameraTarget.copy(preset.target);
 
         // Responsive Aspect-Ratio Framing:
-        // On narrow/portrait screens (phones & tablets), automatically adapt distance
+        // On narrow/portrait screens (phones & tablets), adapt framing safely:
         const container = document.getElementById('three-canvas-container');
         const aspect = (container && container.clientHeight > 0)
           ? (container.clientWidth / container.clientHeight)
           : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
 
-        let distFactor = 1.0;
-        if (aspect < 1.25) {
-          distFactor = Math.max(1.0, 1.15 / aspect);
-        }
+        if (viewMode === 'OVERVIEW') {
+          // In room overview, do NOT push camera through the concrete back wall!
+          // Keep camera safely positioned inside the room bounds:
+          this.targetCameraPos.copy(preset.pos);
 
-        const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
-        offset.multiplyScalar(distFactor);
-        this.targetCameraPos.copy(preset.target).add(offset);
+          // On tall/narrow mobile viewports, adapt vertical FOV so the room is fully visible:
+          if (this.camera) {
+            let fov = preset.fov || 52;
+            if (aspect < 1.25) {
+              fov = Math.min(74, Math.round(fov * (1.18 / Math.max(0.48, aspect))));
+            }
+            this.camera.fov = fov;
+            this.camera.updateProjectionMatrix();
+          }
+        } else {
+          // For inspect modes, distance scaling is safe since targets are in the room center:
+          let distFactor = 1.0;
+          if (aspect < 1.25) {
+            distFactor = Math.max(1.0, 1.15 / aspect);
+          }
 
-        if (preset.fov && this.camera) {
-          this.camera.fov = preset.fov;
-          this.camera.updateProjectionMatrix();
+          const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
+          offset.multiplyScalar(distFactor);
+          this.targetCameraPos.copy(preset.target).add(offset);
+
+          if (preset.fov && this.camera) {
+            this.camera.fov = preset.fov;
+            this.camera.updateProjectionMatrix();
+          }
         }
       }
     }
@@ -578,33 +606,56 @@ class Bomb3DEngine {
 
     if (typeof audio !== 'undefined' && audio.playZoom) audio.playZoom();
 
-    // 4 Quadrants on the bomb casing (deck is at y=1.41)
-    if (quadrant === 'WIRES') {
-      // Upper-Left: wiresModule
-      this.targetCameraTarget.set(-1.8, 1.45, 1.1);
-      this.targetCameraPos.set(-1.8, 2.50, 1.95);
-      this.camera.fov = 38;
-      this.camera.updateProjectionMatrix();
-    } else if (quadrant === 'KEYPAD') {
-      // Upper-Right: keypadModule
-      this.targetCameraTarget.set(1.8, 1.45, 1.1);
-      this.targetCameraPos.set(1.8, 2.50, 1.95);
-      this.camera.fov = 38;
-      this.camera.updateProjectionMatrix();
-    } else if (quadrant === 'RADIO') {
-      // Bottom-Left: frequencyModule
-      this.targetCameraTarget.set(-1.8, 1.45, -1.1);
-      this.targetCameraPos.set(-1.8, 2.50, -0.25);
-      this.camera.fov = 38;
-      this.camera.updateProjectionMatrix();
-      const radioHud = document.getElementById('radio-inspect-hud');
-      if (radioHud) radioHud.classList.remove('hidden');
-    } else if (quadrant === 'SIMON') {
-      // Bottom-Right: simonModule
-      this.targetCameraTarget.set(1.8, 1.45, -1.1);
-      this.targetCameraPos.set(1.8, 2.50, -0.25);
-      this.camera.fov = 38;
-      this.camera.updateProjectionMatrix();
+    // Radio Inspect HUD visibility
+    const radioHud = document.getElementById('radio-inspect-hud');
+    if (radioHud) {
+      if (quadrant === 'RADIO') {
+        radioHud.classList.remove('hidden');
+      } else {
+        radioHud.classList.add('hidden');
+      }
+    }
+
+    const container = document.getElementById('three-canvas-container');
+    const aspect = (container && container.clientHeight > 0)
+      ? (container.clientWidth / container.clientHeight)
+      : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
+
+    let distFactor = 1.0;
+    if (aspect < 1.25) {
+      distFactor = Math.max(1.0, 1.15 / aspect);
+    }
+
+    // Module definitions in local bomb coordinates:
+    // Wires: Top-Left (-1.8, -1.1), Keypad: Top-Right (1.8, -1.1)
+    // Radio: Bottom-Left (-1.8, 1.1), Simon: Bottom-Right (1.8, 1.1)
+    const quadrantLocalCoords = {
+      WIRES:  new THREE.Vector3(-1.8, 1.45, -1.1),
+      KEYPAD: new THREE.Vector3(1.8, 1.45, -1.1),
+      RADIO:  new THREE.Vector3(-1.8, 1.45, 1.1),
+      SIMON:  new THREE.Vector3(1.8, 1.45, 1.1)
+    };
+
+    if (quadrantLocalCoords[quadrant]) {
+      const localTarget = quadrantLocalCoords[quadrant].clone();
+      const worldTarget = this.bombGroup.localToWorld(localTarget.clone());
+
+      this.targetCameraTarget.copy(worldTarget);
+
+      // Downward inspection camera angle (~49°)
+      const baseOffset = new THREE.Vector3(0, 0.48, 0.42);
+      baseOffset.multiplyScalar(distFactor);
+
+      if (quadrant === 'RADIO' && aspect < 1.25) {
+        this.targetCameraTarget.y -= 0.03;
+      }
+
+      this.targetCameraPos.copy(this.targetCameraTarget).add(baseOffset);
+
+      if (this.camera) {
+        this.camera.fov = (aspect < 1.25) ? 38 : 36;
+        this.camera.updateProjectionMatrix();
+      }
     } else {
       // Full Bomb View
       const preset = this.envManager?.activeEnv?.cameraPresets?.INSPECT_BOMB || {
@@ -613,16 +664,6 @@ class Bomb3DEngine {
         fov: 40
       };
       this.targetCameraTarget.copy(preset.target);
-
-      const container = document.getElementById('three-canvas-container');
-      const aspect = (container && container.clientHeight > 0)
-        ? (container.clientWidth / container.clientHeight)
-        : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
-
-      let distFactor = 1.0;
-      if (aspect < 1.25) {
-        distFactor = Math.max(1.0, 1.15 / aspect);
-      }
 
       const offset = new THREE.Vector3().subVectors(preset.pos, preset.target);
       offset.multiplyScalar(distFactor);
@@ -636,6 +677,12 @@ class Bomb3DEngine {
   }
 
   handleStepBack() {
+    const hudIds = ['radio-inspect-hud', 'zodiac-inspect-hud', 'mercury-inspect-hud', 'prism-inspect-hud', 'escapement-inspect-hud'];
+    hudIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
+
     if (this.currentView === 'INSPECT_BOMB' && this.currentBombQuadrant && this.currentBombQuadrant !== 'ALL') {
       this.setBombQuadrant('ALL');
     } else {
@@ -762,13 +809,13 @@ class Bomb3DEngine {
         const bombHits = this.raycaster.intersectObjects(this.bombGroup.children, true);
         if (bombHits.length > 0) {
           const pt = bombHits[0].point;
-          if (pt.x < 0 && pt.z > 0) {
+          if (pt.x < 0 && pt.z <= 0) {
             this.setBombQuadrant('WIRES');
             return;
-          } else if (pt.x >= 0 && pt.z > 0) {
+          } else if (pt.x >= 0 && pt.z <= 0) {
             this.setBombQuadrant('KEYPAD');
             return;
-          } else if (pt.x < 0 && pt.z <= 0) {
+          } else if (pt.x < 0 && pt.z > 0) {
             this.setBombQuadrant('RADIO');
             return;
           } else {

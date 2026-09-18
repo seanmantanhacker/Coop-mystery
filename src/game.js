@@ -45,6 +45,8 @@ class GameEngine {
           this.roomCode = code.toUpperCase();
           const roleBox = document.getElementById('role-selection-box');
           if (roleBox) roleBox.classList.remove('hidden');
+          const copyBtn = document.getElementById('btn-copy-invite');
+          if (copyBtn) copyBtn.classList.remove('hidden');
           
           network.init(this.roomCode, true);
           this.configureHostLobby();
@@ -58,6 +60,8 @@ class GameEngine {
           this.roomCode = code.toUpperCase();
           const roleBox = document.getElementById('role-selection-box');
           if (roleBox) roleBox.classList.remove('hidden');
+          const copyBtn = document.getElementById('btn-copy-invite');
+          if (copyBtn) copyBtn.classList.remove('hidden');
           
           network.init(this.roomCode, false);
           this.configureClientLobby();
@@ -96,6 +100,46 @@ class GameEngine {
         }
       });
 
+      // Copy Invite Link Button
+      const btnCopyInvite = document.getElementById('btn-copy-invite');
+      if (btnCopyInvite) {
+        btnCopyInvite.addEventListener('click', () => {
+          const room = this.roomCode || (roomInput ? roomInput.value.trim() : 'ALPHA');
+          const url = `${window.location.origin}${window.location.pathname}?room=${room}`;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+              this.showToast(`📋 Invite link copied to clipboard!`);
+            }).catch(() => {
+              prompt('Copy invite link:', url);
+            });
+          } else {
+            prompt('Copy invite link:', url);
+          }
+        });
+      }
+
+      // Audio Toggle Button
+      const audioBtn = document.getElementById('audio-toggle-btn');
+      if (audioBtn) {
+        audioBtn.addEventListener('click', () => {
+          if (window.audio) {
+            const isMuted = window.audio.toggleMute();
+            audioBtn.innerText = isMuted ? '🔇 SOUND MUTED' : '🔊 SOUND ON';
+          }
+        });
+      }
+
+      // Audio Warmup on First Pointer/Key Interaction
+      const warmUpAudio = () => {
+        if (window.audio && window.audio.init) window.audio.init();
+        window.removeEventListener('pointerdown', warmUpAudio);
+        window.removeEventListener('keydown', warmUpAudio);
+        window.removeEventListener('touchstart', warmUpAudio);
+      };
+      window.addEventListener('pointerdown', warmUpAudio, { passive: true });
+      window.addEventListener('touchstart', warmUpAudio, { passive: true });
+      window.addEventListener('keydown', warmUpAudio, { passive: true });
+
       // Auto-detect ?room= query parameter or prefill unique room code
       try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -118,6 +162,23 @@ class GameEngine {
     } else {
       setup();
     }
+  }
+
+  showToast(message, duration = 3200) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.innerHTML = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
   }
 
   configureHostLobby() {

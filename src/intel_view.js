@@ -97,6 +97,33 @@ class IntelViewEngine {
     if (window.game) window.game.triggerEmergencyOverride();
   }
 
+  copyTelemetry() {
+    let text = '';
+    if (this.scenario === 'silo44') {
+      const serial = window.game ? window.game.serialNumber : 'A7-93K';
+      const batt = window.game ? `${window.game.batteries} CELLS` : '2 CELLS';
+      const frk = window.game?.indicators?.FRK ? 'ON' : 'OFF';
+      const car = window.game?.indicators?.CAR ? 'ON' : 'OFF';
+      const target = window.frequencyModule ? `${window.frequencyModule.targetFreq} MHz` : '142.5 MHz';
+      text = `[INTEL TELEMETRY] Serial: ${serial} | Batteries: ${batt} | Indicators: FRK=${frk}, CAR=${car} | Target Freq: ${target}`;
+    } else {
+      const target = window.prismModule ? `${window.prismModule.targetWavelength} nm` : '589 nm';
+      text = `[ALCHEMIST INTEL] Opus III: SCORPIO | Celestial: RETROGRADE | Lunar: PERIGEE | Target Spectral: ${target}`;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (window.game && window.game.showToast) {
+          window.game.showToast('📋 Telemetry data copied to clipboard!');
+        }
+      }).catch(() => {
+        prompt('Copy telemetry data:', text);
+      });
+    } else {
+      prompt('Copy telemetry data:', text);
+    }
+  }
+
   updateDossierData() {
     const serialEl = document.getElementById('intel-dossier-serial');
     const battEl = document.getElementById('intel-dossier-batt');
