@@ -110,13 +110,25 @@ class ZodiacModule {
     const oEl = document.getElementById('zodiac-outer-readout');
     const mEl = document.getElementById('zodiac-middle-readout');
     const iEl = document.getElementById('zodiac-inner-readout');
+    const statusEl = document.getElementById('zodiac-status');
 
     if (oEl) oEl.innerText = `${this.houses[this.outerIndex].symbol} ${this.houses[this.outerIndex].name}`;
     if (mEl) mEl.innerText = `${this.planets[this.middleIndex].symbol} ${this.planets[this.middleIndex].name}`;
     if (iEl) iEl.innerText = `${this.elements[this.innerIndex].symbol} ${this.elements[this.innerIndex].name}`;
+
+    if (statusEl) {
+      if (this.solved) {
+        statusEl.classList.remove('hidden');
+        statusEl.innerText = 'CELESTIAL ZODIAC ALIGNED & LOCKED ✓';
+      } else {
+        statusEl.classList.add('hidden');
+      }
+    }
   }
 
   checkSolved() {
+    if (this.solved) return true;
+
     const curHouse = this.houses[this.outerIndex];
     const curPlanet = this.planets[this.middleIndex];
     const curElement = this.elements[this.innerIndex];
@@ -127,8 +139,15 @@ class ZodiacModule {
 
     if (matchOuter && matchMiddle && matchInner) {
       this.solved = true;
+      this.updateDOM();
       if (window.audio) window.audio.playSuccess();
-      if (window.game) window.game.checkVictory();
+      if (window.network && window.network.broadcast) {
+        window.network.broadcast({ type: 'MODULE_SOLVED', module: 'zodiac' });
+      }
+      if (window.game) {
+        window.game.showToast('♈ CELESTIAL ASTROLABE: ZODIAC ALIGNED!');
+        window.game.checkVictory();
+      }
       return true;
     }
     return false;

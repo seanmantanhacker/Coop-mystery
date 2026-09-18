@@ -224,6 +224,7 @@
             <div class="hud-title">♈ ASTROLOGICAL ZODIAC CONCENTRIC RINGS</div>
             <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
           </div>
+          <div id="zodiac-status" class="module-status-badge hidden">ALIGNED &amp; LOCKED ✓</div>
           <div class="ring-controls-grid">
             <div class="ring-ctrl">
               <span class="ctrl-label">OUTER (HOUSE)</span>
@@ -259,6 +260,7 @@
             <div class="hud-title">☿ QUICKSILVER MANOMETER LEVELER</div>
             <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
           </div>
+          <div id="mercury-status" class="module-status-badge hidden">HYDROSTATIC EQUILIBRIUM ACHIEVED ✓</div>
           <div class="mercury-tubes-display">
             <div class="tube-col">
               <span class="tube-name">VIAL α (SULFUR)</span>
@@ -281,6 +283,8 @@
             <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, -5)">VALVE 1 (α ▶ β)</button>
             <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, 5)">VALVE 2 (β ◀ γ)</button>
             <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, -5)">VALVE 2 (β ▶ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, 5)">VALVE 3 (α ◀ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, -5)">VALVE 3 (α ▶ γ)</button>
           </div>
           <p class="caption-guidance">Turn thumb valves to balance fluids into hydrostatic equilibrium according to the Grimoire ratios.</p>
         </div>
@@ -291,6 +295,7 @@
             <div class="hud-title">💎 PRISMATIC OPTICAL CRYSTAL LENS</div>
             <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
           </div>
+          <div id="prism-status" class="module-status-badge hidden">SPECTRAL WAVELENGTH LOCKED ✓</div>
           <div class="prism-controls-grid">
             <div class="prism-ctrl">
               <span class="ctrl-label">PRISM 1 (FLINT)</span>
@@ -328,9 +333,10 @@
         <!-- Victorian Module 4: Clockwork Escapement HUD -->
         <div id="escapement-inspect-hud" class="module-inspect-hud glass-panel hidden">
           <div class="hud-header-bar">
-            <div class="hud-title">🕰️ CLOCKWORK ESCAPEMENT & GRANDFATHER CHIME</div>
+            <div class="hud-title">🕰️ CLOCKWORK ESCAPEMENT &amp; GRANDFATHER CHIME</div>
             <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()" title="Return to Overview">✕ CLOSE</button>
           </div>
+          <div id="escapement-status" class="module-status-badge hidden">ESCAPEMENT BRAKE DISENGAGED ✓</div>
           <div class="chime-listener-card">
             <div>CHIME DETECTOR: <strong id="escapement-chime-melody" class="glow-yellow">LISTENING FOR CHIME SEQUENCE...</strong></div>
             <div>CURRENT STRIKE: <span id="escapement-strike-count" class="glow-green">SILENT</span></div>
@@ -508,18 +514,21 @@
                 <h2>BOMB SPECIFICATION & ORDNANCE DOSSIER</h2>
                 <button class="btn btn-secondary btn-close-modal" onclick="intelView.setView('CONSOLE_OVERVIEW')">✕ CLOSE DOSSIER</button>
               </div>
-              <div class="inspect-dossier-grid">
                 <div class="dossier-item">
-                  <span>SERIAL NUMBER:</span>
+                  <span id="intel-dossier-serial-lbl">SERIAL NUMBER:</span>
                   <strong id="intel-dossier-serial" class="glow-green">A7-93K</strong>
                 </div>
                 <div class="dossier-item">
-                  <span>BATTERY COMPARTMENTS:</span>
+                  <span id="intel-dossier-batt-lbl">BATTERY COMPARTMENTS:</span>
                   <strong id="intel-dossier-batt">2 CELLS</strong>
                 </div>
                 <div class="dossier-item">
-                  <span>INDICATOR RELAYS:</span>
+                  <span id="intel-dossier-ind-lbl">INDICATOR RELAYS:</span>
                   <strong id="intel-dossier-ind">FRK: ON | CAR: OFF</strong>
+                </div>
+                <div class="dossier-item" id="intel-dossier-temp-item">
+                  <span id="intel-dossier-temp-lbl">AMBIENT SENSORS:</span>
+                  <strong id="intel-dossier-temp" class="glow-yellow">21.4°C (QUICKSILVER AMBIENT)</strong>
                 </div>
               </div>
               <div style="margin-top: 14px; text-align: center;">

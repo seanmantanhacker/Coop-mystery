@@ -540,7 +540,8 @@ class GameEngine {
       this.timerSeconds = 360;
       if (window.zodiacModule) window.zodiacModule.generate(seed);
       if (window.mercuryModule) window.mercuryModule.generate(seed + 15);
-      if (window.prismModule) window.prismModule.generate(seed + 30);
+      const zodiacTargetElem = window.zodiacModule ? window.zodiacModule.targetElement : null;
+      if (window.prismModule) window.prismModule.generate(seed + 30, zodiacTargetElem);
       if (window.escapementModule) window.escapementModule.generate(seed + 45);
     }
 
@@ -911,6 +912,38 @@ class GameEngine {
         const el = document.getElementById('intel-dossier-current-freq');
         if (el) el.innerText = `${data.freq.toFixed(1)} MHz`;
       }
+
+    } else if (data.type === 'PRISM_UPDATE') {
+      if (window.prismModule) {
+        window.prismModule.currentWavelength = data.wavelength;
+        window.prismModule.activeFilter = data.filter;
+      }
+      const el = document.getElementById('intel-dossier-current-freq');
+      if (el) el.innerText = `${data.wavelength} nm (${(data.filter || 'NONE').toUpperCase()})`;
+
+    } else if (data.type === 'MODULE_SOLVED') {
+      const mod = data.module;
+      if (mod === 'wires' && window.wiresModule) window.wiresModule.disarmed = true;
+      else if (mod === 'keypad' && window.keypadModule) window.keypadModule.disarmed = true;
+      else if (mod === 'frequency' && window.frequencyModule) window.frequencyModule.disarmed = true;
+      else if (mod === 'simon' && window.simonModule) window.simonModule.disarmed = true;
+      else if (mod === 'zodiac' && window.zodiacModule) {
+        window.zodiacModule.solved = true;
+        window.zodiacModule.updateDOM();
+      } else if (mod === 'mercury' && window.mercuryModule) {
+        window.mercuryModule.solved = true;
+        window.mercuryModule.updateDOM();
+      } else if (mod === 'prism' && window.prismModule) {
+        window.prismModule.solved = true;
+        window.prismModule.updateDOM();
+      } else if (mod === 'escapement' && window.escapementModule) {
+        window.escapementModule.solved = true;
+        if (window.escapementModule.destroy) window.escapementModule.destroy();
+        window.escapementModule.updateDOM();
+      }
+
+      if (window.audio) window.audio.playDisarmed();
+      this.checkVictory();
 
     } else if (data.type === 'MISSION_VICTORY') {
       this.triggerVictory();

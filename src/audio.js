@@ -372,6 +372,26 @@ class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.02);
   }
 
+  // Pure Frequency Tone Beep (for valves, switches)
+  playBeep(freq = 440, duration = 0.08) {
+    if (this.muted) return;
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
+  }
+
   playExplosion() {
     if (this.muted) return;
     this.init();

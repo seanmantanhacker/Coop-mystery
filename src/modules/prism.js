@@ -19,10 +19,10 @@ class PrismModule {
     this.solved = false;
   }
 
-  generate(seed = 1888) {
+  generate(seed = 1888, targetElement = null) {
     const s = Math.abs(seed);
     const elements = ['Fire', 'Water', 'Air', 'Earth'];
-    this.targetElement = elements[s % 4];
+    this.targetElement = targetElement || elements[s % 4];
 
     if (this.targetElement === 'Fire') {
       this.targetWavelength = 589; // Amber
@@ -82,11 +82,27 @@ class PrismModule {
 
     this.updateDOM();
 
+    // Broadcast live wavelength tuning to Intel Operative
+    if (window.network && window.network.broadcast) {
+      window.network.broadcast({
+        type: 'PRISM_UPDATE',
+        wavelength: this.currentWavelength,
+        filter: this.activeFilter
+      });
+    }
+
     const diff = Math.abs(this.currentWavelength - this.targetWavelength);
-    if (diff <= this.tolerance && this.activeFilter === this.targetFilter) {
+    if (!this.solved && diff <= this.tolerance && this.activeFilter === this.targetFilter) {
       this.solved = true;
+      this.updateDOM();
       if (window.audio) window.audio.playSuccess();
-      if (window.game) window.game.checkVictory();
+      if (window.network && window.network.broadcast) {
+        window.network.broadcast({ type: 'MODULE_SOLVED', module: 'prism' });
+      }
+      if (window.game) {
+        window.game.showToast('💎 PRISMATIC LENS: SPECTRAL WAVELENGTH LOCKED!');
+        window.game.checkVictory();
+      }
     }
   }
 
@@ -94,10 +110,20 @@ class PrismModule {
     const p1El = document.getElementById('prism1-angle-val');
     const p2El = document.getElementById('prism2-angle-val');
     const waveEl = document.getElementById('prism-wavelength-val');
+    const statusEl = document.getElementById('prism-status');
 
     if (p1El) p1El.innerText = `${this.prism1Angle}°`;
     if (p2El) p2El.innerText = `${this.prism2Angle}°`;
     if (waveEl) waveEl.innerText = `${this.currentWavelength} nm (${this.activeFilter.toUpperCase()})`;
+
+    if (statusEl) {
+      if (this.solved) {
+        statusEl.classList.remove('hidden');
+        statusEl.innerText = 'SPECTRAL WAVELENGTH LOCKED ✓';
+      } else {
+        statusEl.classList.add('hidden');
+      }
+    }
   }
 
   getCurrentState() {

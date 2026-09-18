@@ -2573,3 +2573,23 @@ section.game-screen.active-screen {
     padding: 10px 14px;
   }
 }
+
+/* Module Solved Status Badge */
+.module-status-badge {
+  display: block;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  font-family: var(--font-tactical);
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  text-align: center;
+  padding: 8px 14px;
+  margin: 10px 0 16px 0;
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.35);
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+.module-status-badge.hidden {
+  display: none;
+}

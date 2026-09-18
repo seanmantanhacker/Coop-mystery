@@ -104,8 +104,8 @@ class EscapeRoomEnvironmentManager {
         readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
       }
     }
-    if (viewKey === 'INSPECT_PUZZLE_BOX' && zodiacHud) zodiacHud.classList.remove('hidden');
-    if (viewKey === 'INSPECT_ASTROLABE' && mercuryHud) mercuryHud.classList.remove('hidden');
+    if (viewKey === 'INSPECT_ASTROLABE' && zodiacHud) zodiacHud.classList.remove('hidden');
+    if (viewKey === 'INSPECT_PUZZLE_BOX' && mercuryHud) mercuryHud.classList.remove('hidden');
     if (viewKey === 'INSPECT_FIREPLACE' && prismHud) prismHud.classList.remove('hidden');
     if (viewKey === 'INSPECT_CLOCK' && escapementHud) escapementHud.classList.remove('hidden');
 

@@ -95,6 +95,7 @@ class EscapementModule {
   updateDOM() {
     const melEl = document.getElementById('escapement-chime-melody');
     const strEl = document.getElementById('escapement-strike-count');
+    const statusEl = document.getElementById('escapement-status');
 
     if (melEl) melEl.innerText = `MELODY: ${this.activeMelody.name.toUpperCase()}`;
     if (strEl) {
@@ -109,6 +110,15 @@ class EscapementModule {
         strEl.style.color = '#00ff88';
       }
     }
+
+    if (statusEl) {
+      if (this.solved) {
+        statusEl.classList.remove('hidden');
+        statusEl.innerText = 'ESCAPEMENT BRAKE DISENGAGED ✓';
+      } else {
+        statusEl.classList.add('hidden');
+      }
+    }
   }
 
   // Defuser pulls Deadman Release Lever
@@ -121,8 +131,15 @@ class EscapementModule {
     if (isCorrect) {
       this.solved = true;
       if (this.chimeInterval) clearInterval(this.chimeInterval);
+      this.updateDOM();
       if (window.audio) window.audio.playSuccess();
-      if (window.game) window.game.checkVictory();
+      if (window.network && window.network.broadcast) {
+        window.network.broadcast({ type: 'MODULE_SOLVED', module: 'escapement' });
+      }
+      if (window.game) {
+        window.game.showToast('🕰️ GRANDFATHER CLOCK: ESCAPEMENT BRAKE DISENGAGED!');
+        window.game.checkVictory();
+      }
     } else {
       // Strike penalty for tripping brake at wrong millisecond
       if (window.audio) window.audio.playStrike();

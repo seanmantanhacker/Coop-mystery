@@ -36,13 +36,13 @@ class AlchemistStudyEnvironment {
         pos: new THREE.Vector3(0.25, 1.48, 0.38),
         target: new THREE.Vector3(0.25, 0.90, -0.20),
         fov: 38,
-        label: 'ORNATE BRASS PUZZLE BOX'
+        label: 'QUICKSILVER LEVELING MANOMETER'
       },
       INSPECT_ASTROLABE: {
         pos: new THREE.Vector3(-1.10, 1.42, 0.45),
         target: new THREE.Vector3(-1.10, 1.05, -0.20),
         fov: 38,
-        label: 'CELESTIAL ASTROLABE'
+        label: 'CELESTIAL ASTROLABE & ZODIAC DIALS'
       },
       INSPECT_GRIMOIRE: {
         pos: new THREE.Vector3(-2.10, 1.60, -1.75),
@@ -869,10 +869,10 @@ class AlchemistStudyEnvironment {
       return ring;
     };
 
-    // Hotspot 1: Ornate Brass Puzzle Box
-    createOccultRing('INSPECT_PUZZLE_BOX', new THREE.Vector3(0.25, 0.855, -0.2), 'INSPECT BRASS PUZZLE BOX');
+    // Hotspot 1: Quicksilver Manometer (Desk Center-Right)
+    createOccultRing('INSPECT_PUZZLE_BOX', new THREE.Vector3(0.25, 0.855, -0.2), 'INSPECT QUICKSILVER MANOMETER');
 
-    // Hotspot 2: Celestial Astrolabe Globe
+    // Hotspot 2: Celestial Astrolabe Globe (Desk Left Wing)
     createOccultRing('INSPECT_ASTROLABE', new THREE.Vector3(-1.1, 0.865, -0.2), 'INSPECT CELESTIAL ASTROLABE');
 
     // Hotspot 3: Alchemical Grimoire on Lectern

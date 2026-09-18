@@ -260,7 +260,12 @@ class IntelViewEngine {
       text = `[INTEL TELEMETRY] Serial: ${serial} | Batteries: ${batt} | Indicators: FRK=${frk}, CAR=${car} | Target Freq: ${target}`;
     } else {
       const target = window.prismModule ? `${window.prismModule.targetWavelength} nm` : '589 nm';
-      text = `[ALCHEMIST INTEL] Opus III: SCORPIO | Celestial: RETROGRADE | Lunar: PERIGEE | Target Spectral: ${target}`;
+      const zod = window.zodiacModule;
+      const houseName = zod ? `${zod.houses[zod.targetHouseIdx].name.toUpperCase()} ${zod.houses[zod.targetHouseIdx].symbol}` : 'SCORPIO ♏';
+      const retro = zod ? (zod.isRetrograde ? 'RETROGRADE (WEST BUBBLE)' : 'DIRECT (EAST BUBBLE)') : 'RETROGRADE';
+      const lunar = zod ? (zod.isPerigee ? 'PERIGEE ☽' : 'APOGEE ☾') : 'PERIGEE ☽';
+      const temp = window.mercuryModule ? `${window.mercuryModule.temperature.toFixed(1)}°C` : '21.4°C';
+      text = `[ALCHEMIST INTEL] Opus: ${houseName} | Celestial: ${retro} | Lunar: ${lunar} | Ambient Temp: ${temp} | Target Spectral: ${target}`;
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -280,6 +285,12 @@ class IntelViewEngine {
     const serialEl = document.getElementById('intel-dossier-serial');
     const battEl = document.getElementById('intel-dossier-batt');
     const indEl = document.getElementById('intel-dossier-ind');
+    const tempItem = document.getElementById('intel-dossier-temp-item');
+    const tempEl = document.getElementById('intel-dossier-temp');
+    const serialLbl = document.getElementById('intel-dossier-serial-lbl');
+    const battLbl = document.getElementById('intel-dossier-batt-lbl');
+    const indLbl = document.getElementById('intel-dossier-ind-lbl');
+    const tempLbl = document.getElementById('intel-dossier-temp-lbl');
     const targetFreqEl = document.getElementById('intel-dossier-target-freq');
     const currentFreqEl = document.getElementById('intel-dossier-current-freq');
     const centerTitle = document.getElementById('intel-center-title');
@@ -300,6 +311,11 @@ class IntelViewEngine {
       if (emergWarning) emergWarning.innerText = '⚠️ PROTOCOL: Solve the cryptographic mathematical equation below to unlock the coolant valve (+2:00 to Detonation Clock, single use).';
       if (guardLabel) guardLabel.innerText = 'LIFT GUARD';
 
+      if (serialLbl) serialLbl.innerText = 'SERIAL NUMBER:';
+      if (battLbl) battLbl.innerText = 'BATTERY COMPARTMENTS:';
+      if (indLbl) indLbl.innerText = 'INDICATOR RELAYS:';
+      if (tempItem) tempItem.style.display = 'none';
+
       if (serialEl) serialEl.innerText = window.game ? window.game.serialNumber : 'A7-93K';
       if (battEl) battEl.innerText = window.game ? `${window.game.batteries} CELLS` : '2 CELLS';
       if (indEl && window.game) {
@@ -315,12 +331,25 @@ class IntelViewEngine {
       if (currentLbl) currentLbl.innerText = 'REFRACTED BEAM WAVELENGTH:';
       if (captionEl) captionEl.innerText = 'Guide Operative 1 (Defuser) to rotate optical crystal prisms and select color filters to match the target celestial spectrum!';
       if (emergTitle) emergTitle.innerText = 'VALVE OF HERMES: PHOSGENE NEUTRALIZER';
-      if (emergWarning) emergWarning.innerText = '⚠️ HERMETIC PROTOCOL: Break open the brass wax seal, then release the counterweight lever to inject quicksilver neutralizer (+30s to Countdown).';
+      if (emergWarning) emergWarning.innerText = '⚠️ HERMETIC PROTOCOL: Solve the cryptographic mathematical equation below to unlock the quicksilver neutralizer valve (+2:00 to Detonation Clock, single use).';
       if (guardLabel) guardLabel.innerText = 'BREAK SEAL';
 
-      if (serialEl) serialEl.innerText = 'OPUS III: SCORPIO ♏';
-      if (battEl) battEl.innerText = 'RETROGRADE (WEST BUBBLE)';
-      if (indEl) indEl.innerText = 'LUNAR STATE: PERIGEE ☽';
+      const zod = window.zodiacModule;
+      const houseText = zod ? `${zod.houses[zod.targetHouseIdx].name.toUpperCase()} ${zod.houses[zod.targetHouseIdx].symbol}` : 'SCORPIO ♏';
+      const retroText = zod ? (zod.isRetrograde ? 'RETROGRADE (WEST BUBBLE)' : 'DIRECT (EAST BUBBLE)') : 'RETROGRADE (WEST BUBBLE)';
+      const lunarText = zod ? (zod.isPerigee ? 'LUNAR: PERIGEE ☽ (PURIFYING)' : 'LUNAR: APOGEE ☾ (BASELINE)') : 'LUNAR: PERIGEE ☽';
+      const tempVal = window.mercuryModule ? `${window.mercuryModule.temperature.toFixed(1)}°C` : '21.4°C';
+
+      if (serialLbl) serialLbl.innerText = 'RULING OPUS / HOUSE:';
+      if (battLbl) battLbl.innerText = 'CELESTIAL MOTION:';
+      if (indLbl) indLbl.innerText = 'LUNAR SYZYGY:';
+      if (tempItem) tempItem.style.display = 'block';
+
+      if (serialEl) serialEl.innerText = houseText;
+      if (battEl) battEl.innerText = retroText;
+      if (indEl) indEl.innerText = lunarText;
+      if (tempEl) tempEl.innerText = `${tempVal} (HYDROSTATIC AMBIENT)`;
+
       const wave = window.prismModule ? `${window.prismModule.targetWavelength} nm (SOLAR D-LINE)` : '589 nm (SODIUM D-LINE)';
       if (targetFreqEl) targetFreqEl.innerText = wave;
       if (inspectTargetEl) inspectTargetEl.innerText = wave;

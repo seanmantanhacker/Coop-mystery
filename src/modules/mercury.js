@@ -13,8 +13,8 @@ class MercuryModule {
 
     this.temperature = 21.4; // Celsius (read by Analyst)
     this.vaporPressure = 0.85; // bar
-    this.target = { alpha: 91, beta: 61, gamma: 28 };
-    this.tolerance = 4;
+    this.target = { alpha: 90, beta: 60, gamma: 30 };
+    this.tolerance = 5;
     this.solved = false;
     this.settleTimer = null;
   }
@@ -24,61 +24,88 @@ class MercuryModule {
     this.temperature = 20.0 + (s % 30) * 0.1; // 20.0 - 23.0 C
     const thermalOffset = Math.round((this.temperature - 20.0) * 0.5);
 
-    // Base Tria Prima: 90, 60, 30
+    // Base Tria Prima: 90, 60, 30 with thermal correction (conserving total 180 drams)
+    const targetAlpha = 90 + thermalOffset;
+    const targetBeta = 60 + Math.floor(thermalOffset / 2);
+    const targetGamma = 180 - targetAlpha - targetBeta;
+
     this.target = {
-      alpha: 90 + thermalOffset,
-      beta: 60 + Math.floor(thermalOffset / 2),
-      gamma: 30 - Math.ceil(thermalOffset * 1.5)
+      alpha: targetAlpha,
+      beta: targetBeta,
+      gamma: targetGamma
     };
 
-    // Scramble starting levels
+    // Scramble starting levels (sum is always 180 drams)
+    const initA = 55 + (s % 15);
+    const initB = 35 + ((s >> 2) % 15);
+    const initG = 180 - initA - initB;
+
     this.vials = {
-      alpha: 55 + (s % 15),
-      beta: 35 + ((s >> 2) % 15),
-      gamma: 180 - (55 + (s % 15)) - (35 + ((s >> 2) % 15))
+      alpha: initA,
+      beta: initB,
+      gamma: initG
     };
 
     this.solved = false;
+    if (this.settleTimer) {
+      clearTimeout(this.settleTimer);
+      this.settleTimer = null;
+    }
     this.updateDOM();
+  }
+
+  // Safe fluid transfer helper that guarantees total volume conservation (180 drams)
+  transferFluid(fromKey, toKey, amount, maxToCap) {
+    const fromVal = this.vials[fromKey];
+    const toVal = this.vials[toKey];
+    const maxTransfer = Math.min(amount, fromVal, Math.max(0, maxToCap - toVal));
+    if (maxTransfer > 0) {
+      this.vials[fromKey] -= maxTransfer;
+      this.vials[toKey] += maxTransfer;
+      return true;
+    }
+    return false;
   }
 
   // Turn Valve: transfers fluid amount (drams) between tubes
   turnValve(valveId, delta = 5) {
     if (this.solved) return;
 
+    const absAmt = Math.abs(delta);
+    let moved = false;
+
     if (valveId === 1) {
-      // Transfer Alpha <-> Beta
-      const amt = Math.min(delta, this.vials.beta);
-      if (amt > 0 && this.vials.alpha + amt <= 120) {
-        this.vials.alpha += amt;
-        this.vials.beta -= amt;
-      } else if (delta < 0 && this.vials.alpha >= Math.abs(delta)) {
-        this.vials.alpha -= Math.abs(delta);
-        this.vials.beta += Math.abs(delta);
+      // Valve 1: Alpha <-> Beta (Alpha max 120, Beta max 100)
+      if (delta > 0) {
+        // Alpha <- Beta
+        moved = this.transferFluid('beta', 'alpha', absAmt, 120);
+      } else {
+        // Alpha -> Beta
+        moved = this.transferFluid('alpha', 'beta', absAmt, 100);
       }
     } else if (valveId === 2) {
-      // Transfer Beta <-> Gamma
-      const amt = Math.min(delta, this.vials.gamma);
-      if (amt > 0 && this.vials.beta + amt <= 100) {
-        this.vials.beta += amt;
-        this.vials.gamma -= amt;
-      } else if (delta < 0 && this.vials.beta >= Math.abs(delta)) {
-        this.vials.beta -= Math.abs(delta);
-        this.vials.gamma += Math.abs(delta);
+      // Valve 2: Beta <-> Gamma (Beta max 100, Gamma max 100)
+      if (delta > 0) {
+        // Beta <- Gamma
+        moved = this.transferFluid('gamma', 'beta', absAmt, 100);
+      } else {
+        // Beta -> Gamma
+        moved = this.transferFluid('beta', 'gamma', absAmt, 100);
       }
     } else if (valveId === 3) {
-      // Bypass Alpha <-> Gamma
-      const amt = Math.min(delta, this.vials.gamma);
-      if (amt > 0 && this.vials.alpha + amt <= 120) {
-        this.vials.alpha += amt;
-        this.vials.gamma -= amt;
-      } else if (delta < 0 && this.vials.alpha >= Math.abs(delta)) {
-        this.vials.alpha -= Math.abs(delta);
-        this.vials.gamma += Math.abs(delta);
+      // Valve 3: Alpha <-> Gamma Bypass (Alpha max 120, Gamma max 100)
+      if (delta > 0) {
+        // Alpha <- Gamma
+        moved = this.transferFluid('gamma', 'alpha', absAmt, 120);
+      } else {
+        // Alpha -> Gamma
+        moved = this.transferFluid('alpha', 'gamma', absAmt, 100);
       }
     }
 
-    if (window.audio) window.audio.playBeep(440, 0.05);
+    if (moved && window.audio && window.audio.playBeep) {
+      window.audio.playBeep(440, 0.05);
+    }
     this.updateDOM();
     this.checkEquilibrium();
   }
@@ -90,6 +117,7 @@ class MercuryModule {
     const bB = document.getElementById('mercury-bar-beta');
     const vG = document.getElementById('mercury-val-gamma');
     const bG = document.getElementById('mercury-bar-gamma');
+    const statusEl = document.getElementById('mercury-status');
 
     if (vA) vA.innerText = `${this.vials.alpha} drams`;
     if (bA) bA.style.height = `${Math.min(100, (this.vials.alpha / 120) * 100)}%`;
@@ -97,6 +125,15 @@ class MercuryModule {
     if (bB) bB.style.height = `${Math.min(100, (this.vials.beta / 100) * 100)}%`;
     if (vG) vG.innerText = `${this.vials.gamma} drams`;
     if (bG) bG.style.height = `${Math.min(100, (this.vials.gamma / 120) * 100)}%`;
+
+    if (statusEl) {
+      if (this.solved) {
+        statusEl.classList.remove('hidden');
+        statusEl.innerText = 'HYDROSTATIC EQUILIBRIUM ACHIEVED ✓';
+      } else {
+        statusEl.classList.add('hidden');
+      }
+    }
   }
 
   checkEquilibrium() {
@@ -108,9 +145,16 @@ class MercuryModule {
       if (!this.settleTimer) {
         this.settleTimer = setTimeout(() => {
           this.solved = true;
+          this.updateDOM();
           if (window.audio) window.audio.playSuccess();
-          if (window.game) window.game.checkVictory();
-        }, 1500);
+          if (window.network && window.network.broadcast) {
+            window.network.broadcast({ type: 'MODULE_SOLVED', module: 'mercury' });
+          }
+          if (window.game) {
+            window.game.showToast('☿ QUICKSILVER MANOMETER: EQUILIBRIUM ACHIEVED!');
+            window.game.checkVictory();
+          }
+        }, 1200);
       }
     } else {
       if (this.settleTimer) {

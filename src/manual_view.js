@@ -248,9 +248,8 @@ class ManualViewEngine {
         <p class="classified-caption">CRITICAL COMPONENT TELEMETRY DECODER</p>
 
         <div class="parchment-rule-box">
-          <h3>Battery Indicators:</h3>
-          <p>• <strong>2 Batteries</strong>: Normal baseline. No modifier.</p>
-          <p>• <strong>3+ Batteries</strong>: All wire positions shift by +1 toward terminal B.</p>
+          <h3>Battery Cells:</h3>
+          <p>• <strong>Battery Compartment</strong>: The bomb chassis holds between 1 and 3 copper battery cells (confirmed by Intel Analyst dossier or Defuser side chassis view). Telemetry baseline rating: 2 Cells.</p>
         </div>
 
         <div class="parchment-rule-box">
@@ -275,13 +274,35 @@ class ManualViewEngine {
 
         <div class="parchment-rule-box">
           <h3>Zodiac Alignment Protocol:</h3>
-          <p>1. <strong>Outer Ring (Zodiac House)</strong>: Find the target House stamped on the Horologium or confirmed by Analyst ephemeris (e.g. <strong>Scorpio ♏</strong>).</p>
+          <p>1. <strong>Outer Ring (Zodiac House)</strong>: Find the target House confirmed by Intel Analyst ephemeris (e.g. <strong>Scorpio ♏</strong>).</p>
           <p>2. <strong>Middle Ring (Planetary Ruler)</strong>:
-             <br>• If Analyst confirms <strong>RETROGRADE (West Bubble)</strong>: Invert planetary ruler to opposite exaltation (Mars ♂ inverts to <strong>Sun ☉</strong>).
+             <br>• If Analyst confirms <strong>RETROGRADE (West Bubble)</strong>: Invert ruler to opposite exaltation (Mars inverts to <strong>Sun ☉</strong>).
              <br>• If DIRECT (East Bubble): Keep natural house ruler (Mars ♂).</p>
           <p>3. <strong>Inner Ring (Triplicity Element)</strong>:
-             <br>• If Lunar state is <strong>PERIGEE</strong>: Align to complementary purifying element (Water shifts to <strong>Fire 🜂</strong>).
-             <br>• If APOGEE: Align to natural base element (Water 🜄).</p>
+             <br>• If Lunar state is <strong>PERIGEE</strong>: Align to complementary element (Water shifts to <strong>Fire 🜂</strong>; Earth 🜃 shifts to <strong>Air 🜁</strong>).
+             <br>• If APOGEE: Align to natural base element (Water 🜄; Earth 🜃; Fire 🜂; Air 🜁).</p>
+        </div>
+
+        <div class="simon-table-container">
+          <table class="simon-table">
+            <thead>
+              <tr><th>HOUSE</th><th>NATURAL RULER</th><th>RETROGRADE INVERT</th><th>BASE ELEMENT</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>♈ Aries</td><td>Mars ♂</td><td>Venus ♀</td><td>Fire 🜂</td></tr>
+              <tr><td>♉ Taurus</td><td>Venus ♀</td><td>Mars ♂</td><td>Earth 🜃</td></tr>
+              <tr><td>♊ Gemini</td><td>Mercury ☿</td><td>Jupiter ♃</td><td>Air 🜁</td></tr>
+              <tr><td>♋ Cancer</td><td>Moon ☽</td><td>Saturn ♄</td><td>Water 🜄</td></tr>
+              <tr><td>♌ Leo</td><td>Sun ☉</td><td>Saturn ♄</td><td>Fire 🜂</td></tr>
+              <tr><td>♍ Virgo</td><td>Mercury ☿</td><td>Jupiter ♃</td><td>Earth 🜃</td></tr>
+              <tr><td>♎ Libra</td><td>Venus ♀</td><td>Mars ♂</td><td>Air 🜁</td></tr>
+              <tr><td>♏ Scorpio</td><td>Mars ♂</td><td>Sun ☉</td><td>Water 🜄</td></tr>
+              <tr><td>♐ Sagittarius</td><td>Jupiter ♃</td><td>Mercury ☿</td><td>Fire 🜂</td></tr>
+              <tr><td>♑ Capricorn</td><td>Saturn ♄</td><td>Moon ☽</td><td>Earth 🜃</td></tr>
+              <tr><td>♒ Aquarius</td><td>Saturn ♄</td><td>Sun ☉</td><td>Air 🜁</td></tr>
+              <tr><td>♓ Pisces</td><td>Jupiter ♃</td><td>Mercury ☿</td><td>Water 🜄</td></tr>
+            </tbody>
+          </table>
         </div>
       `,
 
