@@ -187,6 +187,28 @@ class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.05);
   }
 
+  // Simon Says Electronic Beep Tones (C4, E4, G4, A4)
+  playSimonTone(color) {
+    if (this.muted) return;
+    this.init();
+    const freqs = { red: 261.63, blue: 329.63, green: 392.00, yellow: 440.00 };
+    const freq = freqs[color] || 350;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.35);
+  }
+
   playWireCut() {
     if (this.muted) return;
     this.init();

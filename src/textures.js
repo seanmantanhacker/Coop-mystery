@@ -126,6 +126,41 @@ class TextureGenerator {
 
     return canvas.toDataURL();
   }
+
+  // 5. Cyrillic Keypad Button Top Face Texture
+  createKeypadGlyphTexture(symbol) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Tactile keycap surface
+    ctx.fillStyle = '#141c26';
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Beveled tactical border
+    ctx.strokeStyle = '#2a3b4e';
+    ctx.lineWidth = 12;
+    ctx.strokeRect(10, 10, 236, 236);
+
+    // Inner subtle chamfer
+    ctx.strokeStyle = '#0e151e';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(22, 22, 212, 212);
+
+    // Phosphorescent cyan glow & symbol
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = '#e8f7ff';
+    ctx.font = 'bold 124px "Segoe UI", "Segoe UI Symbol", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(symbol || '?', 128, 134);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }
 }
 
 const textureGen = new TextureGenerator();

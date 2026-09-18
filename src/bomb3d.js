@@ -294,17 +294,60 @@ class Bomb3DEngine {
     else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
   }
 
-  // --- Mechanical Keypad Buttons ---
+  // --- Mechanical Keypad Buttons (Top Right Quadrant) ---
   buildMechanicalKeypad(originX, originZ) {
-    const btnCoords = [[-0.5, -0.4], [0.5, -0.4], [-0.5, 0.4], [0.5, 0.4]];
+    // Sub-chassis mounting faceplate
+    const plateGeo = new THREE.BoxGeometry(2.0, 0.06, 1.6);
+    const plateMat = new THREE.MeshStandardMaterial({
+      color: 0x181f2a,
+      metalness: 0.8,
+      roughness: 0.4
+    });
+    const plate = new THREE.Mesh(plateGeo, plateMat);
+    plate.position.set(originX, 1.43, originZ);
+    plate.receiveShadow = true;
+    this.bombGroup.add(plate);
+
+    // Keypad Status LED (top right corner of module)
+    const ledGeo = new THREE.SphereGeometry(0.06, 16, 16);
+    const ledMat = new THREE.MeshStandardMaterial({
+      color: keypadModule.disarmed ? 0x00ff88 : 0x223322,
+      emissive: keypadModule.disarmed ? 0x00ff88 : 0x002200,
+      emissiveIntensity: keypadModule.disarmed ? 0.9 : 0.2,
+      roughness: 0.2
+    });
+    this.keypadStatusLed = new THREE.Mesh(ledGeo, ledMat);
+    this.keypadStatusLed.position.set(originX + 0.8, 1.47, originZ - 0.65);
+    this.bombGroup.add(this.keypadStatusLed);
+
+    const btnCoords = [[-0.45, -0.38], [0.45, -0.38], [-0.45, 0.38], [0.45, 0.38]];
 
     btnCoords.forEach(([bx, bz], idx) => {
-      const sym = keypadModule.buttons[idx];
-      const btnGeo = new THREE.BoxGeometry(0.7, 0.15, 0.55);
-      const btnMat = new THREE.MeshStandardMaterial({ color: 0x223040, metalness: 0.5, roughness: 0.4 });
-      const btnMesh = new THREE.Mesh(btnGeo, btnMat);
-      btnMesh.position.set(originX + bx, 1.48, originZ + bz);
-      btnMesh.userData = { isKeypad: true, symbol: sym, basePosY: 1.48 };
+      const sym = (keypadModule.buttons && keypadModule.buttons[idx]) || '?';
+      const btnGeo = new THREE.BoxGeometry(0.72, 0.14, 0.58);
+      
+      const sideMat = new THREE.MeshStandardMaterial({
+        color: 0x16202c,
+        metalness: 0.6,
+        roughness: 0.4
+      });
+
+      const topTex = textureGen.createKeypadGlyphTexture(sym);
+      const topMat = new THREE.MeshStandardMaterial({
+        map: topTex,
+        roughness: 0.25,
+        metalness: 0.2,
+        emissive: 0x001522,
+        emissiveIntensity: 0.4
+      });
+
+      // BoxGeometry faces: [+X, -X, +Y, -Y, +Z, -Z]
+      const materials = [sideMat, sideMat, topMat, sideMat, sideMat, sideMat];
+      const btnMesh = new THREE.Mesh(btnGeo, materials);
+      btnMesh.position.set(originX + bx, 1.49, originZ + bz);
+      btnMesh.castShadow = true;
+      btnMesh.receiveShadow = true;
+      btnMesh.userData = { isKeypad: true, symbol: sym, basePosY: 1.49, topMat: topMat };
 
       this.bombGroup.add(btnMesh);
       this.clickableKeypad.push(btnMesh);
@@ -313,12 +356,48 @@ class Bomb3DEngine {
 
   pressKeypadIn3D(btnMesh) {
     if (!btnMesh) return;
-    btnMesh.position.y = btnMesh.userData.basePosY - 0.06; // Physical press down
+    btnMesh.position.y = btnMesh.userData.basePosY - 0.05; // Physical press down
     setTimeout(() => { btnMesh.position.y = btnMesh.userData.basePosY; }, 120);
 
     const res = keypadModule.pressButton(btnMesh.userData.symbol);
-    if (res.status === 'STRIKE') game.addStrike();
-    else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
+    if (res.status === 'STRIKE') {
+      game.addStrike();
+      // Flash red on all buttons
+      this.clickableKeypad.forEach(b => {
+        if (b.userData.topMat) {
+          b.userData.topMat.emissive.setHex(0xff0033);
+          b.userData.topMat.emissiveIntensity = 1.0;
+        }
+      });
+      setTimeout(() => {
+        this.clickableKeypad.forEach(b => {
+          if (b.userData.topMat) {
+            b.userData.topMat.emissive.setHex(0x001522);
+            b.userData.topMat.emissiveIntensity = 0.4;
+          }
+        });
+      }, 400);
+    } else if (res.status === 'PROGRESS') {
+      // Glow green on the successfully pressed button
+      if (btnMesh.userData.topMat) {
+        btnMesh.userData.topMat.emissive.setHex(0x00ff88);
+        btnMesh.userData.topMat.emissiveIntensity = 0.9;
+      }
+    } else if (res.status === 'DISARMED') {
+      // All buttons glow steady green
+      this.clickableKeypad.forEach(b => {
+        if (b.userData.topMat) {
+          b.userData.topMat.emissive.setHex(0x00ff88);
+          b.userData.topMat.emissiveIntensity = 0.9;
+        }
+      });
+      if (this.keypadStatusLed) {
+        this.keypadStatusLed.material.color.setHex(0x00ff88);
+        this.keypadStatusLed.material.emissive.setHex(0x00ff88);
+        this.keypadStatusLed.material.emissiveIntensity = 1.0;
+      }
+      game.checkAllModulesDisarmed();
+    }
   }
 
   // --- Module 3: Frequency Radio Tuner / Jammer (Bottom Left Quadrant) ---
@@ -465,25 +544,101 @@ class Bomb3DEngine {
       const domeGeo = new THREE.SphereGeometry(0.28, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
       const domeMat = new THREE.MeshStandardMaterial({
         color: item.hex,
-        roughness: 0.1,
-        metalness: 0.1,
+        roughness: 0.15,
+        metalness: 0.2,
         transparent: true,
-        opacity: 0.85
+        opacity: 0.85,
+        emissive: new THREE.Color(0x000000),
+        emissiveIntensity: 0
       });
       const dome = new THREE.Mesh(domeGeo, domeMat);
       dome.position.set(originX + item.pos[0], 1.45, originZ + item.pos[1]);
-      dome.userData = { isSimon: true, color: item.name };
+      dome.userData = { isSimon: true, color: item.name, hex: item.hex };
 
       this.bombGroup.add(dome);
       this.simonPads.push(dome);
     });
+
+    this.startSimonFlashLoop();
+  }
+
+  startSimonFlashLoop() {
+    if (this.simonInterval) clearInterval(this.simonInterval);
+
+    let step = 0;
+    this.simonInterval = setInterval(() => {
+      // Only flash if game is active, Simon is not disarmed, and map is silo44
+      if (this.currentMap !== 'silo44') return;
+      if (!window.simonModule || window.simonModule.disarmed) return;
+      if (window.game && window.game.gameEnded) return;
+
+      const seq = window.simonModule.sequence;
+      if (!seq || seq.length === 0) return;
+
+      // Sequence steps plus a 2-tick pause before repeating
+      const totalSteps = seq.length + 2;
+      const currentIdx = step % totalSteps;
+
+      if (currentIdx < seq.length) {
+        const colorToFlash = seq[currentIdx];
+        this.flashSimonDome(colorToFlash, 500);
+      }
+      step++;
+    }, 950);
+  }
+
+  flashSimonDome(colorName, durationMs = 400) {
+    const dome = this.simonPads.find(d => d.userData.color === colorName);
+    if (!dome) return;
+
+    // Light up dome with vibrant emissive glow
+    dome.material.emissive.setHex(dome.userData.hex);
+    dome.material.emissiveIntensity = 2.5;
+
+    if (window.audio && window.audio.playSimonTone) {
+      window.audio.playSimonTone(colorName);
+    }
+
+    setTimeout(() => {
+      if (dome.material) {
+        dome.material.emissive.setHex(0x000000);
+        dome.material.emissiveIntensity = 0;
+      }
+    }, durationMs);
   }
 
   pressSimonIn3D(dome) {
     if (!dome) return;
+    this.flashSimonDome(dome.userData.color, 180);
+
     const res = simonModule.pressColor(dome.userData.color, game.serialNumber, game.strikes);
-    if (res.status === 'STRIKE') game.addStrike();
-    else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
+    if (res.status === 'STRIKE') {
+      // Visual feedback: Flash all domes red
+      this.simonPads.forEach(d => {
+        d.material.emissive.setHex(0xff0000);
+        d.material.emissiveIntensity = 2.5;
+        setTimeout(() => {
+          if (d.material) {
+            d.material.emissive.setHex(0x000000);
+            d.material.emissiveIntensity = 0;
+          }
+        }, 350);
+      });
+      game.addStrike();
+    } else if (res.status === 'DISARMED') {
+      // Visual feedback: Flash all domes green
+      this.simonPads.forEach(d => {
+        d.material.emissive.setHex(0x00ff66);
+        d.material.emissiveIntensity = 2.5;
+        setTimeout(() => {
+          if (d.material) {
+            d.material.emissive.setHex(0x000000);
+            d.material.emissiveIntensity = 0;
+          }
+        }, 800);
+      });
+      game.checkAllModulesDisarmed();
+    }
   }
 
   // ================= CAMERA POINT-AND-CLICK DIRECTOR =================

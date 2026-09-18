@@ -527,8 +527,14 @@ class GameEngine {
     if (this.scenario === 'silo44') {
       this.timerSeconds = 300;
       if (window.wiresModule) window.wiresModule.generate(seed, this.serialNumber);
-      if (window.keypadModule) window.keypadModule.generate(seed + 10);
-      if (window.frequencyModule) window.frequencyModule.generate(seed + 25);
+      if (window.keypadModule) window.keypadModule.generate(seed + 10, this.indicators.FRK);
+      if (window.frequencyModule) {
+        window.frequencyModule.generate(seed + 25, this.indicators.CAR);
+        const radioReadout = document.getElementById('radio-inspect-freq');
+        if (radioReadout) radioReadout.innerText = `${window.frequencyModule.currentFreq.toFixed(1)} MHz`;
+        const intelReadout = document.getElementById('intel-dossier-current-freq');
+        if (intelReadout) intelReadout.innerText = `${window.frequencyModule.currentFreq.toFixed(1)} MHz`;
+      }
       if (window.simonModule) window.simonModule.generate(seed + 40);
     } else {
       this.timerSeconds = 360;
