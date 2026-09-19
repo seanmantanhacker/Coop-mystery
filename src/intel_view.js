@@ -402,7 +402,7 @@ class IntelViewEngine {
         }
       ];
 
-      defaultDirective = 'Forensic protocols can be resolved in any order. Cross-reference autopsy files, toxicology, or door logs.';
+      defaultDirective = 'Investigate cadaver wounds, titrate poison antidote, and coordinate Life Support ventilation.';
     }
 
     // Determine solved count and unsolved modules (non-sequential)

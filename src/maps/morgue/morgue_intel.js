@@ -138,7 +138,7 @@ class MorgueIntelView {
     const year = keypad ? keypad.victimBirthYear : 1958;
     const gas = life ? `${life.gasPpm} PPM` : '320 PPM';
     const classification = life && life.classification ? life.classification.name : 'CLASS B: RADIOLOGICAL PATHOGEN';
-    return `[MORGUE INTEL] Victim: Dr. H. Vance | Birth Year: ${year} | Mass: ${mass} | Classification: ${classification} | Ward 9 Access Log 23:44: Tier ${killerTier} (${killerName}) | Chamber Gas: ${gas}`;
+    return `[MORGUE INTEL] Victim: Dr. H. Vance | Birth Year: ${year} | Mass: ${mass} | Classification: ${classification} | Ward 9 Keycard Badge Log 23:44: Clearance Tier ${killerTier} | Chamber Gas: ${gas}`;
   }
 
   static renderOscilloscope(ctx, canvas, phase) {

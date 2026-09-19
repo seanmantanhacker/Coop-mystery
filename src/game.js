@@ -890,12 +890,16 @@ class GameEngine {
         `;
       }
     } else if (loreId === 'morgue_dictaphone') {
+      const tox = window.toxicologyModule;
+      const poison = tox && tox.poisons ? tox.poisons[tox.currentPoisonKey] : null;
+      const symptomsNarrative = poison ? poison.symptoms : 'Distinct chemical odor and acute discoloration under the fingernails.';
+
       title.innerText = "CASSETTE DICTAPHONE: DR. HAROLD VANCE (TAPE #94-10)";
       body.innerHTML = `
         <div class="lore-audio-paper">
           <p><strong>[SOUND: TAPE CLICK, MECHANICAL HUM OF REFRIGERATION UNITS]</strong></p>
-          <p><strong>VOICE (DR. VANCE):</strong> <em>"Date: October 24th, 1994... time is 23:40 hours. Performing post-mortem examination on unidentified John Doe brought in from the North Wing. Distinct odor of bitter almonds immediately apparent upon entering the vault."</em></p>
-          <p><em>"Cyanotic discoloration under the fingernails. Initial assay confirms cyanide intoxication... but wait. The lacerations across the thoracic wall... these were not inflicted ante-mortem. Look at the margins—no active erythema, no cellular retraction. Someone staged these wounds after death to mask the true trauma."</em></p>
+          <p><strong>VOICE (DR. VANCE):</strong> <em>"Date: October 24th, 1994... time is 23:40 hours. Performing post-mortem examination on unidentified John Doe brought in from the North Wing. Clinical findings: ${symptomsNarrative}"</em></p>
+          <p><em>"Lacerations across the thoracic wall require careful differentiation. Look at the margins—some cuts show no active erythema, no vital cellular retraction! Someone staged additional wounds after death to mask the true fatal trauma."</em></p>
           <p><strong>[SOUND: HEAVY FOOTSTEPS, AIRLOCK PNEUMATIC SEAL ENGAGING]</strong></p>
           <p><strong>VOICE (DR. VANCE):</strong> <em>"Who's there? Allen? Beatrice? What are you doing with the ventilation damper—hey! Turn that valve back! The door... MY GOD, THEY'VE SEALED THE—"</em></p>
           <p><strong>[SOUND: HISS OF HIGH-PRESSURE GAS, STRUGGLE, TAPE SHUTS OFF]</strong></p>

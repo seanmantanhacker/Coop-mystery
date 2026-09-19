@@ -53,7 +53,7 @@ class LifeSupportModule {
     this.basePsi = 32.0 + ((Math.abs(seed + 11) % 11) * 1.0);
     this.targetPsi = parseFloat((this.basePsi + this.classification.deltaPsi).toFixed(1));
     this.currentPsi = parseFloat((this.basePsi + 8.0).toFixed(1));
-    this.gasPpm = 40 + (Math.abs(seed) % 25);
+    this.gasPpm = 420 + ((Math.abs(seed) % 25) * 10);
     this.cryoTemp = 2.2 + ((Math.abs(seed) % 15) * 0.1);
 
     console.log(`[Life Support Module] Classification: ${this.classification.name} | Base PSI: ${this.basePsi.toFixed(1)} | Target PSI: ${this.targetPsi.toFixed(1)}`);
@@ -86,7 +86,7 @@ class LifeSupportModule {
   remoteTriggerVentFlush() {
     this.isVentFlushed = true;
     this.flushTimeRemaining = 15;
-    this.gasPpm = Math.max(8, this.gasPpm - 30);
+    this.gasPpm = Math.max(50, this.gasPpm - 150);
 
     if (this.flushTimer) clearInterval(this.flushTimer);
     this.flushTimer = setInterval(() => {
@@ -216,7 +216,7 @@ class LifeSupportModule {
 
     if (ppmReadout) {
       ppmReadout.innerText = `${this.gasPpm} PPM`;
-      ppmReadout.className = this.gasPpm > 30 ? 'glow-red' : 'glow-green';
+      ppmReadout.className = this.gasPpm > 200 ? 'glow-red' : 'glow-green';
     }
     if (tempReadout) tempReadout.innerText = `${this.cryoTemp.toFixed(1)}°C`;
 

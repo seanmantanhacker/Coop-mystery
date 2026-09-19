@@ -180,7 +180,7 @@ class AutopsyModule {
 
       if (idEl) idEl.innerText = `INSPECTION TARGET: WOUND #${currentWound.id} of ${this.wounds.length}`;
       if (locEl) locEl.innerText = currentWound.location;
-      if (depthEl) depthEl.innerText = `${currentWound.depth} cm`;
+      if (depthEl) depthEl.innerText = `${currentWound.depth} mm`;
       if (angleEl) angleEl.innerText = `${currentWound.angle}°`;
       if (reactionEl) {
         reactionEl.innerText = currentWound.reaction;
