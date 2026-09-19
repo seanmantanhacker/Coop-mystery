@@ -62,16 +62,36 @@ class ToxicologyModule {
     this.currentPoisonKey = keys[pIdx];
 
     const poison = this.poisons[this.currentPoisonKey];
-    this.victimMass = params.victimMass || (70 + (Math.abs(seed) % 15)); // kg
-    const deltaOffset = (Math.round(this.victimMass) % 10) * 2;
 
-    this.targetReagents = {
-      a: poison.baseRatios.a + deltaOffset,
-      b: poison.baseRatios.b + (deltaOffset > 6 ? 5 : -5),
-      c: poison.baseRatios.c + Math.floor(deltaOffset / 2)
+    // Victim mass — always a whole number for clean calculation
+    const rawMass = params.victimMass || (70 + (Math.abs(seed) % 15));
+    this.victimMass = Math.round(rawMass); // integer kg
+
+    // Factors match exactly what the Manual binder states:
+    //   Cyanide:    Base A=40, Factor=0.5  | Base B=20, Factor=0.3  | Base C=10, Factor=0.2
+    //   Strychnine: Base A=30, Factor=0.4  | Base B=45, Factor=0.5  | Base C=15, Factor=0.2
+    //   Arsenic:    Base A=50, Factor=0.6  | Base B=20, Factor=0.3  | Base C=40, Factor=0.4
+    //   Potassium:  Base A=45, Factor=0.5  | Base B=30, Factor=0.4  | Base C=25, Factor=0.3
+    const formulas = {
+      cyanide:    { a: [40, 0.5], b: [20, 0.3], c: [10, 0.2] },
+      strychnine: { a: [30, 0.4], b: [45, 0.5], c: [15, 0.2] },
+      arsenic:    { a: [50, 0.6], b: [20, 0.3], c: [40, 0.4] },
+      potassium:  { a: [45, 0.5], b: [30, 0.4], c: [25, 0.3] }
     };
 
-    console.log(`[Toxicology Module] Poison: ${poison.name} | Target Reagents:`, this.targetReagents);
+    const f = formulas[this.currentPoisonKey];
+    const massDelta = this.victimMass - 70;
+
+    // Targets are rounded to nearest integer (±1 buttons can reach any value)
+    const ri = (v) => Math.round(v);
+
+    this.targetReagents = {
+      a: Math.max(5, Math.min(95, ri(f.a[0] + massDelta * f.a[1]))),
+      b: Math.max(5, Math.min(95, ri(f.b[0] + massDelta * f.b[1]))),
+      c: Math.max(5, Math.min(95, ri(f.c[0] + massDelta * f.c[1])))
+    };
+
+    console.log(`[Toxicology] Poison: ${poison.name} | Mass: ${this.victimMass} kg | MassDelta: +${massDelta} kg | Targets:`, this.targetReagents);
     this.updateHUD();
   }
 
@@ -104,7 +124,8 @@ class ToxicologyModule {
       if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
       if (window.game) {
         window.game.showToast('TOXICOLOGY PROTOCOL NEUTRALIZED ✓', 'success');
-        window.game.checkVictory();
+        if (window.game.notifyModuleSolved) window.game.notifyModuleSolved('toxicology');
+        else window.game.checkVictory();
       }
       this.updateHUD();
       return { status: 'DISARMED' };

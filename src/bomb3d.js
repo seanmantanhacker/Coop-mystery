@@ -294,7 +294,7 @@ class Bomb3DEngine {
 
     const res = wiresModule.cutWire(wireMesh.userData.wireIndex);
     if (res.status === 'STRIKE') game.addStrike();
-    else if (res.status === 'DISARMED') game.checkAllModulesDisarmed();
+    else if (res.status === 'DISARMED') game.notifyModuleSolved('wires');
   }
 
   // --- Mechanical Keypad Buttons (Top Right Quadrant) ---
@@ -399,7 +399,7 @@ class Bomb3DEngine {
         this.keypadStatusLed.material.emissive.setHex(0x00ff88);
         this.keypadStatusLed.material.emissiveIntensity = 1.0;
       }
-      game.checkAllModulesDisarmed();
+      game.notifyModuleSolved('keypad');
     }
   }
 
@@ -526,7 +526,7 @@ class Bomb3DEngine {
         this.rfStatusLedMat.color.setHex(0x00ff66);
       }
       if (typeof audio !== 'undefined' && audio.playDisarmed) audio.playDisarmed();
-      if (typeof game !== 'undefined' && game.checkAllModulesDisarmed) game.checkAllModulesDisarmed();
+      if (typeof game !== 'undefined' && game.notifyModuleSolved) game.notifyModuleSolved('frequency');
     }
   }
 
@@ -640,7 +640,7 @@ class Bomb3DEngine {
           }
         }, 800);
       });
-      game.checkAllModulesDisarmed();
+      game.notifyModuleSolved('simon');
     }
   }
 

@@ -149,7 +149,8 @@ class AutopsyModule {
       if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
       if (window.game) {
         window.game.showToast(`FORENSIC CULPRIT CONFIRMED: ${this.suspects[suspectKey].name} ✓`, 'success');
-        window.game.checkVictory();
+        if (window.game.notifyModuleSolved) window.game.notifyModuleSolved('autopsy');
+        else window.game.checkVictory();
       }
       this.updateHUD();
       return { status: 'DISARMED' };

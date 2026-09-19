@@ -96,7 +96,8 @@ class MorgueKeypadModule {
       if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
       if (window.game) {
         window.game.showToast('BIO-CONTAINMENT AIRLOCK UNLOCKED ✓', 'success');
-        window.game.checkVictory();
+        if (window.game.notifyModuleSolved) window.game.notifyModuleSolved('morgueKeypad');
+        else window.game.checkVictory();
       }
       this.updateHUD();
       return { status: 'DISARMED' };

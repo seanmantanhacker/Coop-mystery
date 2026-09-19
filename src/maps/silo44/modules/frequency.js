@@ -39,7 +39,10 @@ class FrequencyModule {
 
     if (this.isSignalLocked()) {
       this.disarmed = true;
-      audio.playDisarmed();
+      if (typeof audio !== 'undefined' && audio.playDisarmed) audio.playDisarmed();
+      if (window.game && window.game.notifyModuleSolved) {
+        window.game.notifyModuleSolved('frequency');
+      }
       return { status: 'DISARMED' };
     } else {
       audio.playStrike();

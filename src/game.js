@@ -488,6 +488,17 @@ class GameEngine {
       }
     }
 
+    // Unhide global timer & strikes for all roles
+    const globalTimer = document.getElementById('global-timer-display');
+    const globalStrikes = document.getElementById('global-strikes-display');
+    if (globalTimer) globalTimer.classList.remove('hidden');
+    if (globalStrikes) globalStrikes.classList.remove('hidden');
+
+    this.gameEnded = false;
+    this.explosionTriggered = false;
+    this.updateStrikeDisplays();
+    this.updateClockDisplays();
+
     if (this.role === 'defuser') {
       const screen = document.getElementById('screen-defuser');
       if (screen) screen.classList.add('active-screen');
@@ -579,8 +590,18 @@ class GameEngine {
       }
       this.updateClockDisplays();
 
+      // Host periodically syncs time across network every 5 seconds
+      if (typeof network !== 'undefined' && network.isHost && this.timerSeconds > 0 && this.timerSeconds % 5 === 0) {
+        network.broadcast({
+          type: 'TIMER_SYNC',
+          seconds: this.timerSeconds
+        });
+      }
+
       if (this.timerSeconds <= 0) {
-        this.triggerExplosion('TIME_EXPIRED');
+        this.timerSeconds = 0;
+        this.updateClockDisplays();
+        this.triggerExplosion('TIME_EXPIRED', true);
       }
     }, 1000);
   }
@@ -589,18 +610,38 @@ class GameEngine {
     const mins = Math.floor(Math.max(0, this.timerSeconds) / 60);
     const secs = Math.max(0, this.timerSeconds) % 60;
     const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const isCritical = this.timerSeconds <= 60 && this.timerSeconds > 0;
 
+    // Defuser HUD timer
     const defTimer = document.getElementById('defuser-timer');
-    if (defTimer) defTimer.innerText = timeStr;
+    if (defTimer) {
+      defTimer.innerText = timeStr;
+      defTimer.classList.toggle('critical', isCritical);
+    }
+
+    // Omnipresent tactical header timer chip (visible to Manual and Intel)
+    const globalClock = document.getElementById('global-timer-clock');
+    const globalChip = document.getElementById('global-timer-display');
+    if (globalClock) globalClock.innerText = timeStr;
+    if (globalChip) globalChip.classList.toggle('critical', isCritical);
+
+    // Intel command matrix dedicated chronometer readout
+    const intelTimer = document.getElementById('intel-matrix-timer');
+    if (intelTimer) {
+      intelTimer.innerText = `⏱️ ${timeStr}`;
+      intelTimer.classList.toggle('critical', isCritical);
+    }
   }
 
   addStrike() {
     this.strikes += 1;
-    network.broadcast({ type: 'STRIKE_EVENT', strikes: this.strikes });
     this.updateStrikeDisplays();
+    if (typeof network !== 'undefined' && network.broadcast) {
+      network.broadcast({ type: 'STRIKE_EVENT', strikes: this.strikes });
+    }
 
     if (this.strikes >= 3) {
-      this.triggerExplosion('MAX_STRIKES');
+      this.triggerExplosion('MAX_STRIKES', true);
     }
   }
 
@@ -610,6 +651,11 @@ class GameEngine {
       if (led) {
         if (i <= this.strikes) led.classList.add('active');
         else led.classList.remove('active');
+      }
+      const globalLed = document.getElementById(`global-strike-${i}`);
+      if (globalLed) {
+        if (i <= this.strikes) globalLed.classList.add('active');
+        else globalLed.classList.remove('active');
       }
     }
   }
@@ -642,6 +688,14 @@ class GameEngine {
       this.triggerVictory();
       network.broadcast({ type: 'MISSION_VICTORY' });
     }
+  }
+
+  notifyModuleSolved(moduleName) {
+    console.log(`[Game] Module solved: ${moduleName}. Broadcasting to team.`);
+    if (typeof network !== 'undefined' && network.broadcast) {
+      network.broadcast({ type: 'MODULE_SOLVED', module: moduleName });
+    }
+    this.checkVictory();
   }
 
   checkAllModulesDisarmed() {
@@ -704,10 +758,22 @@ class GameEngine {
     if (modal) modal.classList.remove('hidden');
   }
 
-  triggerExplosion(reason) {
+  triggerExplosion(reason, shouldBroadcast = true) {
+    if (this.gameEnded && this.explosionTriggered) return;
     this.gameEnded = true;
+    this.explosionTriggered = true;
     if (this.timerInterval) clearInterval(this.timerInterval);
-    if (window.audio) window.audio.playExplosion();
+
+    // Broadcast defeat event to all connected roles across network
+    if (shouldBroadcast && typeof network !== 'undefined' && network.broadcast) {
+      network.broadcast({
+        type: 'MISSION_FAILED',
+        reason: reason,
+        strikes: this.strikes
+      });
+    }
+
+    if (window.audio && window.audio.playExplosion) window.audio.playExplosion();
 
     const modal = document.getElementById('game-over-modal');
     const title = document.getElementById('end-title');
@@ -730,7 +796,7 @@ class GameEngine {
           : '3 strikes incurred. Anti-tamper failsafe triggered catastrophic detonation.';
       } else {
         subtitle.innerText = (this.scenario === 'morgue')
-          ? 'Terminal 15:00 countdown expired. Chamber neurotoxin exceeded lethal saturation threshold!'
+          ? 'Terminal countdown expired. Chamber neurotoxin exceeded lethal saturation threshold!'
           : 'Terminal countdown reached zero. All operatives compromised!';
       }
     }
@@ -738,7 +804,7 @@ class GameEngine {
     const timeEl = document.getElementById('end-time');
     const strikesEl = document.getElementById('end-strikes');
     if (timeEl) timeEl.innerText = '00:00';
-    if (strikesEl) strikesEl.innerText = `${this.strikes} / 3`;
+    if (strikesEl) strikesEl.innerText = `${Math.min(3, Math.max(this.strikes, reason === 'MAX_STRIKES' ? 3 : this.strikes))} / 3`;
 
     if (modal) modal.classList.remove('hidden');
   }
@@ -965,6 +1031,23 @@ class GameEngine {
     } else if (data.type === 'STRIKE_EVENT') {
       this.strikes = data.strikes;
       this.updateStrikeDisplays();
+      if (this.strikes >= 3 && !this.gameEnded) {
+        this.triggerExplosion('MAX_STRIKES', false);
+      }
+
+    } else if (data.type === 'MISSION_FAILED') {
+      if (data.strikes !== undefined) this.strikes = data.strikes;
+      this.updateStrikeDisplays();
+      this.triggerExplosion(data.reason || 'TIME_EXPIRED', false);
+
+    } else if (data.type === 'TIMER_SYNC') {
+      if (typeof network !== 'undefined' && !network.isHost && data.seconds !== undefined) {
+        this.timerSeconds = data.seconds;
+        this.updateClockDisplays();
+        if (this.timerSeconds <= 0 && !this.gameEnded) {
+          this.triggerExplosion('TIME_EXPIRED', false);
+        }
+      }
 
     } else if (data.type === 'OVERRIDE_ACTIVATED') {
       this.timerSeconds = data.seconds;
@@ -1009,19 +1092,23 @@ class GameEngine {
         window.escapementModule.updateDOM();
       } else if (mod === 'toxicology' && window.toxicologyModule) {
         window.toxicologyModule.solved = true;
-        window.toxicologyModule.updateDOM();
+        window.toxicologyModule.disarmed = true;
+        if (window.toxicologyModule.updateHUD) window.toxicologyModule.updateHUD();
       } else if (mod === 'autopsy' && window.autopsyModule) {
         window.autopsyModule.solved = true;
-        window.autopsyModule.updateDOM();
+        window.autopsyModule.disarmed = true;
+        if (window.autopsyModule.updateHUD) window.autopsyModule.updateHUD();
       } else if (mod === 'morgueKeypad' && window.morgueKeypadModule) {
         window.morgueKeypadModule.solved = true;
-        window.morgueKeypadModule.updateDOM();
+        window.morgueKeypadModule.disarmed = true;
+        if (window.morgueKeypadModule.updateHUD) window.morgueKeypadModule.updateHUD();
       } else if (mod === 'lifeSupport' && window.lifeSupportModule) {
         window.lifeSupportModule.solved = true;
-        window.lifeSupportModule.updateDOM();
+        window.lifeSupportModule.disarmed = true;
+        if (window.lifeSupportModule.updateHUD) window.lifeSupportModule.updateHUD();
       }
 
-      if (window.audio) window.audio.playDisarmed();
+      if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
       this.checkVictory();
 
     } else if (data.type === 'MORGUE_REMOTE_TRIGGER') {

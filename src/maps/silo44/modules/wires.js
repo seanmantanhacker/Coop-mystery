@@ -75,8 +75,11 @@ class WiresModule {
     
     if (index === this.correctWireIndex) {
       this.disarmed = true;
-      audio.playWireCut();
-      audio.playDisarmed();
+      if (typeof audio !== 'undefined' && audio.playWireCut) audio.playWireCut();
+      if (typeof audio !== 'undefined' && audio.playDisarmed) audio.playDisarmed();
+      if (window.game && window.game.notifyModuleSolved) {
+        window.game.notifyModuleSolved('wires');
+      }
       return { status: 'DISARMED' };
     } else {
       audio.playWireCut();

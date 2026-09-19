@@ -87,6 +87,9 @@ class KeypadModule {
       if (this.pressSequence.length === 4) {
         this.disarmed = true;
         if (window.audio) window.audio.playDisarmed();
+        if (window.game && window.game.notifyModuleSolved) {
+          window.game.notifyModuleSolved('keypad');
+        }
         return { status: 'DISARMED' };
       }
       return { status: 'PROGRESS', count: this.pressSequence.length };

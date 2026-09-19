@@ -78,17 +78,51 @@ class MorgueManualView {
 
         <div class="parchment-rule-box clinical-rule-box" style="margin-top: 14px;">
           <h3>2. Quantitative Titration Law:</h3>
-          <p>Query <strong>Intel Analyst</strong> for the victim's verified Body Mass (kg) from medical records:</p>
+          <p>Query <strong>Intel Analyst</strong> for the victim's <strong>Body Mass (kg)</strong> from medical records:</p>
           <div class="formula-callout">
-            Titration Target (mL) = Base Volume + (Victim Mass - 70.0 kg) × Factor
+            Target Volume (mL) = Base + (Mass − 70) × Factor &nbsp;→ round to nearest integer
           </div>
-          <ul class="dossier-list">
-            <li><strong>Cyanide:</strong> Base = <strong>40.0 mL</strong> | Factor = <strong>0.5 mL / kg</strong></li>
-            <li><strong>Strychnine:</strong> Base = <strong>30.0 mL</strong> | Factor = <strong>0.4 mL / kg</strong></li>
-            <li><strong>Arsenic:</strong> Base = <strong>50.0 mL</strong> | Factor = <strong>0.6 mL / kg</strong></li>
-            <li><strong>Potassium Chloride:</strong> Base = <strong>45.0 mL</strong> | Factor = <strong>0.5 mL / kg</strong></li>
-          </ul>
-          <p class="matrix-footnote">⚠️ Instruct Field Operative to load correct reagent, spin centrifuge, then titrate within ±1.0 mL.</p>
+          <p style="font-size:0.82rem; color:#90a4ae; margin:4px 0;">Each poison requires THREE reagent volumes (A, B, C). Adjust each tube then inject.</p>
+
+          <div class="simon-table-container" style="margin-top:8px;">
+            <table class="simon-table morgue-table" style="font-size:0.78rem;">
+              <thead>
+                <tr>
+                  <th>POISON</th>
+                  <th>REAGENT A</th>
+                  <th>REAGENT B</th>
+                  <th>REAGENT C</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Cyanide</strong></td>
+                  <td>Base <strong>40</strong> + M×<strong>0.5</strong></td>
+                  <td>Base <strong>20</strong> + M×<strong>0.3</strong></td>
+                  <td>Base <strong>10</strong> + M×<strong>0.2</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Strychnine</strong></td>
+                  <td>Base <strong>30</strong> + M×<strong>0.4</strong></td>
+                  <td>Base <strong>45</strong> + M×<strong>0.5</strong></td>
+                  <td>Base <strong>15</strong> + M×<strong>0.2</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Arsenic</strong></td>
+                  <td>Base <strong>50</strong> + M×<strong>0.6</strong></td>
+                  <td>Base <strong>20</strong> + M×<strong>0.3</strong></td>
+                  <td>Base <strong>40</strong> + M×<strong>0.4</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>KCl</strong></td>
+                  <td>Base <strong>45</strong> + M×<strong>0.5</strong></td>
+                  <td>Base <strong>30</strong> + M×<strong>0.4</strong></td>
+                  <td>Base <strong>25</strong> + M×<strong>0.3</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="matrix-footnote">⚠️ M = (Body Mass − 70). Adjust each reagent tube with ±1 buttons, then inject.</p>
         </div>
       `,
 

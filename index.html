@@ -32,6 +32,22 @@
         <span id="room-display"><span class="room-label">ROOM: </span><strong class="text-highlight room-code">DISCONNECTED</strong></span>
         <span id="role-display"><span class="role-label">ROLE: </span><strong class="text-highlight role-name">UNASSIGNED</strong></span>
         <span id="level-display" class="hidden"><span class="level-label">LEVEL: </span><strong class="text-highlight" id="level-display-name">MAP 1: SILO 44</strong></span>
+        
+        <!-- Live Mission Chronometer & Strikes (Visible to all roles) -->
+        <div id="global-timer-display" class="global-hud-chip timer-chip hidden">
+          <span class="chip-icon">⏱️</span>
+          <span class="chip-label">TIME:</span>
+          <strong id="global-timer-clock" class="digital-clock-compact">08:00</strong>
+        </div>
+        <div id="global-strikes-display" class="global-hud-chip strikes-chip hidden">
+          <span class="chip-label">STRIKES:</span>
+          <div class="global-strike-dots">
+            <span id="global-strike-1" class="mini-strike-dot">X</span>
+            <span id="global-strike-2" class="mini-strike-dot">X</span>
+            <span id="global-strike-3" class="mini-strike-dot">X</span>
+          </div>
+        </div>
+
         <button id="audio-toggle-btn" class="btn-icon" title="Toggle Sound" aria-label="Toggle Sound"><span class="audio-icon">🔊</span><span class="audio-label"> SOUND ON</span></button>
       </div>
     </header>
@@ -443,27 +459,27 @@
                 <div class="tube-meter"><div id="tox-bar-a" class="mercury-liquid" style="background:#5ce1e6; height:0%;"></div></div>
                 <span id="tox-val-a" class="tube-val glow-cyan">0 mL</span>
                 <div style="display:flex; gap:4px; margin-top:4px;">
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', -5)">-5</button>
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', 5)">+5</button>
-                </div>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', -1)">-1</button>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('a', 1)">+1</button>
+                 </div>
               </div>
               <div class="tube-col">
                 <span id="tox-lbl-b" class="tube-name">REAGENT B</span>
                 <div class="tube-meter"><div id="tox-bar-b" class="mercury-liquid" style="background:#ab47bc; height:0%;"></div></div>
                 <span id="tox-val-b" class="tube-val glow-cyan">0 mL</span>
                 <div style="display:flex; gap:4px; margin-top:4px;">
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', -5)">-5</button>
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', 5)">+5</button>
-                </div>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', -1)">-1</button>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('b', 1)">+1</button>
+                 </div>
               </div>
               <div class="tube-col">
                 <span id="tox-lbl-c" class="tube-name">REAGENT C</span>
                 <div class="tube-meter"><div id="tox-bar-c" class="mercury-liquid" style="background:#ffd54f; height:0%;"></div></div>
                 <span id="tox-val-c" class="tube-val glow-cyan">0 mL</span>
                 <div style="display:flex; gap:4px; margin-top:4px;">
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', -5)">-5</button>
-                  <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', 5)">+5</button>
-                </div>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', -1)">-1</button>
+                   <button class="btn btn-ctrl" style="padding:2px 8px;" onclick="toxicologyModule.adjustReagent('c', 1)">+1</button>
+                 </div>
               </div>
             </div>
             <div style="display:flex; justify-content:center; margin-top:10px;">
@@ -692,41 +708,44 @@
                   <span class="pulse-indicator"></span>
                   <span>TACTICAL SITUATION OVERVIEW &amp; ROOM STATUS</span>
                 </div>
-                <div class="matrix-progress" id="intel-matrix-progress">0 / 4 MODULES SECURED</div>
+                <div class="matrix-header-metrics">
+                  <div class="intel-timer-readout" id="intel-matrix-timer">⏱️ 08:00</div>
+                  <div class="matrix-progress" id="intel-matrix-progress">0 / 4 MODULES SECURED</div>
+                </div>
               </div>
 
               <div class="intel-modules-grid">
-                <div class="intel-module-card" id="intel-card-mod-1">
+                <div class="intel-module-card active" id="intel-card-mod-1">
                   <div class="card-mod-header">
                     <span class="card-mod-num">SEC 01</span>
-                    <span class="status-pill pending" id="intel-mod-status-1">🔒 PENDING</span>
+                    <span class="status-pill active" id="intel-mod-status-1">⚡ ARMED</span>
                   </div>
                   <div class="card-mod-name" id="intel-mod-name-1">MODULE 1</div>
                   <div class="card-mod-detail" id="intel-mod-detail-1">Awaiting Operative</div>
                 </div>
 
-                <div class="intel-module-card" id="intel-card-mod-2">
+                <div class="intel-module-card active" id="intel-card-mod-2">
                   <div class="card-mod-header">
                     <span class="card-mod-num">SEC 02</span>
-                    <span class="status-pill pending" id="intel-mod-status-2">🔒 PENDING</span>
+                    <span class="status-pill active" id="intel-mod-status-2">⚡ ARMED</span>
                   </div>
                   <div class="card-mod-name" id="intel-mod-name-2">MODULE 2</div>
                   <div class="card-mod-detail" id="intel-mod-detail-2">Awaiting Operative</div>
                 </div>
 
-                <div class="intel-module-card" id="intel-card-mod-3">
+                <div class="intel-module-card active" id="intel-card-mod-3">
                   <div class="card-mod-header">
                     <span class="card-mod-num">SEC 03</span>
-                    <span class="status-pill pending" id="intel-mod-status-3">🔒 PENDING</span>
+                    <span class="status-pill active" id="intel-mod-status-3">⚡ ARMED</span>
                   </div>
                   <div class="card-mod-name" id="intel-mod-name-3">MODULE 3</div>
                   <div class="card-mod-detail" id="intel-mod-detail-3">Awaiting Operative</div>
                 </div>
 
-                <div class="intel-module-card" id="intel-card-mod-4">
+                <div class="intel-module-card active" id="intel-card-mod-4">
                   <div class="card-mod-header">
                     <span class="card-mod-num">SEC 04</span>
-                    <span class="status-pill pending" id="intel-mod-status-4">🔒 PENDING</span>
+                    <span class="status-pill active" id="intel-mod-status-4">⚡ ARMED</span>
                   </div>
                   <div class="card-mod-name" id="intel-mod-name-4">MODULE 4</div>
                   <div class="card-mod-detail" id="intel-mod-detail-4">Awaiting Operative</div>
@@ -838,20 +857,26 @@
               <div class="intel-math-terminal" id="intel-math-terminal">
                 <div class="math-terminal-header">
                   <span class="math-terminal-tag">⚡ OVERRIDE TELEMETRY CALCULATION</span>
-                  <span id="math-status-badge" class="badge badge-warning">LOCK: COMPUTATION REQUIRED</span>
+                  <span id="math-status-badge" class="badge badge-warning">LOCK: CRYPTOGRAPHIC COMPUTATION REQUIRED</span>
                 </div>
-                
+
                 <div class="math-problem-display">
+                  <div id="math-category-tag" class="math-category-label">📐 MATHEMATICS</div>
                   <span class="math-prompt-label">SOLVE EQUATION:</span>
-                  <div class="math-equation-box" id="math-equation-text">14 × 6 - 23 = ?</div>
+                  <div class="math-equation-box" id="math-equation-text" style="white-space: pre-wrap; line-height: 1.5;">Loading cryptographic challenge…</div>
                 </div>
 
                 <div class="math-input-row">
-                  <input type="number" id="math-answer-input" class="math-input" placeholder="ENTER RESULT" onkeydown="if(event.key==='Enter') intelView.submitMathAnswer()" />
-                  <button id="btn-submit-math" class="btn btn-primary btn-math-submit" onclick="intelView.submitMathAnswer()">VERIFY & UNLOCK</button>
+                  <input type="number" id="math-answer-input" class="math-input" placeholder="ENTER INTEGER ANSWER" onkeydown="if(event.key==='Enter') intelView.submitMathAnswer()" />
+                  <button id="btn-submit-math" class="btn btn-primary btn-math-submit" onclick="intelView.submitMathAnswer()">VERIFY &amp; UNLOCK</button>
                 </div>
 
-                <div id="math-feedback-msg" class="math-feedback-text">Solve correctly to unlock the emergency injection lever (+2 min).</div>
+                <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; align-items:center;">
+                  <button id="btn-toggle-hint" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;" onclick="intelView.toggleMathHint()">💡 REVEAL HINT (-10s PENALTY)</button>
+                  <div id="math-hint-text" style="display:none; font-size:0.78rem; color:#ffd600; background:rgba(255,214,0,0.07); border:1px solid rgba(255,214,0,0.3); border-radius:4px; padding:6px 10px; flex:1; min-width:200px;"></div>
+                </div>
+
+                <div id="math-feedback-msg" class="math-feedback-text">Solve the equation above to unlock the emergency lever. Each answer must be an integer.</div>
               </div>
 
               <div class="physical-switch-unit">
@@ -940,6 +965,7 @@
 
   <!-- Core Game Engines & Controllers -->
   <script src="src/manual_view.js"></script>
+  <script src="src/intel_math_questions.js"></script>
   <script src="src/intel_view.js"></script>
   <script src="src/environment_manager.js"></script>
   <script src="src/game.js"></script>

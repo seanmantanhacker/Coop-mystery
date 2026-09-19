@@ -51,7 +51,10 @@ class SimonModule {
       this.playerInput.push(color);
       if (this.playerInput.length === this.sequence.length) {
         this.disarmed = true;
-        audio.playDisarmed();
+        if (typeof audio !== 'undefined' && audio.playDisarmed) audio.playDisarmed();
+        if (window.game && window.game.notifyModuleSolved) {
+          window.game.notifyModuleSolved('simon');
+        }
         return { status: 'DISARMED' };
       }
       return { status: 'PROGRESS' };

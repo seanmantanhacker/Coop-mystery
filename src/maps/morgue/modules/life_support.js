@@ -164,7 +164,8 @@ class LifeSupportModule {
       if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
       if (window.game) {
         window.game.showToast('LIFE SUPPORT & AIR DAMPER EQUALIZED ✓', 'success');
-        window.game.checkVictory();
+        if (window.game.notifyModuleSolved) window.game.notifyModuleSolved('lifeSupport');
+        else window.game.checkVictory();
       }
       this.updateHUD();
       if (window.MorgueIntelView) window.MorgueIntelView.updateDossierData();
