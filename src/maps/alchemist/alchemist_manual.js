@@ -73,22 +73,55 @@ class AlchemistManualView {
         <p class="classified-caption">THE LAW OF THE ADEPT: EQUILIBRIUM OF THE TRIA PRIMA</p>
 
         <div class="parchment-rule-box">
-          <h3>The Tria Prima Target Ratio (3 : 2 : 1):</h3>
-          <p>• <strong>Vial α (Sulfur / Spirit)</strong>: Base target = <strong>90 drams</strong></p>
-          <p>• <strong>Vial β (Mercury / Soul)</strong>: Base target = <strong>60 drams</strong></p>
-          <p>• <strong>Vial γ (Salt / Body)</strong>: Base target = <strong>30 drams</strong></p>
+          <h3>1. Determine Ruling Opus Base Ratio:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the Ruling Opus / Celestial House:</p>
+          <table class="alchemist-table" style="width: 100%; margin: 8px 0; font-size: 0.82rem;">
+            <thead>
+              <tr>
+                <th>Ruling Element</th>
+                <th>Opus Regime</th>
+                <th>Vial α (Sulfur)</th>
+                <th>Vial β (Mercury)</th>
+                <th>Vial γ (Salt)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Fire 🜂 / Air 🜁</strong><br><small>Aries, Leo, Sag, Gem, Lib, Aqu</small></td>
+                <td><strong>OPUS IGNIS</strong><br><small>(Sulfur Exaltation)</small></td>
+                <td><strong>85</strong> drams</td>
+                <td><strong>55</strong> drams</td>
+                <td><strong>40</strong> drams</td>
+              </tr>
+              <tr>
+                <td><strong>Water 🜄</strong><br><small>Cancer, Scorpio, Pisces</small></td>
+                <td><strong>OPUS AQUAE</strong><br><small>(Quicksilver Flow)</small></td>
+                <td><strong>45</strong> drams</td>
+                <td><strong>95</strong> drams</td>
+                <td><strong>40</strong> drams</td>
+              </tr>
+              <tr>
+                <td><strong>Earth 🜃</strong><br><small>Taurus, Virgo, Capricorn</small></td>
+                <td><strong>OPUS TERRAE</strong><br><small>(Salt Matrix)</small></td>
+                <td><strong>45</strong> drams</td>
+                <td><strong>55</strong> drams</td>
+                <td><strong>80</strong> drams</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="parchment-rule-box">
-          <h3>Thermal Correction Law:</h3>
-          <p>Query <strong>Intel Analyst</strong> for ambient temperature in °C:</p>
-          <div style="background: rgba(0,0,0,0.08); border: 1px dashed #5a3c22; border-radius: 4px; padding: 8px 10px; margin: 8px 0; text-align: center; font-weight: bold; font-size: 0.92rem;">
-            Correction = (Ambient Temp - 20.0°C) × 0.5 drams
+          <h3>2. Quintessence Purity &amp; Thermal Dilatation Laws:</h3>
+          <p>Query <strong>Intel Analyst</strong> for <strong>Ambient Temperature</strong> and <strong>Purity Grade</strong>:</p>
+          <div style="background: rgba(0,0,0,0.08); border: 1px dashed #5a3c22; border-radius: 4px; padding: 6px 10px; margin: 6px 0; text-align: center; font-weight: bold; font-size: 0.88rem;">
+            Thermal Δ = (Ambient Temp - 20.0°C) × 1.0 dram (Add Δ to α, subtract Δ from γ)
           </div>
-          <p>• Add correction to <strong>Vial α</strong>
-             <br>• Add half correction to <strong>Vial β</strong>
-             <br>• Subtract from <strong>Vial γ</strong>
-             <br>Turn valves in short pulses until quicksilver settles into equilibrium!</p>
+          <ul class="dossier-list" style="margin: 4px 0 6px 16px; font-size: 0.85rem;">
+            <li><strong>GRADE A (Mercurial Focus):</strong> Add <strong>+5 drams</strong> to β (Mercury), subtract <strong>-5 drams</strong> from γ (Salt).</li>
+            <li><strong>GRADE B (Sulfuric Bias):</strong> Add <strong>+5 drams</strong> to α (Sulfur), subtract <strong>-5 drams</strong> from β (Mercury).</li>
+          </ul>
+          <p style="margin-top: 6px; font-size: 0.8rem; color: #5a3c22;"><strong>Tip for Defuser:</strong> Use <strong>COARSE (±10)</strong> valves for rapid leveling, then switch to <strong>FINE (±1)</strong> needle valves to lock equilibrium.</p>
         </div>
       `,
 
@@ -101,13 +134,16 @@ class AlchemistManualView {
         <p class="classified-caption">REFRACTION OF THE CELESTIAL ARC BEAM THROUGH CRYSTAL PRISMS</p>
 
         <div class="parchment-rule-box">
-          <h3>Elemental Target Wavelengths:</h3>
-          <p>• If Inner Ring is <strong>Fire 🜂</strong> → Target is <strong>Solar Amber (589 nm)</strong> with Amber Filter.</p>
-          <p>• If Inner Ring is <strong>Water 🜄</strong> → Target is <strong>Deep Azure (450 nm)</strong> with Blue Filter.</p>
-          <p>• If Inner Ring is <strong>Air 🜁</strong> → Target is <strong>Pale Emerald (530 nm)</strong> with Green Filter.</p>
-          <p>• If Inner Ring is <strong>Earth 🜃</strong> → Target is <strong>Cinnabar Red (650 nm)</strong> with Red Filter.</p>
+          <h3>Fraunhofer Spectral Absorption Alignment:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the active <strong>Fraunhofer Spectral Absorption Line</strong> peaking on the spectrophotometer:</p>
+          <ul class="dossier-list" style="margin: 4px 0 8px 16px; font-size: 0.85rem;">
+            <li><strong>LINE D (Solar Sodium, 589 nm):</strong> Install <strong>Amber Filter</strong>. Adjust Prisms to 589 nm.</li>
+            <li><strong>LINE F (Hydrogen Beta, 450 nm):</strong> Install <strong>Blue Filter</strong>. Adjust Prisms to 450 nm.</li>
+            <li><strong>LINE b (Magnesium Emerald, 530 nm):</strong> Install <strong>Green Filter</strong>. Adjust Prisms to 530 nm.</li>
+            <li><strong>LINE C (Hydrogen Alpha, 650 nm):</strong> Install <strong>Red Filter</strong>. Adjust Prisms to 650 nm.</li>
+          </ul>
         </div>
-        <p class="matrix-footnote">Instruct Defuser to rotate Prism 1 & Prism 2 until Analyst confirms wavelength locks onto target!</p>
+        <p class="matrix-footnote">Instruct Defuser to rotate Prism 1 &amp; Prism 2 until Analyst confirms wavelength locks onto target!</p>
       `,
 
       // Page 3: Escapement Chime
@@ -119,13 +155,13 @@ class AlchemistManualView {
         <p class="classified-caption">SYNCHRONIZED TRIP-WIRE DISENGAGEMENT PROTOCOL</p>
 
         <div class="parchment-rule-box">
-          <h3>Chime Identification & Release Windows:</h3>
-          <p>• <strong>Whittington Quarters</strong> (F#4 -> A4 -> D4 -> C#5):
-             <br>Release lever <strong>PRECISELY ON STRIKE 3 (D4 attack)</strong>!</p>
-          <p>• <strong>Westminster Quarters</strong> (D4 -> F#4 -> A4 -> C#5):
-             <br>Release lever <strong>DURING 4th NOTE LINGERING DECAY</strong>!</p>
-          <p>• <strong>St. Michael Chimes</strong> (C#5 -> A4 -> F#4 -> D4):
-             <br>Release lever <strong>1.5 SECONDS AFTER NOTE 4 IN SILENCE</strong>!</p>
+          <h3>Authorized Planetary Governor Cam &amp; Release Window:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the authorized <strong>Planetary Chime Governor Cam</strong> from the ephemeris:</p>
+          <ul class="dossier-list" style="margin: 4px 0 8px 16px; font-size: 0.85rem;">
+            <li><strong>CAM #1 (Whittington Quarters):</strong> Release lever <strong>PRECISELY ON STRIKE 3 (D4 attack)</strong>!</li>
+            <li><strong>CAM #2 (Westminster Quarters):</strong> Release lever <strong>DURING 4th NOTE LINGERING DECAY</strong>!</li>
+            <li><strong>CAM #3 (St. Michael Chimes):</strong> Release lever <strong>1.5 SECONDS AFTER NOTE 4 IN SILENCE</strong>!</li>
+          </ul>
         </div>
         <p class="matrix-footnote">⚠️ Releasing lever during the wrong note will trip the spring brake and cause a critical strike!</p>
       `

@@ -169,7 +169,7 @@ class MorgueManualView {
 
           <p><strong>Step-by-step Execution:</strong></p>
           <ol class="dossier-ordered-list">
-            <li><strong>Victim Birth Year:</strong> Query Intel Analyst to look up the deceased's birth year in central medical records (e.g. 1958).</li>
+            <li><strong>Victim Birth Year &amp; Access Log:</strong> Query Intel Analyst to look up the deceased's birth year in central medical records (e.g. 1958) and verify the suspect's security clearance tier via the Ward 9 Security Access Log.</li>
             <li><strong>Vital Wounds Count:</strong> Count the number of verified ante-mortem wounds from the Autopsy table (do NOT include post-mortem cuts!). Multiply by 5 and subtract.</li>
             <li><strong>Killer Security Tier:</strong> Identify the perpetrator from weapon caliper evidence + handedness matching Intel records. Take the suspect's security access tier number (Tier 1 = 1, Tier 2 = 2, Tier 3 = 3, Tier 4 = 4). Multiply by 12 and add.</li>
             <li>Instruct the Field Operative to enter the resulting 4 digits on the door keypad.</li>
@@ -187,26 +187,70 @@ class MorgueManualView {
       `
         <div class="parchment-header clinical-header">
           <span class="stamp-box forensic-stamp">LIFE SUPPORT</span>
-          <h2>SECTION IV: AIR DAMPER LEVER PROTOCOL</h2>
+          <h2>SECTION IV: AIR DAMPER &amp; FACILITY DISPATCH</h2>
         </div>
-        <p class="classified-caption">BIO-HAZARD EXHAUST DUCTWORK &amp; MECHANICAL ISOLATION</p>
+        <p class="classified-caption">BIO-HAZARD EXHAUST DUCTWORK &amp; 3-WAY DISPATCH COORDINATION</p>
 
         <div class="parchment-rule-box clinical-rule-box">
-          <h3>1. Toxic Gas Chamber Thresholds:</h3>
-          <p>• <strong>0 - 200 PPM:</strong> Safe atmospheric baseline.</p>
-          <p>• <strong>500 - 999 PPM:</strong> Warning threshold (nausea, eye irritation).</p>
-          <p>• <strong>≥ 1000 PPM:</strong> Lethal neurotoxin saturation! Operatives have 60 seconds before respiratory arrest.</p>
+          <h3>1. Atmospheric Duct Equalization Law:</h3>
+          <p>The Field Operative reads the <strong>BASE DUCT CALIBRATION (PSI)</strong> on the Life Support console. Query the <strong>Intel Analyst</strong> for the active <strong>CRIME SCENE CLASSIFICATION</strong> from the central police dossier:</p>
+          
+          <div class="simon-table-container" style="margin: 8px 0;">
+            <table class="simon-table morgue-table">
+              <thead>
+                <tr>
+                  <th>CRIME SCENE CLASSIFICATION</th>
+                  <th>PSI MODIFIER</th>
+                  <th>CONTAINMENT PROTOCOL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CLASS A: NEUROTOXIN GAS (TABUN-VX)</strong></td>
+                  <td style="color:#00e5ff; font-weight:bold;">+2.0 PSI</td>
+                  <td>Heavy vapor layer displacement</td>
+                </tr>
+                <tr>
+                  <td><strong>CLASS B: RADIOLOGICAL PATHOGEN</strong></td>
+                  <td style="color:#76ff03; font-weight:bold;">+5.0 PSI</td>
+                  <td>Positive-pressure bio-isolation</td>
+                </tr>
+                <tr>
+                  <td><strong>CLASS C: HEMOTOXIC VOLATILE AGENT</strong></td>
+                  <td style="color:#ffb74d; font-weight:bold;">-3.0 PSI</td>
+                  <td>Negative-pressure rapid evacuation</td>
+                </tr>
+                <tr>
+                  <td><strong>CLASS D: CRYOGENIC COOLANT RUPTURE</strong></td>
+                  <td style="color:#ff5252; font-weight:bold;">-5.0 PSI</td>
+                  <td>Supercooled nitrogen displacement</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="formula-callout">
+            TARGET EQUALIZED PSI = BASE DUCT CALIBRATION + CLASSIFICATION MODIFIER
+          </div>
+          <p class="matrix-footnote">Example: Base Calibration = 35.0 PSI. Intel reports Class B (+5.0 PSI) → Target = 40.0 PSI. Operative adjusts within ±0.8 PSI tolerance.</p>
         </div>
 
-        <div class="parchment-rule-box clinical-rule-box">
-          <h3>2. Remote Dispatcher Flushing &amp; Mechanical Locking:</h3>
-          <p>The ceiling air damper lever is electrically locked while pressurized gas floods the intake. To disengage:</p>
+        <div class="parchment-rule-box clinical-rule-box" style="margin-top: 10px;">
+          <h3>2. Auxiliary Power Grid &amp; Breaker Trip Protocol:</h3>
+          <p>If the facility experiences an auxiliary brownout or breaker trip (indicated by ⚡ OFFLINE status on consoles), digital and pneumatic controls will freeze.</p>
+          <p><strong>ACTION:</strong> Instruct the <strong>Intel Analyst</strong> to trigger <code>[TRIGGER: POWER_RESET]</code> on the central dispatch console to restore auxiliary voltage.</p>
+        </div>
+
+        <div class="parchment-rule-box clinical-rule-box" style="margin-top: 10px;">
+          <h3>3. Remote Vent Flush &amp; Timed Lever Throw:</h3>
+          <p>The mechanical damper lever remains locked while toxic back-pressure seals the duct. To disengage:</p>
           <ol class="dossier-ordered-list">
-            <li><strong>Remote Flush:</strong> Instruct Intel Analyst (Dispatcher) to transmit remote command <code>[TRIGGER: VENT_FLUSH]</code> from the central facility console.</li>
-            <li><strong>Exhaust Window:</strong> The flush purges 400 PPM of toxin and opens a <strong>10-second mechanical interlock window</strong>.</li>
-            <li><strong>Physical Lever Throw:</strong> Within this 10-second window, the Field Operative must pull the yellow-striped air damper lever in the upper ceiling duct!</li>
+            <li><strong>Equalize Pressure:</strong> Operative sets duct pressure to Target PSI.</li>
+            <li><strong>Remote Flush:</strong> Instruct Intel Analyst to fire <code>[TRIGGER: VENT_FLUSH]</code> from the central facility console.</li>
+            <li><strong>15-Second Exhaust Window:</strong> Intel Analyst must count down the <strong>15-second interlock purge window</strong> over radio!</li>
+            <li><strong>Physical Lever Throw:</strong> Operative must pull the emergency damper lever while the purge window is active!</li>
           </ol>
-          <p class="matrix-footnote">⚠️ If the 10-second window expires before the lever is thrown, the damper solenoid re-locks automatically.</p>
+          <p class="matrix-footnote">⚠️ If the 15-second window expires, the damper re-seals and the team must coordinate the purge again.</p>
         </div>
       `,
 

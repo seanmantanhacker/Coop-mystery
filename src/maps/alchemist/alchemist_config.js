@@ -28,11 +28,19 @@ window.ESCAPE_MAPS['alchemist'] = {
 
   generateSpecs(seed, game) {
     game.timerSeconds = 360;
+
+    const purityGrade = (Math.abs(seed + 7) % 2 === 0) ? 'GRADE_A' : 'GRADE_B';
+
     if (window.zodiacModule) window.zodiacModule.generate(seed);
-    if (window.mercuryModule) window.mercuryModule.generate(seed + 15);
+    if (window.mercuryModule) window.mercuryModule.generate(seed + 15, purityGrade);
     const zodiacTargetElem = window.zodiacModule ? window.zodiacModule.targetElement : null;
     if (window.prismModule) window.prismModule.generate(seed + 30, zodiacTargetElem);
     if (window.escapementModule) window.escapementModule.generate(seed + 45);
+
+    game.alchemistIntelData = {
+      purityGrade,
+      governorCam: window.escapementModule ? window.escapementModule.governorCam : 1
+    };
   },
 
   checkVictory() {

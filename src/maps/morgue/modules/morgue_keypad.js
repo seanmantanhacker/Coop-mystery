@@ -32,8 +32,17 @@ class MorgueKeypadModule {
       killerTier = vitalCount.killerTier;
       vitalCount = vitalCount.vitalWounds;
     }
-    this.vitalWounds = vitalCount !== undefined ? vitalCount : (window.autopsyModule ? window.autopsyModule.vitalWoundCount : 4);
-    this.killerTier = killerTier !== undefined ? killerTier : (window.autopsyModule && window.autopsyModule.suspects[window.autopsyModule.activeSuspectKey] ? window.autopsyModule.suspects[window.autopsyModule.activeSuspectKey].tier : 4);
+
+    const autopsy = window.autopsyModule;
+    const currentKiller = autopsy ? (autopsy.correctKiller || autopsy.suspects[autopsy.activeSuspectKey]) : null;
+
+    this.vitalWounds = (vitalCount !== undefined && typeof vitalCount === 'number') 
+      ? vitalCount 
+      : (autopsy ? autopsy.vitalWoundCount : 4);
+
+    this.killerTier = (killerTier !== undefined && typeof killerTier === 'number') 
+      ? killerTier 
+      : (currentKiller ? currentKiller.tier : 4);
 
     // Formula: [Victim's Year of Birth] - [Fatal Vital Wounds] * 5 + [Killer Access Tier] * 12
     const rawVal = this.victimYearOfBirth - (this.vitalWounds * 5) + (this.killerTier * 12);
@@ -48,6 +57,13 @@ class MorgueKeypadModule {
 
   pressKey(digit) {
     if (this.disarmed) return;
+    if (window.lifeSupportModule && !window.lifeSupportModule.powerActive) {
+      if (window.audio && window.audio.playStrike) window.audio.playStrike();
+      if (window.game) {
+        window.game.showToast('⚡ KEYPAD UNPOWERED! Request Intel remote Power Reset.', 'error');
+      }
+      return;
+    }
     if (this.enteredCode.length >= 4) return;
 
     this.enteredCode += String(digit);
@@ -57,6 +73,7 @@ class MorgueKeypadModule {
 
   clear() {
     if (this.disarmed) return;
+    if (window.lifeSupportModule && !window.lifeSupportModule.powerActive) return;
     this.enteredCode = '';
     if (window.audio && window.audio.playClick) window.audio.playClick();
     this.updateHUD();
@@ -64,6 +81,13 @@ class MorgueKeypadModule {
 
   submit() {
     if (this.disarmed) return { status: 'ALREADY_DISARMED' };
+    if (window.lifeSupportModule && !window.lifeSupportModule.powerActive) {
+      if (window.audio && window.audio.playStrike) window.audio.playStrike();
+      if (window.game) {
+        window.game.showToast('⚡ KEYPAD UNPOWERED! Request Intel remote Power Reset.', 'error');
+      }
+      return { status: 'POWER_OFFLINE' };
+    }
     if (this.enteredCode.length < 4) return { status: 'INCOMPLETE' };
 
     if (this.enteredCode === this.targetCode) {
@@ -80,7 +104,10 @@ class MorgueKeypadModule {
       if (window.audio && window.audio.playStrike) window.audio.playStrike();
       if (window.game) {
         window.game.addStrike();
-        window.game.showToast('STRIKE: INVALID SECURITY PIN ACCESS DENIED!', 'error');
+        window.game.showToast('STRIKE: INVALID SECURITY PIN ACCESS DENIED! POWER GRID TRIPPED!', 'error');
+      }
+      if (window.lifeSupportModule) {
+        window.lifeSupportModule.tripPower('SECURITY LOCKOUT SURGE');
       }
       this.enteredCode = '';
       this.updateHUD();
@@ -97,6 +124,9 @@ class MorgueKeypadModule {
       if (this.disarmed) {
         display.innerText = `${this.targetCode} [GRANTED]`;
         display.className = 'keypad-screen glow-green';
+      } else if (window.lifeSupportModule && !window.lifeSupportModule.powerActive) {
+        display.innerText = '⚡ OFFLINE';
+        display.className = 'keypad-screen glow-red';
       } else {
         const padded = this.enteredCode.padEnd(4, '_');
         display.innerText = padded.split('').join(' ');

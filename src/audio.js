@@ -420,7 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btn) {
     btn.addEventListener('click', () => {
       const isMuted = audio.toggleMute();
-      btn.innerText = isMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+      btn.innerHTML = isMuted 
+        ? '<span class="audio-icon">🔇</span><span class="audio-label"> SOUND OFF</span>' 
+        : '<span class="audio-icon">🔊</span><span class="audio-label"> SOUND ON</span>';
     });
   }
 });

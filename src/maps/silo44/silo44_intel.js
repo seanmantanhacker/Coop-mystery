@@ -31,16 +31,30 @@ class Silo44IntelView {
     if (emergWarning) emergWarning.innerText = '⚠️ PROTOCOL: Solve the cryptographic mathematical equation below to unlock the coolant valve (+2:00 to Detonation Clock, single use).';
     if (guardLabel) guardLabel.innerText = 'LIFT GUARD';
 
+    const defcon = window.game?.siloIntelData?.defconLevel || 3;
+    const cipherKey = window.game?.siloIntelData?.cipherKey || 'OMEGA';
+    const pulsePolarity = window.game?.siloIntelData?.pulsePolarity || 'DIRECT';
+
     if (serialLbl) serialLbl.innerText = 'SERIAL NUMBER:';
     if (battLbl) battLbl.innerText = 'BATTERY COMPARTMENTS:';
     if (indLbl) indLbl.innerText = 'INDICATOR RELAYS:';
-    if (tempItem) tempItem.style.display = 'none';
-
-    if (serialEl) serialEl.innerText = window.game ? window.game.serialNumber : 'A7-93K';
-    if (battEl) battEl.innerText = window.game ? `${window.game.batteries} CELLS` : '2 CELLS';
-    if (indEl && window.game) {
-      indEl.innerText = `FRK: ${window.game.indicators.FRK ? 'ACTIVE' : 'INACTIVE'} | CAR: ${window.game.indicators.CAR ? 'ACTIVE' : 'INACTIVE'}`;
+    if (tempItem) {
+      tempItem.style.display = 'block';
+      const tempLbl = document.getElementById('intel-dossier-temp-lbl');
+      if (tempLbl) tempLbl.innerText = 'TACTICAL CIPHER & DEFCON:';
     }
+
+    if (serialEl) serialEl.innerText = window.game ? `${window.game.serialNumber} (DEFCON ${defcon})` : 'A7-93K (DEFCON 3)';
+    if (battEl) battEl.innerText = window.game ? `${window.game.batteries} CELLS (${pulsePolarity} POLARITY)` : '2 CELLS';
+    if (indEl && window.game) {
+      indEl.innerText = `FRK: ${window.game.indicators.FRK ? 'ON' : 'OFF'} | CAR: ${window.game.indicators.CAR ? 'ON' : 'OFF'} | CIPHER: ${cipherKey}`;
+    }
+    const tempEl = document.getElementById('intel-dossier-temp');
+    if (tempEl) {
+      tempEl.innerText = `DEFCON ${defcon} ALERT | KEY ${cipherKey} | ${pulsePolarity} POLARITY`;
+      tempEl.className = 'glow-yellow';
+    }
+
     const freq = window.frequencyModule ? `${window.frequencyModule.targetFreq} MHz` : '142.5 MHz';
     if (targetFreqEl) targetFreqEl.innerText = freq;
     if (inspectTargetEl) inspectTargetEl.innerText = freq;
@@ -50,10 +64,13 @@ class Silo44IntelView {
   static getTelemetryText() {
     const serial = window.game ? window.game.serialNumber : 'A7-93K';
     const batt = window.game ? `${window.game.batteries} CELLS` : '2 CELLS';
+    const defcon = window.game?.siloIntelData?.defconLevel || 3;
+    const cipherKey = window.game?.siloIntelData?.cipherKey || 'OMEGA';
+    const pulsePolarity = window.game?.siloIntelData?.pulsePolarity || 'DIRECT';
     const frk = window.game?.indicators?.FRK ? 'ON' : 'OFF';
     const car = window.game?.indicators?.CAR ? 'ON' : 'OFF';
     const target = window.frequencyModule ? `${window.frequencyModule.targetFreq} MHz` : '142.5 MHz';
-    return `[INTEL TELEMETRY] Serial: ${serial} | Batteries: ${batt} | Indicators: FRK=${frk}, CAR=${car} | Target Freq: ${target}`;
+    return `[SILO 44 INTEL] Serial: ${serial} | DEFCON: ${defcon} | Cipher: ${cipherKey} | Polarity: ${pulsePolarity} | Batteries: ${batt} | FRK: ${frk}, CAR: ${car} | Target Freq: ${target}`;
   }
 
   static renderOscilloscope(ctx, canvas, phase) {

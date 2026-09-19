@@ -33,35 +33,66 @@ class AlchemistIntelView {
     if (guardLabel) guardLabel.innerText = 'BREAK SEAL';
 
     const zod = window.zodiacModule;
-    const houseText = zod ? `${zod.houses[zod.targetHouseIdx].name.toUpperCase()} ${zod.houses[zod.targetHouseIdx].symbol}` : 'SCORPIO ♏';
-    const retroText = zod ? (zod.isRetrograde ? 'RETROGRADE (WEST BUBBLE)' : 'DIRECT (EAST BUBBLE)') : 'RETROGRADE (WEST BUBBLE)';
-    const lunarText = zod ? (zod.isPerigee ? 'LUNAR: PERIGEE ☽ (PURIFYING)' : 'LUNAR: APOGEE ☾ (BASELINE)') : 'LUNAR: PERIGEE ☽';
-    const tempVal = window.mercuryModule ? `${window.mercuryModule.temperature.toFixed(1)}°C` : '21.4°C';
+    const merc = window.mercuryModule;
+    const escapement = window.escapementModule;
+    const prism = window.prismModule;
 
-    if (serialLbl) serialLbl.innerText = 'RULING OPUS / HOUSE:';
-    if (battLbl) battLbl.innerText = 'CELESTIAL MOTION:';
-    if (indLbl) indLbl.innerText = 'LUNAR SYZYGY:';
+    const houseText = zod ? `${zod.houses[zod.targetHouseIdx].name.toUpperCase()} ${zod.houses[zod.targetHouseIdx].symbol}` : 'SCORPIO ♏';
+    const opusText = merc ? merc.opusName : 'OPUS AQUAE';
+    const retroText = zod ? (zod.isRetrograde ? 'RETROGRADE (WEST)' : 'DIRECT (EAST)') : 'RETROGRADE';
+    const lunarText = zod ? (zod.isPerigee ? 'PERIGEE ☽' : 'APOGEE ☾') : 'PERIGEE ☽';
+    const tempVal = merc ? `${merc.temperature.toFixed(1)}°C` : '26.0°C';
+
+    const purityGrade = merc ? merc.purityGrade : (window.game?.alchemistIntelData?.purityGrade || 'GRADE_A');
+    const purityText = (purityGrade === 'GRADE_A') ? 'GRADE A (MERCURIAL FOCUS)' : 'GRADE B (SULFURIC BIAS)';
+
+    const cam = escapement ? escapement.governorCam : (window.game?.alchemistIntelData?.governorCam || 1);
+    const camNames = ['WHITTINGTON', 'WESTMINSTER', 'ST. MICHAEL'];
+    const camText = `CAM #${cam} (${camNames[cam - 1] || 'WHITTINGTON'})`;
+
+    const prismElem = prism ? prism.targetElement : 'Fire';
+    const fraunhoferMap = {
+      'Fire': 'LINE D: SOLAR SODIUM (589 nm)',
+      'Water': 'LINE F: HYDROGEN BETA (450 nm)',
+      'Air': 'LINE b: MAGNESIUM EMERALD (530 nm)',
+      'Earth': 'LINE C: HYDROGEN ALPHA (650 nm)'
+    };
+    const fraunhoferLine = fraunhoferMap[prismElem] || 'LINE D: SOLAR SODIUM (589 nm)';
+
+    if (serialLbl) serialLbl.innerText = 'RULING OPUS & HOUSE:';
+    if (battLbl) battLbl.innerText = 'CELESTIAL MOTION & PURITY:';
+    if (indLbl) indLbl.innerText = 'LUNAR SYZYGY & CHIME CAM:';
     if (tempItem) tempItem.style.display = 'block';
 
-    if (serialEl) serialEl.innerText = houseText;
-    if (battEl) battEl.innerText = retroText;
-    if (indEl) indEl.innerText = lunarText;
-    if (tempEl) tempEl.innerText = `${tempVal} (HYDROSTATIC AMBIENT)`;
+    if (serialEl) serialEl.innerText = `${opusText} // ${houseText}`;
+    if (battEl) battEl.innerText = `${retroText} | ${purityText}`;
+    if (indEl) indEl.innerText = `${lunarText} | ${camText}`;
+    if (tempEl) {
+      tempEl.innerText = `${tempVal} AMBIENT | ${fraunhoferLine}`;
+      tempEl.className = 'glow-yellow';
+    }
 
-    const wave = window.prismModule ? `${window.prismModule.targetWavelength} nm (SOLAR D-LINE)` : '589 nm (SODIUM D-LINE)';
+    const wave = prism ? `${prism.targetWavelength} nm (${fraunhoferLine.split(':')[0]})` : '589 nm (SOLAR D-LINE)';
     if (targetFreqEl) targetFreqEl.innerText = wave;
     if (inspectTargetEl) inspectTargetEl.innerText = wave;
-    if (currentFreqEl && window.prismModule) currentFreqEl.innerText = `${window.prismModule.currentWavelength} nm`;
+    if (currentFreqEl && prism) currentFreqEl.innerText = `${prism.currentWavelength} nm`;
   }
 
   static getTelemetryText() {
-    const target = window.prismModule ? `${window.prismModule.targetWavelength} nm` : '589 nm';
     const zod = window.zodiacModule;
+    const merc = window.mercuryModule;
+    const escapement = window.escapementModule;
+    const prism = window.prismModule;
+
+    const target = prism ? `${prism.targetWavelength} nm` : '589 nm';
     const houseName = zod ? `${zod.houses[zod.targetHouseIdx].name.toUpperCase()} ${zod.houses[zod.targetHouseIdx].symbol}` : 'SCORPIO ♏';
-    const retro = zod ? (zod.isRetrograde ? 'RETROGRADE (WEST BUBBLE)' : 'DIRECT (EAST BUBBLE)') : 'RETROGRADE';
+    const opusName = merc ? merc.opusName : 'OPUS AQUAE';
+    const retro = zod ? (zod.isRetrograde ? 'RETROGRADE' : 'DIRECT') : 'RETROGRADE';
     const lunar = zod ? (zod.isPerigee ? 'PERIGEE ☽' : 'APOGEE ☾') : 'PERIGEE ☽';
-    const temp = window.mercuryModule ? `${window.mercuryModule.temperature.toFixed(1)}°C` : '21.4°C';
-    return `[ALCHEMIST INTEL] Opus: ${houseName} | Celestial: ${retro} | Lunar: ${lunar} | Ambient Temp: ${temp} | Target Spectral: ${target}`;
+    const temp = merc ? `${merc.temperature.toFixed(1)}°C` : '26.0°C';
+    const purity = merc ? merc.purityGrade : 'GRADE_A';
+    const cam = escapement ? escapement.governorCam : 1;
+    return `[ALCHEMIST INTEL] ${opusName} (${houseName}) | Temp: ${temp} | Purity: ${purity} | Cam #${cam} | Motion: ${retro} | Lunar: ${lunar} | Target Spectral: ${target}`;
   }
 
   static renderOscilloscope(ctx, canvas, phase) {

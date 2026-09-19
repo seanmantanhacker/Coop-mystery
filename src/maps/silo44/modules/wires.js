@@ -10,7 +10,8 @@ class WiresModule {
     this.correctWireIndex = -1;
   }
 
-  generate(seed, serialNumber) {
+  generate(seed, serialNumber, defconLevel = 3) {
+    this.defconLevel = defconLevel;
     const colors = ['red', 'blue', 'yellow', 'black', 'white'];
     const wireCount = (seed % 2 === 0) ? 4 : 5;
     
@@ -22,9 +23,8 @@ class WiresModule {
       tempSeed = Math.floor(tempSeed / 3) + i + 1;
     }
 
-    // Determine correct wire index based on serial number & manual rules
-    const hasVowel = /[AEIOU]/i.test(serialNumber);
-    const lastDigitChar = serialNumber.match(/\d/g);
+    // Determine correct wire index based on serial number, DEFCON status & manual rules
+    const lastDigitChar = serialNumber ? serialNumber.match(/\d/g) : null;
     const lastDigit = lastDigitChar ? parseInt(lastDigitChar[lastDigitChar.length - 1]) : 0;
     const isOdd = lastDigit % 2 !== 0;
 
@@ -33,31 +33,41 @@ class WiresModule {
     const yellowCount = this.wires.filter(w => w === 'yellow').length;
     const blackCount = this.wires.filter(w => w === 'black').length;
 
-    if (wireCount === 4) {
-      if (redCount > 1 && isOdd) {
-        this.correctWireIndex = this.wires.lastIndexOf('red');
-      } else if (this.wires[3] === 'yellow' && redCount === 0) {
-        this.correctWireIndex = 0;
-      } else if (blueCount === 1) {
-        this.correctWireIndex = 0;
-      } else if (yellowCount > 1) {
-        this.correctWireIndex = 3;
+    if (this.defconLevel === 2) {
+      // DEFCON 2: Emergency Protocol
+      if (wireCount === 4) {
+        this.correctWireIndex = (redCount > 1) ? 0 : 3;
       } else {
-        this.correctWireIndex = 1;
+        this.correctWireIndex = (this.wires[4] === 'black') ? 1 : 2;
       }
-    } else { // 5 wires
-      if (this.wires[4] === 'black' && !isOdd) {
-        this.correctWireIndex = 3;
-      } else if (redCount === 1 && yellowCount > 1) {
-        this.correctWireIndex = 0;
-      } else if (blackCount === 0) {
-        this.correctWireIndex = 1;
-      } else {
-        this.correctWireIndex = 0;
+    } else {
+      // DEFCON 3: Standard Protocol
+      if (wireCount === 4) {
+        if (redCount > 1 && isOdd) {
+          this.correctWireIndex = this.wires.lastIndexOf('red');
+        } else if (this.wires[3] === 'yellow' && redCount === 0) {
+          this.correctWireIndex = 0;
+        } else if (blueCount === 1) {
+          this.correctWireIndex = 0;
+        } else if (yellowCount > 1) {
+          this.correctWireIndex = 3;
+        } else {
+          this.correctWireIndex = 1;
+        }
+      } else { // 5 wires
+        if (this.wires[4] === 'black' && !isOdd) {
+          this.correctWireIndex = 3;
+        } else if (redCount === 1 && yellowCount > 1) {
+          this.correctWireIndex = 0;
+        } else if (blackCount === 0) {
+          this.correctWireIndex = 1;
+        } else {
+          this.correctWireIndex = 0;
+        }
       }
     }
 
-    console.log('[Wires Module] Colors:', this.wires, 'Correct Wire Index:', this.correctWireIndex);
+    console.log(`[Wires Module] DEFCON: ${this.defconLevel} | Colors:`, this.wires, 'Correct Wire Index:', this.correctWireIndex);
   }
 
   cutWire(index) {

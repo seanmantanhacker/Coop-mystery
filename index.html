@@ -25,14 +25,14 @@
     <header class="tactical-header">
       <div class="logo">
         <span class="status-dot online"></span>
-        <span class="title">OPERATION: ZERO HOUR</span>
+        <span class="title"><span class="title-prefix">OPERATION: </span>ZERO HOUR</span>
         <span class="version">POINT & CLICK ESCAPE SPEC</span>
       </div>
       <div class="session-info">
-        <span id="room-display">ROOM: <strong class="text-highlight">DISCONNECTED</strong></span>
-        <span id="role-display">ROLE: <strong class="text-highlight">UNASSIGNED</strong></span>
-        <span id="level-display" class="hidden">LEVEL: <strong class="text-highlight" id="level-display-name">MAP 1: SILO 44</strong></span>
-        <button id="audio-toggle-btn" class="btn-icon">🔊 SOUND ON</button>
+        <span id="room-display"><span class="room-label">ROOM: </span><strong class="text-highlight room-code">DISCONNECTED</strong></span>
+        <span id="role-display"><span class="role-label">ROLE: </span><strong class="text-highlight role-name">UNASSIGNED</strong></span>
+        <span id="level-display" class="hidden"><span class="level-label">LEVEL: </span><strong class="text-highlight" id="level-display-name">MAP 1: SILO 44</strong></span>
+        <button id="audio-toggle-btn" class="btn-icon" title="Toggle Sound" aria-label="Toggle Sound"><span class="audio-icon">🔊</span><span class="audio-label"> SOUND ON</span></button>
       </div>
     </header>
 
@@ -336,15 +336,20 @@
               <span id="mercury-val-gamma" class="tube-val glow-yellow">80 drams</span>
             </div>
           </div>
-          <div class="valve-btn-row">
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, 5)">VALVE 1 (α ◀ β)</button>
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, -5)">VALVE 1 (α ▶ β)</button>
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, 5)">VALVE 2 (β ◀ γ)</button>
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, -5)">VALVE 2 (β ▶ γ)</button>
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, 5)">VALVE 3 (α ◀ γ)</button>
-            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, -5)">VALVE 3 (α ▶ γ)</button>
+          <div class="valve-mode-selector">
+            <span class="valve-mode-label">VALVE PRECISION:</span>
+            <button id="btn-mercury-coarse" class="btn btn-ctrl btn-precision active" onclick="mercuryModule.setPrecision(10)">⚡ COARSE (±10)</button>
+            <button id="btn-mercury-fine" class="btn btn-ctrl btn-precision" onclick="mercuryModule.setPrecision(1)">🔬 FINE (±1)</button>
           </div>
-          <p class="caption-guidance">Turn thumb valves to balance fluids into hydrostatic equilibrium according to the Grimoire ratios.</p>
+          <div class="valve-btn-row">
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, 1)">VALVE 1 (α ◀ β)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(1, -1)">VALVE 1 (α ▶ β)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, 1)">VALVE 2 (β ◀ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(2, -1)">VALVE 2 (β ▶ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, 1)">VALVE 3 (α ◀ γ)</button>
+            <button class="btn btn-ctrl" onclick="mercuryModule.turnValve(3, -1)">VALVE 3 (α ▶ γ)</button>
+          </div>
+          <p class="caption-guidance">Use COARSE to adjust volume rapidly, then switch to FINE micrometer to lock hydrostatic equilibrium.</p>
         </div>
 
         <!-- Victorian Module 3: Prismatic Light HUD -->
@@ -540,6 +545,11 @@
           </div>
           <div id="ls-status-badge" class="badge badge-warning">AIR EXTRACTION ACTIVE</div>
 
+          <!-- Auxiliary Power Grid Warning Banner -->
+          <div id="ls-power-alert" class="hud-power-alert hidden" style="margin-top:8px; padding:6px; background:rgba(255,23,68,0.25); border:1px solid #ff1744; border-radius:4px; color:#ff8a80; font-size:0.85rem; text-align:center;">
+            ⚡ [AUXILIARY POWER OFFLINE] BREAKER TRIPPED — REQUEST INTEL REMOTE POWER RESET!
+          </div>
+
           <div class="gas-gauge-meter-wrapper">
             <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#b0bec5;">
               <span>ATMOSPHERIC NEUROTOXIN:</span>
@@ -550,21 +560,25 @@
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; font-size:0.85rem;">
               <div>CURRENT INTAKE PSI: <strong id="ls-current-psi" class="glow-yellow">48.0 PSI</strong></div>
-              <div>TARGET EQUALIZED PSI: <strong id="ls-target-psi" class="glow-cyan">36.5 PSI</strong></div>
+              <div>BASE DUCT CALIBRATION: <strong id="ls-base-psi" class="glow-cyan">35.0 PSI</strong></div>
+              <div>TARGET EQUALIZED PSI: <strong id="ls-target-psi" class="glow-yellow">[INTEL CLASS REQ]</strong></div>
               <div>CRYO-CHAMBER TEMP: <strong id="ls-cryo-temp" class="glow-cyan">2.8°C</strong></div>
             </div>
             <div style="display:flex; justify-content:center; gap:8px; margin-top:8px;">
-              <button class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(-1.0)">-1.0 PSI</button>
-              <button class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(1.0)">+1.0 PSI</button>
+              <button id="ls-btn-psi-dec" class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(-1.0)">-1.0 PSI</button>
+              <button id="ls-btn-psi-inc" class="btn btn-ctrl" onclick="lifeSupportModule.adjustPsi(1.0)">+1.0 PSI</button>
             </div>
           </div>
 
           <div class="vent-lever-row">
+            <div id="ls-flush-timer-banner" style="display:none; color:#5ce1e6; font-size:0.85rem; margin-bottom:6px; font-weight:bold; text-align:center; background:rgba(92,225,230,0.15); border:1px solid #5ce1e6; border-radius:4px; padding:4px;">
+              💨 EXHAUST FLUSH ACTIVE: <span id="ls-flush-seconds">15</span>s (PULL LEVER NOW!)
+            </div>
             <button id="btn-pull-damper-lever" class="btn btn-vent-damper" onclick="lifeSupportModule.pullDamperLever()">
               ⚠️ PULL EMERGENCY MECHANICAL AIR DAMPER
             </button>
           </div>
-          <p class="caption-guidance">Equalize pressure to target (or request Dispatch [VENT_FLUSH]), then pull the emergency damper lever.</p>
+          <p class="caption-guidance">Equalize PSI using Intel's Crime Scene Classification, request Intel [VENT_FLUSH], then pull lever during active flush window.</p>
         </div>
 
         <!-- Three.js 3D Canvas -->
@@ -671,6 +685,60 @@
 
           <!-- ROOM OVERVIEW: THE 3-MONITOR SURVEILLANCE CONSOLE -->
           <div id="intel-console-overview" class="surveillance-room-scene">
+            <!-- Intel Tactical Command & Room Status Overview Panel -->
+            <div id="intel-command-matrix" class="intel-command-matrix glass-panel">
+              <div class="command-matrix-header">
+                <div class="matrix-title">
+                  <span class="pulse-indicator"></span>
+                  <span>TACTICAL SITUATION OVERVIEW &amp; ROOM STATUS</span>
+                </div>
+                <div class="matrix-progress" id="intel-matrix-progress">0 / 4 MODULES SECURED</div>
+              </div>
+
+              <div class="intel-modules-grid">
+                <div class="intel-module-card" id="intel-card-mod-1">
+                  <div class="card-mod-header">
+                    <span class="card-mod-num">SEC 01</span>
+                    <span class="status-pill pending" id="intel-mod-status-1">🔒 PENDING</span>
+                  </div>
+                  <div class="card-mod-name" id="intel-mod-name-1">MODULE 1</div>
+                  <div class="card-mod-detail" id="intel-mod-detail-1">Awaiting Operative</div>
+                </div>
+
+                <div class="intel-module-card" id="intel-card-mod-2">
+                  <div class="card-mod-header">
+                    <span class="card-mod-num">SEC 02</span>
+                    <span class="status-pill pending" id="intel-mod-status-2">🔒 PENDING</span>
+                  </div>
+                  <div class="card-mod-name" id="intel-mod-name-2">MODULE 2</div>
+                  <div class="card-mod-detail" id="intel-mod-detail-2">Awaiting Operative</div>
+                </div>
+
+                <div class="intel-module-card" id="intel-card-mod-3">
+                  <div class="card-mod-header">
+                    <span class="card-mod-num">SEC 03</span>
+                    <span class="status-pill pending" id="intel-mod-status-3">🔒 PENDING</span>
+                  </div>
+                  <div class="card-mod-name" id="intel-mod-name-3">MODULE 3</div>
+                  <div class="card-mod-detail" id="intel-mod-detail-3">Awaiting Operative</div>
+                </div>
+
+                <div class="intel-module-card" id="intel-card-mod-4">
+                  <div class="card-mod-header">
+                    <span class="card-mod-num">SEC 04</span>
+                    <span class="status-pill pending" id="intel-mod-status-4">🔒 PENDING</span>
+                  </div>
+                  <div class="card-mod-name" id="intel-mod-name-4">MODULE 4</div>
+                  <div class="card-mod-detail" id="intel-mod-detail-4">Awaiting Operative</div>
+                </div>
+              </div>
+
+              <div class="intel-directive-bar">
+                <span class="directive-tag">ACTIVE DIRECTIVE:</span>
+                <span class="directive-text" id="intel-mission-directive-banner">Relay telemetry and coordinate disarmament protocols with team.</span>
+              </div>
+            </div>
+
             <div class="crt-monitor-array">
               
               <!-- Monitor 1: Left (Wireframe Telemetry) -->

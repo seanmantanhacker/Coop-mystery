@@ -10,7 +10,8 @@ class SimonModule {
     this.playerInput = [];
   }
 
-  generate(seed) {
+  generate(seed, pulsePolarity = 'DIRECT') {
+    this.pulsePolarity = pulsePolarity;
     const colors = ['red', 'blue', 'green', 'yellow'];
     this.sequence = [];
     let tempSeed = seed;
@@ -20,11 +21,14 @@ class SimonModule {
       tempSeed = Math.floor(tempSeed / 2) + i + 1;
     }
     this.playerInput = [];
-    console.log('[Simon Module] Flashing Sequence:', this.sequence);
+    console.log(`[Simon Module] Polarity: ${this.pulsePolarity} | Flashing Sequence:`, this.sequence);
   }
 
   getMappedColor(flashColor, serialNumber, strikeCount) {
-    const hasVowel = /[AEIOU]/i.test(serialNumber);
+    let hasVowel = /[AEIOU]/i.test(serialNumber);
+    if (this.pulsePolarity === 'INVERTED') {
+      hasVowel = !hasVowel;
+    }
     const map = {
       vowel_0: { red: 'blue', blue: 'red', green: 'yellow', yellow: 'green' },
       vowel_1: { red: 'yellow', blue: 'green', green: 'blue', yellow: 'red' },

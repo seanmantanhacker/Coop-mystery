@@ -13,42 +13,42 @@ class AutopsyModule {
     this.suspects = {
       dr_allen: {
         id: 'dr_allen',
-        name: 'DR. VICTORIA ALLEN',
-        role: 'Chief Pathologist',
+        name: 'DR. ARTHUR ALLEN',
+        role: 'Attending Chief Surgeon',
         tier: 4,
-        handedness: 'LEFT-HANDED (Amputated Right Forearm)',
-        weapon: '#11 Precision Surgical Scalpel',
-        pattern: 'Narrow incised puncture < 2.5cm; downward left-to-right slant (35°-45°).',
+        handedness: 'RIGHT-HANDED',
+        weapon: 'Surgical Scalpel #10',
+        pattern: 'Narrow incised puncture 1.5-2.5cm; steep incision (70°-85°).',
         vitalWounds: 4
       },
       nurse_miller: {
         id: 'nurse_miller',
-        name: 'NURSE SAMUEL MILLER',
-        role: 'ICU Charge Nurse',
+        name: 'NURSE BEATRICE MILLER',
+        role: 'OR Scrub Nurse',
         tier: 2,
-        handedness: 'RIGHT-HANDED',
-        weapon: '18-Gauge Trocar Needle',
-        pattern: 'Small circular puncture without lateral laceration; direct steep angle (80°-90°).',
+        handedness: 'LEFT-HANDED',
+        weapon: 'Medical Shears (Heavy Mayo)',
+        pattern: 'Crushed notched puncture 4.0-6.0cm; diagonal cut (45°-60°).',
         vitalWounds: 2
       },
       guard_harris: {
         id: 'guard_harris',
-        name: 'OFFICER MARCUS HARRIS',
-        role: 'Facility Security Guard',
-        tier: 1,
+        name: 'GUARD CHARLES HARRIS',
+        role: 'Chief of Facility Security',
+        tier: 3,
         handedness: 'RIGHT-HANDED',
-        weapon: '50cm Heavy Steel Tactical Baton',
-        pattern: 'Blunt contusion laceration with internal tissue bridging; downward right-to-left sweep (120°-140°).',
+        weapon: 'Standard Security Baton',
+        pattern: 'Blunt contusion laceration with internal tissue bridging (120°-140°).',
         vitalWounds: 3
       },
       orderly_vance: {
         id: 'orderly_vance',
-        name: 'ORDERLY DAMIAN VANCE',
-        role: 'Morgue Custodian',
-        tier: 3,
+        name: 'ORDERLY DANIEL VANCE',
+        role: 'Morgue Assistant Tech',
+        tier: 1,
         handedness: 'AMBIDEXTROUS',
-        weapon: 'Autopsy Bone Saw & Embalming Trocar',
-        pattern: 'Serrated ragged margins; multi-directional jagged strike (60°-75°).',
+        weapon: 'Electric Bone Saw',
+        pattern: 'Serrated ragged margins with bone striations (60°-75°).',
         vitalWounds: 5
       }
     };
@@ -57,6 +57,10 @@ class AutopsyModule {
     this.wounds = [];
     this.vitalWoundCount = 4;
     this.selectedWoundIdx = 0;
+  }
+
+  get correctKiller() {
+    return this.suspects[this.activeSuspectKey];
   }
 
   generate(seed = 12345, params = {}) {
@@ -71,25 +75,25 @@ class AutopsyModule {
     this.wounds = [];
     for (let i = 0; i < culprit.vitalWounds; i++) {
       let depth = 2.2;
-      let angle = 40;
+      let angle = 75;
       let desc = 'Clean incised margins with extravasated coagulation thrombi (VITAL).';
 
       if (this.activeSuspectKey === 'dr_allen') {
-        depth = 2.1 + (i * 0.1);
-        angle = 38 + (i * 2);
-        desc = 'Narrow linear scalpel puncture; sharp lower angle (VITAL).';
+        depth = 1.8 + (i * 0.15);
+        angle = 72 + (i * 3);
+        desc = 'Narrow linear scalpel puncture; sharp steep angle (VITAL).';
       } else if (this.activeSuspectKey === 'nurse_miller') {
-        depth = 4.2 + (i * 0.2);
-        angle = 85 + (i * 2);
-        desc = 'Circular bore puncture; deep subcutaneous penetration (VITAL).';
+        depth = 4.5 + (i * 0.3);
+        angle = 48 + (i * 3);
+        desc = 'Notched crush puncture from heavy medical shears (VITAL).';
       } else if (this.activeSuspectKey === 'guard_harris') {
-        depth = 3.2 + (i * 0.3);
+        depth = 9.0 + (i * 0.5);
         angle = 125 + (i * 4);
-        desc = 'Crush contusion with microscopic vascular bridging (VITAL).';
+        desc = 'Blunt contusion with microscopic vascular bridging (VITAL).';
       } else if (this.activeSuspectKey === 'orderly_vance') {
-        depth = 3.6 + (i * 0.2);
-        angle = 68 + (i * 3);
-        desc = 'Ragged micro-serrated laceration with bone striations (VITAL).';
+        depth = 15.0 + (i * 0.6);
+        angle = 65 + (i * 2);
+        desc = 'Ragged micro-serrated laceration with bone saw striations (VITAL).';
       }
 
       this.wounds.push({
@@ -99,6 +103,7 @@ class AutopsyModule {
         angle: angle,
         desc: desc,
         isVital: true,
+        vital: true,
         reaction: 'HYPEREMIC (Coagulated Anti-Mortem)'
       });
     }
@@ -111,6 +116,7 @@ class AutopsyModule {
       angle: 15,
       desc: 'Superficial skin slippage from mortuary transit slab.',
       isVital: false,
+      vital: false,
       reaction: 'PALE / DRY (Post-Mortem Abrasion)'
     });
     this.wounds.push({
@@ -120,6 +126,7 @@ class AutopsyModule {
       angle: 90,
       desc: 'Old surgical drainage scar with complete fibrous healing.',
       isVital: false,
+      vital: false,
       reaction: 'FIBROTIC (Healed / Pre-dating Incident)'
     });
 

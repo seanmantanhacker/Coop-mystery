@@ -29,23 +29,23 @@ class Silo44ManualView {
           <span class="stamp-box">ORDNANCE SPEC 4.2</span>
           <h2>SECTION 01: COLOR WIRE DISARMAMENT</h2>
         </div>
-        <p class="classified-caption">DO NOT SEVER ARBITRARY WIRES. CONFIRM SERIAL SPECIFICATIONS WITH INTEL ANALYST.</p>
+        <p class="classified-caption">DO NOT SEVER ARBITRARY WIRES. CONFIRM DEFCON LEVEL &amp; SERIAL SPECIFICATIONS WITH INTEL ANALYST.</p>
         
         <div class="parchment-rule-box">
-          <h3>4-Wire Assemblies:</h3>
-          <p>• If >1 <strong>Red</strong> wire & serial end digit is <strong>ODD</strong>, cut the <strong>LAST Red wire</strong>.</p>
-          <p>• Otherwise, if last wire is <strong>Yellow</strong> & 0 <strong>Red</strong> wires, cut the <strong>FIRST wire</strong>.</p>
-          <p>• Otherwise, if exactly 1 <strong>Blue</strong> wire, cut the <strong>FIRST wire</strong>.</p>
-          <p>• Otherwise, if >1 <strong>Yellow</strong> wires, cut the <strong>LAST wire</strong>.</p>
-          <p>• Otherwise, cut the <strong>SECOND wire</strong>.</p>
-        </div>
+          <h3>⚠️ DEFCON INTERCEPT PROTOCOL:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the active <strong>DEFCON Alert Status</strong> from central surveillance:</p>
+          
+          <div style="margin: 6px 0; padding: 6px 10px; background: rgba(0, 240, 255, 0.06); border-left: 3px solid #00f0ff; font-size: 0.85rem;">
+            <strong>[DEFCON 2: ELEVATED ALERT]</strong>
+            <p style="margin: 2px 0;">• 4-Wire: If &gt;1 <strong>Red</strong> wire, cut the <strong>1st wire</strong>. Otherwise, cut the <strong>LAST wire</strong>.</p>
+            <p style="margin: 2px 0;">• 5-Wire: If last wire is <strong>Black</strong>, cut the <strong>2nd wire</strong>. Otherwise, cut the <strong>3rd wire</strong>.</p>
+          </div>
 
-        <div class="parchment-rule-box">
-          <h3>5-Wire Assemblies:</h3>
-          <p>• If last wire is <strong>Black</strong> & serial end digit is <strong>EVEN</strong>, cut the <strong>4th wire</strong>.</p>
-          <p>• Otherwise, if exactly 1 <strong>Red</strong> wire & >1 <strong>Yellow</strong> wire, cut the <strong>1st wire</strong>.</p>
-          <p>• Otherwise, if 0 <strong>Black</strong> wires, cut the <strong>2nd wire</strong>.</p>
-          <p>• Otherwise, cut the <strong>1st wire</strong>.</p>
+          <div style="margin: 6px 0; padding: 6px 10px; background: rgba(255, 204, 0, 0.06); border-left: 3px solid #ffcc00; font-size: 0.85rem;">
+            <strong>[DEFCON 3: STANDARD PROTOCOL]</strong>
+            <p style="margin: 2px 0;">• 4-Wire: If &gt;1 <strong>Red</strong> &amp; serial end digit is <strong>ODD</strong>, cut the <strong>LAST Red wire</strong>. Otherwise if last wire is <strong>Yellow</strong> &amp; 0 Red, cut <strong>1st wire</strong>. Otherwise if exactly 1 <strong>Blue</strong>, cut <strong>1st wire</strong>. Otherwise if &gt;1 <strong>Yellow</strong>, cut <strong>LAST wire</strong>. Otherwise, cut <strong>2nd wire</strong>.</p>
+            <p style="margin: 2px 0;">• 5-Wire: If last wire is <strong>Black</strong> &amp; serial end digit is <strong>EVEN</strong>, cut the <strong>4th wire</strong>. Otherwise if exactly 1 <strong>Red</strong> &amp; &gt;1 <strong>Yellow</strong>, cut <strong>1st wire</strong>. Otherwise if 0 <strong>Black</strong>, cut <strong>2nd wire</strong>. Otherwise, cut <strong>1st wire</strong>.</p>
+          </div>
         </div>
       `,
 
@@ -55,7 +55,16 @@ class Silo44ManualView {
           <span class="stamp-box">DECRYPT MATRIX 9</span>
           <h2>SECTION 02: CYRILLIC KEYPAD MATRIX</h2>
         </div>
-        <p class="classified-caption">THE FOUR SYMBOLS MUST BE PRESSED IN THE EXACT TOP-TO-BOTTOM COLUMN ORDER FOUND IN THE PRESCRIBED MATRIX.</p>
+        <p class="classified-caption">THE FOUR SYMBOLS MUST BE PRESSED IN THE EXACT COLUMN ORDER PRESCRIBED BY INTEL'S SIGINT CIPHER.</p>
+
+        <div class="parchment-rule-box">
+          <h3>⚠️ SIGINT CIPHER SCAN DIRECTION:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the active <strong>SIGINT Cipher Key</strong> &amp; <strong>FRK Relay</strong>:</p>
+          <ul class="dossier-list" style="margin: 4px 0 6px 16px; font-size: 0.85rem;">
+            <li><strong>KEY OMEGA (and FRK Off):</strong> Press glyphs in standard <strong>TOP-TO-BOTTOM</strong> order.</li>
+            <li><strong>KEY SIGMA (or FRK On):</strong> Press glyphs in <strong>INVERTED (BOTTOM-TO-TOP)</strong> order!</li>
+          </ul>
+        </div>
 
         <div class="keypad-matrix-preview">
           <div class="matrix-column">
@@ -75,7 +84,7 @@ class Silo44ManualView {
             <div class="sym-list">Ω • © • ★ • ϗ • Ψ • ☆</div>
           </div>
         </div>
-        <p class="matrix-footnote">If symbols span multiple columns, select the column that contains ALL 4 symbols. A mistake causes a strike and resets key progress.</p>
+        <p class="matrix-footnote">Select the column containing ALL 4 symbols. A mistake causes a strike and resets key progress.</p>
       `,
 
       // Page 2: Radio Carrier
@@ -100,7 +109,16 @@ class Silo44ManualView {
           <span class="stamp-box">LIGHT LOGIC</span>
           <h2>SECTION 04: SIMON SAYS LIGHT ARRAY</h2>
         </div>
-        <p class="classified-caption">Check the bomb serial number. Table 1: contains vowel. Table 2: no vowel.</p>
+        <p class="classified-caption">RADAR PULSE POLARITY &amp; VOWEL MATRIX DECRYPTION</p>
+
+        <div class="parchment-rule-box">
+          <h3>⚠️ RADAR PULSE POLARITY PROTOCOL:</h3>
+          <p>Query <strong>Intel Analyst</strong> for the active <strong>Radar Pulse Polarity</strong> on the dossier:</p>
+          <ul class="dossier-list" style="margin: 4px 0 6px 16px; font-size: 0.85rem;">
+            <li><strong>DIRECT POLARITY:</strong> Serial contains vowel = <strong>TABLE 1</strong> | No vowel = <strong>TABLE 2</strong>.</li>
+            <li><strong>INVERTED POLARITY:</strong> Serial contains vowel = <strong>TABLE 2</strong> | No vowel = <strong>TABLE 1</strong>.</li>
+          </ul>
+        </div>
 
         <h4 style="margin: 8px 0 4px 0; color: #00f0ff; font-family: var(--font-tactical);">TABLE 1</h4>
         <div class="simon-table-container">

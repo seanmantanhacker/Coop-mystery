@@ -41,9 +41,11 @@ class EscapementModule {
 
   generate(seed = 1888) {
     const s = Math.abs(seed);
-    this.activeMelody = this.melodies[s % this.melodies.length];
+    this.governorCam = (s % this.melodies.length) + 1;
+    this.activeMelody = this.melodies[this.governorCam - 1];
     this.solved = false;
     this.currentStrike = 0;
+    console.log(`[Escapement Module] Governor Cam #${this.governorCam} -> Melody: ${this.activeMelody.name}`);
     this.startChimeLoop();
   }
 

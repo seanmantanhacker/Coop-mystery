@@ -19,6 +19,7 @@ class NetworkEngine {
     this.clientId = 'peer_' + Math.random().toString(36).substring(2, 8);
     this.clientLabel = 'OPERATIVE';
     this.retryTimer = null;
+    this.heartbeatTimer = null;
     this.connectAttempts = 0;
   }
 
@@ -35,6 +36,17 @@ class NetworkEngine {
       clearInterval(this.retryTimer);
       this.retryTimer = null;
     }
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+
+    // Keepalive heartbeat every 15s to keep cellular/mobile NAT UDP translation tables open
+    this.heartbeatTimer = setInterval(() => {
+      if (this.isConnected()) {
+        this.broadcast({ type: 'HEARTBEAT_PING', timestamp: Date.now() });
+      }
+    }, 15000);
 
     this.isRegistered = false;
     this.showInviteButton();
@@ -60,11 +72,30 @@ class NetworkEngine {
       this.peer = new Peer(peerId, {
         debug: 1,
         config: {
+          iceTransportPolicy: 'all',
+          iceCandidatePoolSize: 10,
           iceServers: [
+            // Google Public STUN
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:stun2.l.google.com:19302' },
-            { urls: 'stun:stun.cloudflare.com:3478' }
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' },
+            // Cloudflare & Mozilla STUN
+            { urls: 'stun:stun.cloudflare.com:3478' },
+            { urls: 'stun:stun.services.mozilla.com:3478' },
+            // OpenRelay Public WebRTC TURN Relay (Crucial for Mobile Cellular Carrier CGNAT & Symmetric NAT)
+            {
+              urls: [
+                'stun:openrelay.metered.ca:80',
+                'turn:openrelay.metered.ca:80',
+                'turn:openrelay.metered.ca:443',
+                'turn:openrelay.metered.ca:443?transport=tcp',
+                'turns:openrelay.metered.ca:443?transport=tcp'
+              ],
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            }
           ]
         }
       });
@@ -267,6 +298,7 @@ class NetworkEngine {
   }
 
   _handleIncomingMessage(data) {
+    if (data && data.type === 'HEARTBEAT_PING') return;
     console.log(`[Network In ${this.clientLabel}]:`, data.type, data);
     this.onMessageCallbacks.forEach(cb => cb(data));
   }
@@ -302,19 +334,19 @@ class NetworkEngine {
       if (this.isHost) {
         const activePeers = this.connections.filter(c => c.open).length;
         if (!this.isRegistered) {
-          statusBadge = `<span style="color:#ffcc00; margin-left:6px;">🔄 INITIALIZING HOST...</span>`;
+          statusBadge = `<span class="room-status-badge status-init" style="color:#ffcc00; margin-left:4px;"><span class="status-dot-mini">🔄</span><span class="room-status-desc"> INITIALIZING...</span></span>`;
         } else if (activePeers > 0) {
-          statusBadge = `<span style="color:#00ffaa; margin-left:6px;">🟢 ONLINE (${activePeers} OPERATIVE${activePeers > 1 ? 'S' : ''})</span>`;
+          statusBadge = `<span class="room-status-badge status-online" style="color:#00ffaa; margin-left:4px;"><span class="status-dot-mini">🟢</span><span class="room-status-desc"> ONLINE (${activePeers})</span></span>`;
         } else {
-          statusBadge = `<span style="color:#00ffaa; margin-left:6px;">🟢 HOST READY (WAITING FOR PEERS)</span>`;
+          statusBadge = `<span class="room-status-badge status-ready" style="color:#00ffaa; margin-left:4px;"><span class="status-dot-mini">🟢</span><span class="room-status-desc"> HOST READY</span></span>`;
         }
       } else {
         const isConn = this.hostConnection && this.hostConnection.open;
         statusBadge = isConn 
-          ? `<span style="color:#00ffaa; margin-left:6px;">🟢 CONNECTED TO HOST</span>`
-          : `<span style="color:#ffcc00; margin-left:6px;">🔄 CONNECTING... (${this.connectAttempts > 0 ? 'ATTEMPT ' + this.connectAttempts : 'SEARCHING HOST'})</span>`;
+          ? `<span class="room-status-badge status-connected" style="color:#00ffaa; margin-left:4px;"><span class="status-dot-mini">🟢</span><span class="room-status-desc"> CONNECTED</span></span>`
+          : `<span class="room-status-badge status-connecting" style="color:#ffcc00; margin-left:4px;"><span class="status-dot-mini">🔄</span><span class="room-status-desc"> CONNECTING...</span></span>`;
       }
-      el.innerHTML = `ROOM: <strong class="text-highlight">${this.roomCode}</strong> (${this.isHost ? 'HOST' : 'CLIENT'}) ${statusBadge}`;
+      el.innerHTML = `<span class="room-label">ROOM: </span><strong class="text-highlight room-code">${this.roomCode}</strong><span class="room-role-tag"> (${this.isHost ? 'HOST' : 'CLIENT'})</span> ${statusBadge}`;
     }
   }
 }

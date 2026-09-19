@@ -46,11 +46,46 @@ class MorgueIntelView {
     const tox = window.toxicologyModule;
     const keypad = window.morgueKeypadModule;
     const life = window.lifeSupportModule;
+    const autopsy = window.autopsyModule;
+
+    const culprit = autopsy ? (autopsy.correctKiller || autopsy.suspects[autopsy.activeSuspectKey]) : null;
+    const killerTier = culprit ? culprit.tier : (keypad ? keypad.killerTier : 4);
+    const killerName = culprit ? culprit.name : 'DR. ARTHUR ALLEN';
 
     const birthYear = keypad ? keypad.victimBirthYear : 1958;
     const bodyMass = (tox && typeof tox.victimMass === 'number') ? `${tox.victimMass.toFixed(1)} kg` : '74.5 kg';
     const gasPpm = life ? `${life.gasPpm} PPM` : '320 PPM';
-    const ventStatus = life ? (life.isVentFlushed ? 'EXHAUST FLUSH ACTIVE (DAMPER UNLOCKED)' : (life.isDamperLocked ? 'DAMPER SEALED' : 'NORMAL INTAKE')) : 'NORMAL INTAKE';
+    const classification = life && life.classification ? life.classification.name : 'CLASS B: RADIOLOGICAL PATHOGEN';
+
+    let ventStatus = 'NORMAL INTAKE';
+    if (life) {
+      if (life.isVentFlushed) {
+        ventStatus = `EXHAUST FLUSH ACTIVE (${life.flushTimeRemaining}s) (DAMPER UNLOCKED)`;
+      } else if (!life.powerActive) {
+        ventStatus = 'GRID OFFLINE (VENT BLOWER STOPPED)';
+      } else if (life.isDamperLocked) {
+        ventStatus = 'DAMPER SEALED';
+      }
+    }
+
+    const powerBadge = life ? (life.powerActive ? '<span class="badge badge-success">⚡ ONLINE (120V)</span>' : '<span class="badge badge-error" style="animation: pulse 1s infinite;">⚡ BREAKER TRIPPED</span>') : '<span class="badge badge-error">⚡ OFFLINE</span>';
+    const damperBadge = life ? (life.isVentFlushed ? `<span class="badge badge-success">💨 PURGE OPEN (${life.flushTimeRemaining}s)</span>` : '<span class="badge badge-warning">💨 DAMPER LOCKED</span>') : '';
+
+    if (captionEl) {
+      captionEl.innerHTML = `
+        <div class="morgue-dispatch-actions">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; border-bottom: 1px solid rgba(92, 225, 230, 0.2); padding-bottom: 4px;">
+            <span>GRID: ${powerBadge}</span>
+            <span>EXHAUST: ${damperBadge}</span>
+          </div>
+          <span>Use remote facility controls below to manage emergency systems:</span>
+          <div class="dispatch-buttons-row" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-ctrl btn-morgue-action ${life && life.isVentFlushed ? 'active glow-green' : ''}" onclick="MorgueIntelView.executeVentFlush()">💨 [TRIGGER: VENT_FLUSH]</button>
+            <button class="btn btn-ctrl btn-morgue-action ${life && !life.powerActive ? 'btn-danger-pulse glow-red' : ''}" onclick="MorgueIntelView.executePowerReset()">⚡ [TRIGGER: POWER_RESET]</button>
+          </div>
+        </div>
+      `;
+    }
 
     if (serialLbl) serialLbl.innerText = 'VICTIM BIRTH YEAR:';
     if (battLbl) battLbl.innerText = 'VICTIM BODY MASS:';
@@ -59,7 +94,10 @@ class MorgueIntelView {
 
     if (serialEl) serialEl.innerText = `${birthYear} (DR. H. VANCE)`;
     if (battEl) battEl.innerText = `${bodyMass} (ANTHROPOMETRIC)`;
-    if (indEl) indEl.innerText = 'SUB-BASEMENT MORGUE (WARD 9)';
+    if (indEl) {
+      indEl.innerText = classification;
+      indEl.className = 'glow-yellow';
+    }
     if (tempEl) tempEl.innerText = `${gasPpm} (NEUROTOXIN SATURATION)`;
 
     if (targetFreqEl) targetFreqEl.innerText = gasPpm;
@@ -70,9 +108,6 @@ class MorgueIntelView {
   static executeVentFlush() {
     if (window.lifeSupportModule) {
       window.lifeSupportModule.remoteTriggerVentFlush();
-      if (window.game && window.game.showToast) {
-        window.game.showToast('💨 [REMOTE DISPATCH] VENT FLUSH ACTIVATED!', 'info');
-      }
     }
     if (window.network && window.network.broadcast) {
       window.network.broadcast({ type: 'MORGUE_REMOTE_TRIGGER', action: 'VENT_FLUSH' });
@@ -83,9 +118,6 @@ class MorgueIntelView {
   static executePowerReset() {
     if (window.lifeSupportModule) {
       window.lifeSupportModule.remoteTriggerPowerReset();
-      if (window.game && window.game.showToast) {
-        window.game.showToast('⚡ [REMOTE DISPATCH] POWER GRID RESTORED!', 'info');
-      }
     }
     if (window.network && window.network.broadcast) {
       window.network.broadcast({ type: 'MORGUE_REMOTE_TRIGGER', action: 'POWER_RESET' });
@@ -97,10 +129,16 @@ class MorgueIntelView {
     const tox = window.toxicologyModule;
     const keypad = window.morgueKeypadModule;
     const life = window.lifeSupportModule;
+    const autopsy = window.autopsyModule;
+    const culprit = autopsy ? (autopsy.correctKiller || autopsy.suspects[autopsy.activeSuspectKey]) : null;
+    const killerTier = culprit ? culprit.tier : (keypad ? keypad.killerTier : 4);
+    const killerName = culprit ? culprit.name : 'Dr. Arthur Allen';
+
     const mass = tox ? `${tox.victimMass.toFixed(1)} kg` : '74.5 kg';
     const year = keypad ? keypad.victimBirthYear : 1958;
     const gas = life ? `${life.gasPpm} PPM` : '320 PPM';
-    return `[MORGUE INTEL] Victim: Dr. H. Vance | Birth Year: ${year} | Mass: ${mass} | Chamber Gas: ${gas} | Suspects: Dr. Allen (T4, Scalpel), Nurse Miller (T2, Shears), Guard Harris (T3, Baton), Orderly Vance (T1, Saw)`;
+    const classification = life && life.classification ? life.classification.name : 'CLASS B: RADIOLOGICAL PATHOGEN';
+    return `[MORGUE INTEL] Victim: Dr. H. Vance | Birth Year: ${year} | Mass: ${mass} | Classification: ${classification} | Ward 9 Access Log 23:44: Tier ${killerTier} (${killerName}) | Chamber Gas: ${gas}`;
   }
 
   static renderOscilloscope(ctx, canvas, phase) {

@@ -124,7 +124,9 @@ class GameEngine {
         audioBtn.addEventListener('click', () => {
           if (window.audio) {
             const isMuted = window.audio.toggleMute();
-            audioBtn.innerText = isMuted ? '🔇 SOUND MUTED' : '🔊 SOUND ON';
+            audioBtn.innerHTML = isMuted 
+              ? '<span class="audio-icon">🔇</span><span class="audio-label"> SOUND MUTED</span>' 
+              : '<span class="audio-icon">🔊</span><span class="audio-label"> SOUND ON</span>';
           }
         });
       }
@@ -422,7 +424,8 @@ class GameEngine {
     // Role display in top header
     const roleDisp = document.getElementById('role-display');
     if (roleDisp) {
-      roleDisp.innerHTML = `ROLE: <strong class="text-highlight">${this.role ? this.role.toUpperCase() : 'UNASSIGNED'}</strong>`;
+      const rName = this.role ? this.role.toUpperCase() : 'UNASSIGNED';
+      roleDisp.innerHTML = `<span class="role-label">ROLE: </span><strong class="text-highlight role-name">${rName}</strong>`;
     }
 
     // Update Start Button & Lobby Status
@@ -477,11 +480,11 @@ class GameEngine {
     if (levelDisplay && levelName) {
       levelDisplay.classList.remove('hidden');
       if (this.scenario === 'silo44') {
-        levelName.innerText = 'MAP 1 // SILO 44';
+        levelName.innerHTML = '<span class="level-short">MAP 1</span><span class="level-long"> // SILO 44</span>';
       } else if (this.scenario === 'alchemist') {
-        levelName.innerText = "MAP 2 // THE ALCHEMIST'S STUDY";
+        levelName.innerHTML = "<span class=\"level-short\">MAP 2</span><span class=\"level-long\"> // THE ALCHEMIST'S STUDY</span>";
       } else if (this.scenario === 'morgue') {
-        levelName.innerText = "MAP 3 // THE LOCKED MORGUE";
+        levelName.innerHTML = '<span class="level-short">MAP 3</span><span class="level-long"> // THE LOCKED MORGUE</span>';
       }
     }
 
@@ -629,6 +632,10 @@ class GameEngine {
       const pSolved = window.prismModule ? window.prismModule.solved : false;
       const eSolved = window.escapementModule ? window.escapementModule.solved : false;
       allSolved = (zSolved && mSolved && pSolved && eSolved);
+    }
+
+    if (window.intelView && window.intelView.updateMissionObjectives) {
+      window.intelView.updateMissionObjectives();
     }
 
     if (allSolved) {

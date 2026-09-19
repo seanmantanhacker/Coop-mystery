@@ -35,12 +35,15 @@ window.ESCAPE_MAPS['morgue'] = {
     }
 
     // 2. Module 2: Forensic Autopsy & Calipers
-    let vitalCount = 2;
-    let killerTier = 2;
+    let vitalCount = 4;
+    let killerTier = 4;
+    let killerName = 'Dr. Arthur Allen';
     if (window.autopsyModule) {
       window.autopsyModule.generate(seed + 15);
-      vitalCount = window.autopsyModule.wounds.filter(w => w.vital).length;
-      killerTier = window.autopsyModule.correctKiller?.tier || 2;
+      vitalCount = window.autopsyModule.vitalWoundCount || window.autopsyModule.wounds.filter(w => w.isVital || w.vital).length;
+      const killer = window.autopsyModule.correctKiller || window.autopsyModule.suspects[window.autopsyModule.activeSuspectKey];
+      killerTier = killer?.tier || 4;
+      killerName = killer?.name || 'Dr. Arthur Allen';
     }
 
     // 3. Module 3: Security Keypad (uses victim birth year, vital wounds count, killer tier)
@@ -50,7 +53,7 @@ window.ESCAPE_MAPS['morgue'] = {
 
     // 4. Module 4: Life Support & Ventilation
     if (window.lifeSupportModule) {
-      window.lifeSupportModule.generate(seed + 45);
+      window.lifeSupportModule.generate(seed + 45, { killerTier, killerName });
     }
   },
 

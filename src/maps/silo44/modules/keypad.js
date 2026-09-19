@@ -14,8 +14,9 @@ class KeypadModule {
     this.frkLit = false;
   }
 
-  generate(seed, frkLit = false) {
+  generate(seed, frkLit = false, cipherKey = 'OMEGA') {
     this.frkLit = !!frkLit;
+    this.cipherKey = cipherKey;
     // 4 Columns directly matching Section 02 of Field Manual
     const columns = [
       ['Ψ', 'Ϙ', 'Ж', 'Ω', 'Ѭ', 'ϗ'], // Column A
@@ -53,9 +54,9 @@ class KeypadModule {
 
     // Correct order:
     // Normal: top-to-bottom as found in manual column (which chosenSubset already is)
-    // If FRK Lit (Sheet 05): bottom-to-top (inverted!)
+    // If Cipher Key SIGMA or FRK Lit (Sheet 05): bottom-to-top (inverted!)
     let order = [...chosenSubset];
-    if (this.frkLit) {
+    if (this.cipherKey === 'SIGMA' || this.frkLit) {
       order.reverse();
     }
     this.correctOrder = order;

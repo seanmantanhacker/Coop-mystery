@@ -28,8 +28,20 @@ window.ESCAPE_MAPS['silo44'] = {
 
   generateSpecs(seed, game) {
     game.timerSeconds = 480;
-    if (window.wiresModule) window.wiresModule.generate(seed, game.serialNumber);
-    if (window.keypadModule) window.keypadModule.generate(seed + 10, game.indicators.FRK);
+
+    // Deterministic Intel Variables for Map 1
+    const defconLevel = (Math.abs(seed + 3) % 2 === 0) ? 2 : 3;
+    const cipherKey = (Math.abs(seed + 7) % 2 === 0) ? 'SIGMA' : 'OMEGA';
+    const pulsePolarity = (Math.abs(seed + 11) % 2 === 0) ? 'INVERTED' : 'DIRECT';
+
+    game.siloIntelData = {
+      defconLevel,
+      cipherKey,
+      pulsePolarity
+    };
+
+    if (window.wiresModule) window.wiresModule.generate(seed, game.serialNumber, defconLevel);
+    if (window.keypadModule) window.keypadModule.generate(seed + 10, game.indicators.FRK, cipherKey);
     if (window.frequencyModule) {
       window.frequencyModule.generate(seed + 25, game.indicators.CAR);
       const radioReadout = document.getElementById('radio-inspect-freq');
@@ -37,7 +49,7 @@ window.ESCAPE_MAPS['silo44'] = {
       const intelReadout = document.getElementById('intel-dossier-current-freq');
       if (intelReadout) intelReadout.innerText = `${window.frequencyModule.currentFreq.toFixed(1)} MHz`;
     }
-    if (window.simonModule) window.simonModule.generate(seed + 40);
+    if (window.simonModule) window.simonModule.generate(seed + 40, pulsePolarity);
   },
 
   checkVictory() {

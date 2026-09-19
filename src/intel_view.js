@@ -219,6 +219,7 @@ class IntelViewEngine {
       if (backBtn) backBtn.classList.remove('hidden');
       this.updateMathUI();
     }
+    this.updateMissionObjectives();
   }
 
   toggleFlipGuard() {
@@ -275,6 +276,124 @@ class IntelViewEngine {
     if (renderer && renderer.updateDossierData) {
       renderer.updateDossierData();
     }
+    this.updateMissionObjectives();
+  }
+
+  updateMissionObjectives() {
+    const scenario = this.scenario || (window.game ? window.game.scenario : 'silo44');
+    let mods = [];
+    let directive = '';
+
+    if (scenario === 'silo44') {
+      const w = window.wiresModule ? window.wiresModule.disarmed : false;
+      const k = window.keypadModule ? window.keypadModule.disarmed : false;
+      const f = window.frequencyModule ? window.frequencyModule.disarmed : false;
+      const s = window.simonModule ? window.simonModule.disarmed : false;
+
+      mods = [
+        { name: 'COLOR WIRES', disarmed: w, detail: w ? 'Wires Disarmed' : 'DEFCON Alert Data Req' },
+        { name: 'CYRILLIC KEYPAD', disarmed: k, detail: k ? 'Glyphs Locked' : 'SIGINT Cipher Key Req' },
+        { name: 'FREQUENCY SWEEP', disarmed: f, detail: f ? 'Carrier Locked' : 'Target MHz Relay Req' },
+        { name: 'SIMON SAYS', disarmed: s, detail: s ? 'Lights Secured' : 'Pulse Polarity Req' }
+      ];
+
+      if (!w) {
+        directive = 'DIRECTIVE: Relay Serial Number & DEFCON Status to Manual for Wire Cutter sequence.';
+      } else if (!k) {
+        directive = 'DIRECTIVE: Transmit SIGINT Cipher Key and FRK Indicator status for Keypad column order.';
+      } else if (!f) {
+        directive = 'DIRECTIVE: Monitor RF Oscilloscope; guide Defuser to match Target Carrier Frequency.';
+      } else if (!s) {
+        directive = 'DIRECTIVE: Check Radar Pulse Polarity on dossier to guide Simon light mapping table.';
+      } else {
+        directive = 'DIRECTIVE: ALL OBJECTIVES COMPLETED. SILO 44 WARHEAD SECURED ✓';
+      }
+    } else if (scenario === 'alchemist') {
+      const z = window.zodiacModule ? window.zodiacModule.solved : false;
+      const m = window.mercuryModule ? window.mercuryModule.solved : false;
+      const p = window.prismModule ? window.prismModule.solved : false;
+      const e = window.escapementModule ? window.escapementModule.solved : false;
+
+      mods = [
+        { name: 'ZODIAC RINGS', disarmed: z, detail: z ? 'Constellation Fixed' : 'Ruling House & Retrograde' },
+        { name: 'MERCURY MANOMETER', disarmed: m, detail: m ? 'Equilibrium Reached' : 'Ambient Temp & Purity Grade' },
+        { name: 'REFRACTION PRISM', disarmed: p, detail: p ? 'Spectral Line Locked' : 'Fraunhofer Line Req' },
+        { name: 'CHIME ESCAPEMENT', disarmed: e, detail: e ? 'Escapement Disengaged' : 'Planetary Governor Cam' }
+      ];
+
+      if (!z) {
+        directive = 'DIRECTIVE: Transmit Ruling House, Retrograde motion, and Lunar Syzygy to Manual.';
+      } else if (!m) {
+        directive = 'DIRECTIVE: Transmit Ambient Temperature (°C) & Quintessence Purity to Manual for Quicksilver ratio.';
+      } else if (!p) {
+        directive = 'DIRECTIVE: Monitor Spectrophotometer; report Fraunhofer Line and absorption wavelength.';
+      } else if (!e) {
+        directive = 'DIRECTIVE: Verify Planetary Chime Governor Cam; direct Defuser on exact strike release window.';
+      } else {
+        directive = 'DIRECTIVE: ALL OBJECTIVES COMPLETED. ATHANOR HOROLOGIUM SECURED ✓';
+      }
+    } else if (scenario === 'morgue') {
+      const t = window.toxicologyModule ? (window.toxicologyModule.solved || window.toxicologyModule.disarmed) : false;
+      const a = window.autopsyModule ? (window.autopsyModule.solved || window.autopsyModule.disarmed) : false;
+      const k = window.morgueKeypadModule ? (window.morgueKeypadModule.solved || window.morgueKeypadModule.disarmed) : false;
+      const l = window.lifeSupportModule ? (window.lifeSupportModule.solved || window.lifeSupportModule.disarmed) : false;
+      const power = window.lifeSupportModule ? window.lifeSupportModule.powerActive : true;
+
+      mods = [
+        { name: 'TOXICOLOGY ASSAY', disarmed: t, detail: t ? 'Reagent Neutralized' : 'Victim Mass & Clearance' },
+        { name: 'AUTOPSY CALIPERS', disarmed: a, detail: a ? 'Wounds Differentiated' : 'Ante-Mortem Calipers' },
+        { name: 'AIRLOCK DOOR PIN', disarmed: k, detail: k ? 'Airlock Unlocked' : 'Birth Year & Access Tier' },
+        { name: 'LIFE SUPPORT EXHAUST', disarmed: l, detail: l ? 'Damper Secured' : 'Classification & Vent Flush' }
+      ];
+
+      if (!power) {
+        directive = 'DIRECTIVE: ⚡ FACILITY BREAKER TRIPPED! Trigger [POWER_RESET] to restore laboratory power.';
+      } else if (!t) {
+        directive = 'DIRECTIVE: Transmit Victim Body Mass (kg) and Toxin Clearance to Manual for Titration Target.';
+      } else if (!a) {
+        directive = 'DIRECTIVE: Cross-reference suspect alibis while Defuser differentiates vital ante-mortem wounds.';
+      } else if (!k) {
+        directive = 'DIRECTIVE: Transmit Victim Birth Year & Ward 9 Access Log (Killer Tier) for Door PIN.';
+      } else if (!l) {
+        directive = 'DIRECTIVE: Transmit Crime Scene Classification; standby for coordinated [VENT_FLUSH] countdown.';
+      } else {
+        directive = 'DIRECTIVE: ALL OBJECTIVES COMPLETED. WARD 9 BIO-HAZARD CONTAINED ✓';
+      }
+    }
+
+    // Update DOM elements
+    const progressEl = document.getElementById('intel-matrix-progress');
+    const directiveEl = document.getElementById('intel-mission-directive-banner');
+    let solvedCount = 0;
+
+    mods.forEach((mod, idx) => {
+      const card = document.getElementById(`intel-card-mod-${idx + 1}`);
+      const nameEl = document.getElementById(`intel-mod-name-${idx + 1}`);
+      const statusEl = document.getElementById(`intel-mod-status-${idx + 1}`);
+      const detailEl = document.getElementById(`intel-mod-detail-${idx + 1}`);
+
+      if (nameEl) nameEl.innerText = mod.name;
+      if (detailEl) detailEl.innerText = mod.detail;
+
+      if (mod.disarmed) {
+        solvedCount++;
+        if (card) { card.className = 'intel-module-card secured'; }
+        if (statusEl) {
+          statusEl.className = 'status-pill secured';
+          statusEl.innerText = '✓ SECURED';
+        }
+      } else {
+        const isCurrent = (solvedCount === idx);
+        if (card) { card.className = isCurrent ? 'intel-module-card active' : 'intel-module-card'; }
+        if (statusEl) {
+          statusEl.className = isCurrent ? 'status-pill active' : 'status-pill pending';
+          statusEl.innerText = isCurrent ? '⚡ IN PROGRESS' : '🔒 PENDING';
+        }
+      }
+    });
+
+    if (progressEl) progressEl.innerText = `${solvedCount} / ${mods.length} MODULES SECURED`;
+    if (directiveEl) directiveEl.innerText = directive;
   }
 
   startOscilloscope() {
