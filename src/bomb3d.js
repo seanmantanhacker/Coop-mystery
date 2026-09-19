@@ -511,7 +511,7 @@ class Bomb3DEngine {
     const radioHud = document.getElementById('radio-inspect-hud');
     if (radioHud) radioHud.classList.remove('hidden');
     if (readout) {
-      if (isLocked) {
+      if (frequencyModule.disarmed) {
         readout.className = 'glow-green';
         readout.innerText = `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)`;
       } else {
@@ -688,11 +688,11 @@ class Bomb3DEngine {
         if (radioHud) {
           radioHud.classList.remove('hidden');
           const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
-          const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+          const isDisarmed = window.frequencyModule ? window.frequencyModule.disarmed : false;
           const readout = document.getElementById('radio-inspect-freq');
           if (readout) {
-            readout.className = isLocked ? 'glow-green' : 'glow-yellow';
-            readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+            readout.className = isDisarmed ? 'glow-green' : 'glow-yellow';
+            readout.innerText = isDisarmed ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
           }
         }
       } else {

@@ -195,9 +195,8 @@ class LifeSupportModule {
     const tempReadout = document.getElementById('ls-cryo-temp');
 
     if (psiReadout) {
-      const match = Math.abs(this.currentPsi - this.targetPsi) <= 0.8;
       psiReadout.innerText = `${this.currentPsi.toFixed(1)} PSI`;
-      psiReadout.className = match ? 'glow-green' : 'glow-yellow';
+      psiReadout.className = this.disarmed ? 'glow-green' : 'glow-yellow';
     }
 
     if (baseReadout) {

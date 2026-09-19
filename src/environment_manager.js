@@ -110,11 +110,11 @@ class EscapeRoomEnvironmentManager {
     if (viewKey === 'INSPECT_RADIO' && radioHud) {
       radioHud.classList.remove('hidden');
       const freq = window.frequencyModule ? window.frequencyModule.currentFreq : 100.0;
-      const isLocked = window.frequencyModule ? window.frequencyModule.isSignalLocked() : false;
+      const isDisarmed = window.frequencyModule ? window.frequencyModule.disarmed : false;
       const readout = document.getElementById('radio-inspect-freq');
       if (readout) {
-        readout.className = isLocked ? 'glow-green' : 'glow-yellow';
-        readout.innerText = isLocked ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
+        readout.className = isDisarmed ? 'glow-green' : 'glow-yellow';
+        readout.innerText = isDisarmed ? `${freq.toFixed(1)} MHz (SIGNAL LOCKED ✓)` : `${freq.toFixed(1)} MHz`;
       }
     }
     if (viewKey === 'INSPECT_ASTROLABE' && zodiacHud) zodiacHud.classList.remove('hidden');
