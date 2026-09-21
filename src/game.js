@@ -251,6 +251,8 @@ class GameEngine {
         titleEl.innerText = "THE ALCHEMIST'S STUDY: LORD BLACKWOOD'S CLOCKWORK CRYPT";
       } else if (scenarioId === 'morgue') {
         titleEl.innerText = 'THE LOCKED MORGUE: WARD 9 AUTOPSY THEATER';
+      } else if (scenarioId === 'levelnull') {
+        titleEl.innerText = 'LEVEL NULL: THE SHIFTING BACKROOMS';
       }
     }
   }
@@ -485,6 +487,8 @@ class GameEngine {
         levelName.innerHTML = "<span class=\"level-short\">MAP 2</span><span class=\"level-long\"> // THE ALCHEMIST'S STUDY</span>";
       } else if (this.scenario === 'morgue') {
         levelName.innerHTML = '<span class="level-short">MAP 3</span><span class="level-long"> // THE LOCKED MORGUE</span>';
+      } else if (this.scenario === 'levelnull') {
+        levelName.innerHTML = '<span class="level-short">MAP 4</span><span class="level-long"> // LEVEL NULL</span>';
       }
     }
 
@@ -736,6 +740,8 @@ class GameEngine {
         title.innerText = 'SOLOMON PORTCULLIS UNLOCKED - MAGNUM OPUS PRESERVED';
       } else if (this.scenario === 'morgue') {
         title.innerText = 'MORGUE BIO-SEAL BREACHED - CASE SOLVED';
+      } else if (this.scenario === 'levelnull') {
+        title.innerText = 'REALITY ANCHOR STABILIZED - ESCAPED FROM LEVEL NULL!';
       }
       title.className = 'end-heading victory';
     }
@@ -746,6 +752,8 @@ class GameEngine {
         subtitle.innerText = 'The Athanor Horologium has ceased ticking. The phosgene vitriol gas vents have safely closed!';
       } else if (this.scenario === 'morgue') {
         subtitle.innerText = 'The airlock doors are released, the neural gas dampers are sealed, and the forensic homicide case is solved!';
+      } else if (this.scenario === 'levelnull') {
+        subtitle.innerText = 'All 3 security blast doors breached, hydro-substation pumped, and the reality anchor stabilized. Operatives returned to consensus reality!';
       }
     }
 
@@ -888,6 +896,17 @@ class GameEngine {
             <p><strong>COMMUNICATION:</strong> Two-way cleanroom intercom to Dispatch and the Hospital Medical Archive.</p>
           </div>
         `;
+      } else if (this.scenario === 'levelnull') {
+        title.innerText = "MISSION DOSSIER: LEVEL NULL - THE SHIFTING BACKROOMS";
+        body.innerHTML = `
+          <div class="lore-briefing-paper">
+            <h3>LOCATION: Subterranean Anomaly Sector-9 // Non-Euclidean Test Site (1989)</h3>
+            <p><strong>PREMISE:</strong> An unauthorized physics experiment in spatial folding collapsed the underground research complex into an anomalous liminal void known as Level Null.</p>
+            <p><strong>THE TRAP:</strong> The Defuser is trapped in a linear succession of sealed sectors. The magnetic fire exit door, submerged hydrostation vault hatch, and reality anchor portal are all locked behind fail-safes.</p>
+            <p><strong>THE CONSEQUENCE:</strong> The spatial tear is expanding. Operatives have exactly 15 minutes to breach each blast door sequentially, navigate the corridors, and stabilize the quantum resonance anchor before consensus reality collapses.</p>
+            <p><strong>COMMUNICATION:</strong> Low-frequency transceiver connecting Field Operative, Intel Floorplan Radar, and Anomaly Classification Dossier.</p>
+          </div>
+        `;
       }
     } else if (loreId === 'morgue_dictaphone') {
       const tox = window.toxicologyModule;
@@ -997,6 +1016,8 @@ class GameEngine {
       if (data.roomState.scenario) {
         this.scenario = data.roomState.scenario;
         this.updateScenarioUI(data.roomState.scenario);
+        if (window.manualView) window.manualView.setScenario(this.scenario);
+        if (window.intelView) window.intelView.setScenario(this.scenario);
       }
 
       // Check if my role has been assigned or released
@@ -1018,7 +1039,14 @@ class GameEngine {
 
     } else if (data.type === 'START_MISSION') {
       if (data.scenario) this.scenario = data.scenario;
-      if (data.roomState) this.roomState = data.roomState;
+      if (data.roomState) {
+        this.roomState = data.roomState;
+        if (data.roomState.scenario) this.scenario = data.roomState.scenario;
+      }
+
+      // Ensure view engines are aligned to this scenario
+      if (window.manualView) window.manualView.setScenario(this.scenario);
+      if (window.intelView) window.intelView.setScenario(this.scenario);
 
       // Verify that this client has a role before entering
       if (!this.role) {
@@ -1110,6 +1138,22 @@ class GameEngine {
         window.lifeSupportModule.solved = true;
         window.lifeSupportModule.disarmed = true;
         if (window.lifeSupportModule.updateHUD) window.lifeSupportModule.updateHUD();
+      } else if (mod === 'ballast_module' && window.ballastModule) {
+        window.ballastModule.solved = true;
+        window.ballastModule.disarmed = true;
+        window.ballastModule.renderInspectUI();
+      } else if (mod === 'sonar_module' && window.sonarModule) {
+        window.sonarModule.solved = true;
+        window.sonarModule.disarmed = true;
+        window.sonarModule.renderInspectUI();
+      } else if (mod === 'coolant_module' && window.coolantModule) {
+        window.coolantModule.solved = true;
+        window.coolantModule.disarmed = true;
+        window.coolantModule.renderInspectUI();
+      } else if (mod === 'airlock_module' && window.airlockModule) {
+        window.airlockModule.solved = true;
+        window.airlockModule.disarmed = true;
+        window.airlockModule.renderInspectUI();
       }
 
       if (window.audio && window.audio.playDisarmed) window.audio.playDisarmed();
@@ -1119,6 +1163,111 @@ class GameEngine {
       if (window.lifeSupportModule) {
         if (data.action === 'VENT_FLUSH') window.lifeSupportModule.remoteTriggerVentFlush();
         else if (data.action === 'POWER_RESET') window.lifeSupportModule.remoteTriggerPowerReset();
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM1_SYNC') {
+      if (window.room1BreakerModule) {
+        window.room1BreakerModule.breakerStates = data.breakers;
+        window.room1BreakerModule.currentFreq = data.freq;
+        window.room1BreakerModule.renderInspectUI();
+      }
+
+    } else if (data.type === 'LEVELNULL_DOOR_UNLOCKED') {
+      if (data.door === 1) {
+        if (window.levelNullEnv) window.levelNullEnv.openDoor1();
+        if (window.room1BreakerModule) {
+          window.room1BreakerModule.disarmed = true;
+          window.room1BreakerModule.solved = true;
+          window.room1BreakerModule.renderInspectUI();
+        }
+        const adv1 = document.getElementById('levelnull-advance-room1');
+        if (adv1) adv1.classList.remove('hidden');
+        const s1 = document.getElementById('step-room-1');
+        if (s1) { s1.classList.remove('active'); s1.classList.add('cleared'); }
+      } else if (data.door === 2) {
+        if (window.levelNullEnv) window.levelNullEnv.openDoor2();
+        if (window.room2HydroModule) {
+          window.room2HydroModule.disarmed = true;
+          window.room2HydroModule.solved = true;
+          window.room2HydroModule.renderInspectUI();
+        }
+        const adv2 = document.getElementById('levelnull-advance-room2');
+        if (adv2) adv2.classList.remove('hidden');
+        const s2 = document.getElementById('step-room-2');
+        if (s2) { s2.classList.remove('active'); s2.classList.add('cleared'); }
+      } else if (data.door === 3) {
+        if (window.levelNullEnv) window.levelNullEnv.openPortal();
+        if (window.room3CoreModule) {
+          window.room3CoreModule.disarmed = true;
+          window.room3CoreModule.solved = true;
+          window.room3CoreModule.renderInspectUI();
+        }
+        const s3 = document.getElementById('step-room-3');
+        if (s3) { s3.classList.remove('active'); s3.classList.add('cleared'); }
+      }
+
+    } else if (data.type === 'LEVELNULL_EM_STABILIZER_PULSE') {
+      if (window.room1BreakerModule) {
+        window.room1BreakerModule.triggerStabilizerPulse(data.duration || 20);
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM2_PUMP_SYNC') {
+      if (window.room2HydroModule) {
+        window.room2HydroModule.setDrainPump(data.drainPumpActive);
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM2_PURGE') {
+      if (window.room2HydroModule) {
+        window.room2HydroModule.purgeBackpressure();
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM3_PRISM_SYNC') {
+      if (window.room3CoreModule && data.angles) {
+        window.room3CoreModule.prismAngles = data.angles;
+        window.room3CoreModule.renderInspectUI();
+      }
+      if (window.LevelNullIntelView) {
+        window.LevelNullIntelView.updateDossierData();
+      }
+
+    } else if (data.type === 'LEVELNULL_REALITY_TETHER_PULSE') {
+      if (window.room3CoreModule) {
+        window.room3CoreModule.triggerRealityTether(data.duration || 45);
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM_TRANSITION') {
+      if (window.levelNullEnv) {
+        window.levelNullEnv.transitionToRoom(data.room);
+      }
+      if (window.LevelNullIntelView) {
+        window.LevelNullIntelView.setCurrentRoom(data.room);
+      }
+      if (window.levelNullIntelView) {
+        window.levelNullIntelView.setCurrentRoom(data.room);
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM2_HYDRO_SYNC') {
+      if (window.room2HydroModule) {
+        window.room2HydroModule.valves = data.valves;
+        window.room2HydroModule.drainPumpActive = data.drainPumpActive;
+        window.room2HydroModule.renderInspectUI();
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM2_PUMP_SYNC') {
+      if (window.room2HydroModule) {
+        window.room2HydroModule.setDrainPump(data.drainPumpActive);
+      }
+
+    } else if (data.type === 'LEVELNULL_ROOM3_PRISM_SYNC') {
+      if (window.room3CoreModule) {
+        window.room3CoreModule.prismAngles = data.angles;
+        window.room3CoreModule.renderInspectUI();
+      }
+      if (window.levelNullEnv) {
+        data.angles.forEach((ang, idx) => window.levelNullEnv.updatePrismMesh(idx, ang));
+      }
+      if (window.levelNullIntelView) {
+        window.levelNullIntelView.updateDossierData();
       }
 
     } else if (data.type === 'MISSION_VICTORY') {

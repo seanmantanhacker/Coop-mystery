@@ -130,6 +130,9 @@ class Bomb3DEngine {
       } else if (mapId === 'morgue') {
         titleEl.innerText = "MAP 3: THE LOCKED MORGUE";
         if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.add('cyan'); }
+      } else if (mapId === 'levelnull') {
+        titleEl.innerText = "MAP 4: LEVEL NULL";
+        if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.add('cyan'); }
       }
     }
     this.setView('OVERVIEW');
@@ -652,7 +655,12 @@ class Bomb3DEngine {
     // Ensure step-back button visibility is updated immediately
     const backBtn = document.getElementById('btn-step-back');
     if (backBtn) {
-      if (viewMode === 'OVERVIEW' || this.currentMap === 'alchemist' || this.currentMap === 'morgue') {
+      if (viewMode === 'OVERVIEW' || viewMode === 'ROOM_1' || viewMode === 'ROOM_2' || viewMode === 'ROOM_3') {
+        backBtn.classList.add('hidden');
+      } else if (this.currentMap === 'levelnull' && (viewMode === 'INSPECT_BREAKER' || viewMode === 'INSPECT_HYDRO' || viewMode === 'INSPECT_CORE')) {
+        backBtn.classList.remove('hidden');
+        backBtn.innerText = '← STEP BACK TO ROOM';
+      } else if (this.currentMap === 'alchemist' || this.currentMap === 'morgue') {
         backBtn.classList.add('hidden');
       } else {
         backBtn.classList.remove('hidden');
@@ -740,6 +748,19 @@ class Bomb3DEngine {
       }
     }
 
+    // Level Null Multi-Room Traversal Bar
+    const levelNullBar = document.getElementById('levelnull-apparatus-bar');
+    if (levelNullBar) {
+      if (this.currentMap === 'levelnull') {
+        levelNullBar.classList.remove('hidden');
+        levelNullBar.querySelectorAll('.btn-apparatus').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === viewMode);
+        });
+      } else {
+        levelNullBar.classList.add('hidden');
+      }
+    }
+
     if (this.envManager) {
       this.envManager.setView(viewMode);
       if (this.envManager.activeEnv && this.envManager.activeEnv.cameraPresets[viewMode]) {
@@ -753,7 +774,7 @@ class Bomb3DEngine {
           ? (container.clientWidth / container.clientHeight)
           : ((this.camera && this.camera.aspect) ? this.camera.aspect : 1.777);
 
-        if (viewMode === 'OVERVIEW') {
+        if (viewMode === 'OVERVIEW' || viewMode.startsWith('ROOM_')) {
           // In room overview, do NOT push camera through the concrete back wall!
           // Keep camera safely positioned inside the room bounds:
           this.targetCameraPos.copy(preset.pos);
@@ -902,7 +923,8 @@ class Bomb3DEngine {
   handleStepBack() {
     const hudIds = [
       'radio-inspect-hud', 'zodiac-inspect-hud', 'mercury-inspect-hud', 'prism-inspect-hud', 'escapement-inspect-hud',
-      'toxicology-inspect-hud', 'autopsy-inspect-hud', 'morgue-keypad-inspect-hud', 'life-support-inspect-hud'
+      'toxicology-inspect-hud', 'autopsy-inspect-hud', 'morgue-keypad-inspect-hud', 'life-support-inspect-hud',
+      'levelnull-inspect-room1', 'levelnull-inspect-room2', 'levelnull-inspect-room3'
     ];
     hudIds.forEach(id => {
       const el = document.getElementById(id);
@@ -911,6 +933,9 @@ class Bomb3DEngine {
 
     if (this.currentView === 'INSPECT_BOMB' && this.currentBombQuadrant && this.currentBombQuadrant !== 'ALL') {
       this.setBombQuadrant('ALL');
+    } else if (this.currentMap === 'levelnull') {
+      const rm = (window.levelNullEnv && window.levelNullEnv.currentRoom) ? window.levelNullEnv.currentRoom : 1;
+      this.setView(`ROOM_${rm}`);
     } else {
       this.setView('OVERVIEW');
     }
@@ -934,8 +959,9 @@ class Bomb3DEngine {
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    // If in OVERVIEW, test environment & bomb hotspots AND prop meshes
-    if (this.currentView === 'OVERVIEW') {
+    // If in OVERVIEW or any levelnull room view, test environment & bomb hotspots AND prop meshes
+    const isRoomOverview = (this.currentView === 'OVERVIEW' || this.currentView === 'ROOM_1' || this.currentView === 'ROOM_2' || this.currentView === 'ROOM_3');
+    if (isRoomOverview) {
       if (this.envManager && this.envManager.activeEnv) {
         // 1. Direct Hotspot Rings & Hit Discs
         const envHits = this.raycaster.intersectObjects(this.envManager.activeEnv.hotspots, true);

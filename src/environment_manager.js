@@ -61,10 +61,10 @@ class EscapeRoomEnvironmentManager {
     this.targetCameraTarget.copy(preset.target);
     this.targetFOV = preset.fov;
 
-    // Show hotspots in OVERVIEW, hide during inspection to keep clean view
+    // Show hotspots in OVERVIEW and Room exploration views, hide during inspection to keep clean view
     if (this.activeEnv && this.activeEnv.hotspots) {
       this.activeEnv.hotspots.forEach(h => {
-        h.visible = (viewKey === 'OVERVIEW');
+        h.visible = (viewKey === 'OVERVIEW' || viewKey === 'ROOM_1' || viewKey === 'ROOM_2' || viewKey === 'ROOM_3');
       });
     }
 
@@ -84,7 +84,12 @@ class EscapeRoomEnvironmentManager {
     // Update HUD overlays
     const backBtn = document.getElementById('btn-step-back');
     if (backBtn) {
-      if (viewKey === 'OVERVIEW' || this.activeMapId === 'alchemist' || this.activeMapId === 'morgue') {
+      if (viewKey === 'OVERVIEW' || viewKey === 'ROOM_1' || viewKey === 'ROOM_2' || viewKey === 'ROOM_3') {
+        backBtn.classList.add('hidden');
+      } else if (this.activeMapId === 'levelnull' && (viewKey === 'INSPECT_BREAKER' || viewKey === 'INSPECT_HYDRO' || viewKey === 'INSPECT_CORE')) {
+        backBtn.classList.remove('hidden');
+        backBtn.innerText = '← STEP BACK TO ROOM';
+      } else if (this.activeMapId === 'alchemist' || this.activeMapId === 'morgue') {
         backBtn.classList.add('hidden');
       } else {
         backBtn.classList.remove('hidden');
@@ -103,9 +108,29 @@ class EscapeRoomEnvironmentManager {
     const keypadHud = document.getElementById('morgue-keypad-inspect-hud');
     const lifeHud = document.getElementById('life-support-inspect-hud');
 
-    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud, toxHud, autopsyHud, keypadHud, lifeHud].forEach(el => {
+    // Level Null HUDs
+    const room1Hud = document.getElementById('levelnull-inspect-room1');
+    const room2Hud = document.getElementById('levelnull-inspect-room2');
+    const room3Hud = document.getElementById('levelnull-inspect-room3');
+
+    // Level Null In-Room Action Prompts
+    const prompt1 = document.getElementById('levelnull-prompt-room1');
+    const prompt2 = document.getElementById('levelnull-prompt-room2');
+    const prompt3 = document.getElementById('levelnull-prompt-room3');
+
+    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud, toxHud, autopsyHud, keypadHud, lifeHud, room1Hud, room2Hud, room3Hud].forEach(el => {
       if (el) el.classList.add('hidden');
     });
+
+    if (this.activeMapId === 'levelnull') {
+      if (prompt1) prompt1.classList.toggle('hidden', viewKey !== 'ROOM_1');
+      if (prompt2) prompt2.classList.toggle('hidden', viewKey !== 'ROOM_2');
+      if (prompt3) prompt3.classList.toggle('hidden', viewKey !== 'ROOM_3');
+    } else {
+      if (prompt1) prompt1.classList.add('hidden');
+      if (prompt2) prompt2.classList.add('hidden');
+      if (prompt3) prompt3.classList.add('hidden');
+    }
 
     if (viewKey === 'INSPECT_RADIO' && radioHud) {
       radioHud.classList.remove('hidden');
@@ -138,6 +163,20 @@ class EscapeRoomEnvironmentManager {
     if (viewKey === 'INSPECT_VENT' && lifeHud) {
       lifeHud.classList.remove('hidden');
       if (window.lifeSupportModule) window.lifeSupportModule.updateDOM();
+    }
+
+    // Level Null Inspection HUDs
+    if (viewKey === 'INSPECT_BREAKER' && room1Hud) {
+      room1Hud.classList.remove('hidden');
+      if (window.room1BreakerModule) window.room1BreakerModule.renderInspectUI();
+    }
+    if (viewKey === 'INSPECT_HYDRO' && room2Hud) {
+      room2Hud.classList.remove('hidden');
+      if (window.room2HydroModule) window.room2HydroModule.renderInspectUI();
+    }
+    if (viewKey === 'INSPECT_CORE' && room3Hud) {
+      room3Hud.classList.remove('hidden');
+      if (window.room3CoreModule) window.room3CoreModule.renderInspectUI();
     }
 
     // Trigger Lore Document Modals

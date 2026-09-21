@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="src/maps/silo44/silo44.css">
   <link rel="stylesheet" href="src/maps/alchemist/alchemist.css">
   <link rel="stylesheet" href="src/maps/morgue/morgue.css">
+  <link rel="stylesheet" href="src/maps/levelnull/levelnull.css">
   
   <!-- Modern Tactical & Antique Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,6 +114,17 @@
                   <span>⏱️ 15:00 Base</span>
                   <span>☣️ Expert Difficulty</span>
                   <span>🔬 4 Forensic Puzzles</span>
+                </div>
+              </div>
+
+              <div class="scenario-card" id="card-scenario-levelnull" data-scenario="levelnull" onclick="game.selectScenario('levelnull')">
+                <div class="scenario-badge yellow" style="background: #2a2410; color: #f5d76e; border-color: #f5d76e;">MAP 4 // ANOMALOUS SECTOR 1989</div>
+                <h3>LEVEL NULL: THE SHIFTING BACKROOMS</h3>
+                <p class="scenario-desc">Subterranean non-Euclidean test site. Walk through unlocking blast doors: liminal fluorescent office, flooded hydro-substation, and dimensional quantum resonance core.</p>
+                <div class="scenario-meta">
+                  <span>⏱️ 15:00 Base</span>
+                  <span>🌀 Class-5 Anomaly</span>
+                  <span>🚪 3 Door-to-Door Chambers</span>
                 </div>
               </div>
             </div>
@@ -270,6 +282,33 @@
           </button>
           <button class="btn btn-apparatus" data-view="INSPECT_LOG" onclick="bomb3D.setView('INSPECT_LOG')">
             <span class="app-icon">📼</span> DICTAPHONE
+          </button>
+        </div>
+
+        <!-- Level Null Multi-Room Traversal Apparatus Bar -->
+        <div id="levelnull-apparatus-bar" class="levelnull-apparatus-bar hidden">
+          <div class="levelnull-room-step active" id="step-room-1" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(1)">
+            <span class="step-badge">1</span>
+            <span>OFFICE</span>
+          </div>
+          <button class="btn btn-apparatus" data-view="INSPECT_BREAKER" onclick="bomb3D.setView('INSPECT_BREAKER')">
+            <span class="app-icon">⚡</span> BREAKER PANEL
+          </button>
+          <span class="levelnull-arrow">➔</span>
+          <div class="levelnull-room-step" id="step-room-2" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(2)">
+            <span class="step-badge">2</span>
+            <span>HYDRO</span>
+          </div>
+          <button class="btn btn-apparatus" data-view="INSPECT_HYDRO" onclick="bomb3D.setView('INSPECT_HYDRO')">
+            <span class="app-icon">⚓</span> SUB HATCH
+          </button>
+          <span class="levelnull-arrow">➔</span>
+          <div class="levelnull-room-step" id="step-room-3" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(3)">
+            <span class="step-badge">3</span>
+            <span>QUANTUM</span>
+          </div>
+          <button class="btn btn-apparatus" data-view="INSPECT_CORE" onclick="bomb3D.setView('INSPECT_CORE')">
+            <span class="app-icon">🌀</span> PRISMS
           </button>
         </div>
 
@@ -595,6 +634,106 @@
             </button>
           </div>
           <p class="caption-guidance">Equalize PSI using Intel's Crime Scene Classification, request Intel [VENT_FLUSH], then pull lever during active flush window.</p>
+        </div>
+
+        <!-- Level Null Room 1 Advance Prompt -->
+        <div id="levelnull-advance-room1" class="room-advance-overlay hidden">
+          <div style="font-family:'Share Tech Mono', monospace; font-size:0.85rem; color:#00ff88; font-weight:bold;">
+            DOOR 1 UNLATCHED: FIRE EXIT BREACHED
+          </div>
+          <button class="btn-proceed-room" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(2)">
+            ➔ ADVANCE THROUGH FIRE DOOR TO SECTOR 2
+          </button>
+        </div>
+
+        <!-- Level Null Room 2 Advance Prompt -->
+        <div id="levelnull-advance-room2" class="room-advance-overlay hidden">
+          <div style="font-family:'Share Tech Mono', monospace; font-size:0.85rem; color:#00ff88; font-weight:bold;">
+            DOOR 2 EQUALIZED: SUB VAULT HATCH OPEN
+          </div>
+          <button class="btn-proceed-room" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(3)">
+            ➔ ADVANCE THROUGH SUB HATCH TO QUANTUM CORE
+          </button>
+        </div>
+
+        <!-- Level Null Chamber 1: Breaker & Fire Door HUD -->
+        <div id="levelnull-inspect-room1" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">🚪 SECTOR 1: FIRE DOOR BREAKER CONSOLE</span>
+            <span class="levelnull-status-badge">MAG-LOCK ENGAGED</span>
+          </div>
+          <p style="font-size:0.75rem; color:#aaa; margin-bottom:8px;">
+            Coordinate with Intel to identify active phase breakers and match resonant frequency.
+          </p>
+          <div id="breaker-switches-grid" class="breaker-grid"></div>
+          <div class="dial-control-container">
+            <span style="font-size:0.8rem; color:#f5d76e; font-weight:bold;">MAGNETIC FREQ:</span>
+            <input type="range" id="breaker-freq-slider" class="freq-slider" min="20" max="90" step="0.5" value="20" oninput="window.room1BreakerModule.setFrequency(this.value)">
+            <span id="breaker-freq-readout" style="font-size:0.9rem; font-weight:bold; color:#fff; min-width:65px; text-align:right;">20.0 kHz</span>
+          </div>
+          <button id="btn-fire-bar-latch" class="btn-latch-action" onclick="window.room1BreakerModule.triggerFireBar()">
+            PUSH EMERGENCY FIRE BAR
+          </button>
+        </div>
+
+        <!-- Level Null Chamber 2: Hydro Valves & Sub Hatch HUD -->
+        <div id="levelnull-inspect-room2" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">⚓ SECTOR 2: HYDROSTATIC SUB HATCH MANIFOLD</span>
+            <span class="levelnull-status-badge">HYDRO-LOCK SEALED</span>
+          </div>
+          <div id="hydro-pump-status" style="font-size:0.8rem; font-weight:bold; color:#ff3344; margin-bottom:8px;">
+            DRAIN PUMP: STANDBY (AWAITING INTEL)
+          </div>
+          <div id="hydro-valves-grid" class="hydro-valves-container"></div>
+          <button id="btn-sub-wheel-action" class="btn-latch-action" onclick="window.room2HydroModule.turnSubmarineWheel()">
+            ROTATE SUBMARINE VAULT WHEEL
+          </button>
+        </div>
+
+        <!-- Level Null Chamber 3: Quantum Resonance Prisms HUD -->
+        <div id="levelnull-inspect-room3" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">🌀 SECTOR 3: QUANTUM PRISM REALITY ANCHOR</span>
+            <span class="levelnull-status-badge">RDI FLUX: 100% DISTORTION</span>
+          </div>
+          <p style="font-size:0.75rem; color:#c084fc; margin-bottom:8px;">
+            Rotate prisms to nullify Reality Distortion Index (0%), then commit stabilization code.
+          </p>
+          <div id="quantum-prism-grid" class="prism-grid"></div>
+          <div style="background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid rgba(192,132,252,0.3); margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:0.75rem; color:#aaa;">ANCHOR CODE:</span>
+              <span id="quantum-code-display" style="font-size:1.2rem; font-weight:bold; color:#00ff88; letter-spacing:4px;">____</span>
+              <button class="btn btn-sm btn-outline" onclick="window.room3CoreModule.clearKeypad()" style="padding:2px 8px; font-size:0.7rem;">CLR</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('1')">1</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('2')">2</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('3')">3</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('4')">4</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('5')">5</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('6')">6</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('7')">7</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('8')">8</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('9')">9</button>
+              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('0')">0</button>
+            </div>
+          </div>
+          <button id="btn-commit-anchor" class="btn-latch-action" onclick="window.room3CoreModule.commitAnchorStabilization()">
+            COMMIT ANCHOR STABILIZATION KEY
+          </button>
+        </div>
+
+        <!-- Level Null In-Room Quick Inspect Action Banners -->
+        <div id="levelnull-prompt-room1" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_BREAKER')">
+          <span>⚡ CLICK TO INSPECT FIRE DOOR BREAKER PANEL</span>
+        </div>
+        <div id="levelnull-prompt-room2" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_HYDRO')">
+          <span>⚓ CLICK TO INSPECT SUB HATCH PRESSURE MANIFOLD</span>
+        </div>
+        <div id="levelnull-prompt-room3" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_CORE')">
+          <span>🌀 CLICK TO INSPECT QUANTUM PRISMS & ANCHOR</span>
         </div>
 
         <!-- Three.js 3D Canvas -->
@@ -962,6 +1101,15 @@
   <script src="src/maps/morgue/morgue_manual.js"></script>
   <script src="src/maps/morgue/morgue_intel.js"></script>
   <script src="src/maps/morgue/morgue_config.js"></script>
+
+  <!-- Map 4: Level Null (The Shifting Backrooms 1989) -->
+  <script src="src/maps/levelnull/modules/room1_breaker.js"></script>
+  <script src="src/maps/levelnull/modules/room2_hydro.js"></script>
+  <script src="src/maps/levelnull/modules/room3_core.js"></script>
+  <script src="src/maps/levelnull/levelnull_env.js"></script>
+  <script src="src/maps/levelnull/levelnull_manual.js"></script>
+  <script src="src/maps/levelnull/levelnull_intel.js"></script>
+  <script src="src/maps/levelnull/levelnull_config.js"></script>
 
   <!-- Core Game Engines & Controllers -->
   <script src="src/manual_view.js"></script>

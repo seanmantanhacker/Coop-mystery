@@ -24,11 +24,15 @@ class ManualViewEngine {
     if (window.ESCAPE_MAPS && window.ESCAPE_MAPS[this.scenario]) {
       return window.ESCAPE_MAPS[this.scenario].getManualRenderer();
     }
-    return (this.scenario === 'silo44') ? window.Silo44ManualView : window.AlchemistManualView;
+    if (this.scenario === 'levelnull') return window.LevelNullManualView;
+    if (this.scenario === 'morgue') return window.MorgueManualView;
+    if (this.scenario === 'alchemist') return window.AlchemistManualView;
+    return window.Silo44ManualView;
   }
 
   init(scenario = 'silo44') {
-    this.scenario = scenario;
+    const activeScenario = scenario || (window.game ? window.game.scenario : 'silo44');
+    this.scenario = activeScenario;
     const renderer = this.getRenderer();
     this.totalPages = renderer ? renderer.totalPages : 5;
     this.currentPage = 0;

@@ -30,11 +30,15 @@ class IntelViewEngine {
     if (window.ESCAPE_MAPS && window.ESCAPE_MAPS[this.scenario]) {
       return window.ESCAPE_MAPS[this.scenario].getIntelRenderer();
     }
-    return (this.scenario === 'silo44') ? window.Silo44IntelView : window.AlchemistIntelView;
+    if (this.scenario === 'levelnull') return window.LevelNullIntelView;
+    if (this.scenario === 'morgue') return window.MorgueIntelView;
+    if (this.scenario === 'alchemist') return window.AlchemistIntelView;
+    return window.Silo44IntelView;
   }
 
   init(scenario = 'silo44') {
-    this.scenario = scenario;
+    const activeScenario = scenario || (window.game ? window.game.scenario : 'silo44');
+    this.scenario = activeScenario;
     this.toggleActivated = false;
     this.mathSolved = false;
     this.generateMathProblem();
@@ -403,6 +407,33 @@ class IntelViewEngine {
       ];
 
       defaultDirective = 'Investigate cadaver wounds, titrate poison antidote, and coordinate Life Support ventilation.';
+    } else if (scenario === 'levelnull') {
+      const r1 = window.room1BreakerModule ? (window.room1BreakerModule.solved || window.room1BreakerModule.disarmed) : false;
+      const r2 = window.room2HydroModule ? (window.room2HydroModule.solved || window.room2HydroModule.disarmed) : false;
+      const r3 = window.room3CoreModule ? (window.room3CoreModule.solved || window.room3CoreModule.disarmed) : false;
+
+      mods = [
+        { 
+          name: 'GATE α: FIRE DOOR BREAKER', 
+          disarmed: r1, 
+          detail: r1 ? 'Door 1 Unlatched ✓' : 'Harmonic Frequency & Breakers',
+          hint: 'Transmit peak frequency & coordinate resonant breaker pair'
+        },
+        { 
+          name: 'GATE β: SUB HATCH MANIFOLD', 
+          disarmed: r2, 
+          detail: r2 ? 'Door 2 Equalized ✓' : 'Valves A-C & Aux Drain Pump',
+          hint: 'Relay target PSI to Defuser and switch Aux Drain Pump ONLINE'
+        },
+        { 
+          name: 'GATE Ω: REALITY ANCHOR', 
+          disarmed: r3, 
+          detail: r3 ? 'Portal Stabilized ✓' : 'Prisms & 4-Digit Anchor Key',
+          hint: 'Monitor RDI until 0%, then transmit 4-digit stabilization code'
+        }
+      ];
+
+      defaultDirective = 'Track Defuser chamber-by-chamber on radar, relay harmonic frequencies, and activate Aux Drain Pump.';
     }
 
     // Determine solved count and unsolved modules (non-sequential)
@@ -436,30 +467,36 @@ class IntelViewEngine {
       directiveEl.innerText = directive;
     }
 
-    mods.forEach((mod, idx) => {
+    for (let idx = 0; idx < 4; idx++) {
       const card = document.getElementById(`intel-card-mod-${idx + 1}`);
       const nameEl = document.getElementById(`intel-mod-name-${idx + 1}`);
       const statusEl = document.getElementById(`intel-mod-status-${idx + 1}`);
       const detailEl = document.getElementById(`intel-mod-detail-${idx + 1}`);
 
-      if (nameEl) nameEl.innerText = mod.name;
-      if (detailEl) detailEl.innerText = mod.detail;
+      if (idx < mods.length) {
+        const mod = mods[idx];
+        if (card) card.classList.remove('hidden');
+        if (nameEl) nameEl.innerText = mod.name;
+        if (detailEl) detailEl.innerText = mod.detail;
 
-      if (mod.disarmed) {
-        if (card) { card.className = 'intel-module-card secured'; }
-        if (statusEl) {
-          statusEl.className = 'status-pill secured';
-          statusEl.innerText = '✓ SECURED';
+        if (mod.disarmed) {
+          if (card) { card.className = 'intel-module-card secured'; }
+          if (statusEl) {
+            statusEl.className = 'status-pill secured';
+            statusEl.innerText = '✓ SECURED';
+          }
+        } else {
+          // NON-SEQUENTIAL: All unsolved modules are ARMED and immediately accessible!
+          if (card) { card.className = 'intel-module-card active'; }
+          if (statusEl) {
+            statusEl.className = 'status-pill active';
+            statusEl.innerText = '⚡ ARMED';
+          }
         }
       } else {
-        // NON-SEQUENTIAL: All unsolved modules are ARMED and immediately accessible!
-        if (card) { card.className = 'intel-module-card active'; }
-        if (statusEl) {
-          statusEl.className = 'status-pill active';
-          statusEl.innerText = '⚡ ARMED';
-        }
+        if (card) card.classList.add('hidden');
       }
-    });
+    }
   }
 
   startOscilloscope() {
