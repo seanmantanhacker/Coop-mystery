@@ -453,6 +453,122 @@ class SoundEngine {
     osc.start();
     osc.stop(this.ctx.currentTime + 1.8);
   }
+
+  // 1980s Magnetic Cassette Tape Audio Synthesizer
+  playCassetteTape() {
+    if (this.muted) return null;
+    this.init();
+    if (this.tapeSource) {
+      this.stopCassetteTape();
+    }
+
+    const t = this.ctx.currentTime;
+
+    // 1. Mechanical Latch "Click-Clack"
+    const latchOsc = this.ctx.createOscillator();
+    const latchGain = this.ctx.createGain();
+    latchOsc.type = 'triangle';
+    latchOsc.frequency.setValueAtTime(1400, t);
+    latchOsc.frequency.exponentialRampToValueAtTime(120, t + 0.06);
+    latchGain.gain.setValueAtTime(0.3, t);
+    latchGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    latchOsc.connect(latchGain);
+    latchGain.connect(this.ctx.destination);
+    latchOsc.start(t);
+    latchOsc.stop(t + 0.06);
+
+    // 2. Continuous 55Hz Motor Hum with subtle wow/flutter
+    const motorOsc = this.ctx.createOscillator();
+    const motorGain = this.ctx.createGain();
+    motorOsc.type = 'sine';
+    motorOsc.frequency.setValueAtTime(55, t);
+
+    // LFO for Wow & Flutter
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.setValueAtTime(4.2, t);
+    lfoGain.gain.setValueAtTime(2.5, t);
+    lfo.connect(motorOsc.frequency);
+    lfo.start(t + 0.06);
+
+    motorGain.gain.setValueAtTime(0.001, t);
+    motorGain.gain.exponentialRampToValueAtTime(0.045, t + 0.15);
+    motorOsc.connect(motorGain);
+    motorGain.connect(this.ctx.destination);
+    motorOsc.start(t + 0.06);
+
+    // 3. Pink Noise / Tape Head Hiss
+    const bufferSize = Math.floor(this.ctx.sampleRate * 2.0);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      data[i] = (b0 + b1 + b2) * 0.25;
+    }
+
+    const noiseSource = this.ctx.createBufferSource();
+    noiseSource.buffer = buffer;
+    noiseSource.loop = true;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1800, t);
+    filter.Q.setValueAtTime(1.2, t);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.001, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.035, t + 0.15);
+
+    noiseSource.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+    noiseSource.start(t + 0.06);
+
+    this.tapeSource = {
+      motorOsc,
+      motorGain,
+      lfo,
+      noiseSource,
+      noiseGain
+    };
+
+    return this.tapeSource;
+  }
+
+  stopCassetteTape() {
+    if (!this.tapeSource) return;
+    this.init();
+    const t = this.ctx.currentTime;
+
+    try {
+      this.tapeSource.motorGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      this.tapeSource.noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      this.tapeSource.motorOsc.stop(t + 0.1);
+      this.tapeSource.lfo.stop(t + 0.1);
+      this.tapeSource.noiseSource.stop(t + 0.1);
+    } catch (e) {}
+
+    this.tapeSource = null;
+
+    // Mechanical Stop Clack
+    if (!this.muted) {
+      const stopOsc = this.ctx.createOscillator();
+      const stopGain = this.ctx.createGain();
+      stopOsc.type = 'triangle';
+      stopOsc.frequency.setValueAtTime(900, t);
+      stopOsc.frequency.exponentialRampToValueAtTime(80, t + 0.05);
+      stopGain.gain.setValueAtTime(0.25, t);
+      stopGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+      stopOsc.connect(stopGain);
+      stopGain.connect(this.ctx.destination);
+      stopOsc.start(t);
+      stopOsc.stop(t + 0.05);
+    }
+  }
 }
 
 const audio = new SoundEngine();

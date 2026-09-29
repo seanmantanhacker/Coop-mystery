@@ -117,9 +117,10 @@ class Room1BreakerModule {
     // Synchronization check: Intel's EM Resonance Lock Beam must be active!
     if (!this.stabilizerActive) {
       if (typeof audio !== 'undefined' && audio.playStrike) audio.playStrike();
+      if (window.game && window.game.addStrike) window.game.addStrike();
       if (window.game && window.game.showToast) {
         window.game.showToast('⚠️ EM LOCK INACTIVE: Have Intel Analyst engage [EM RESONANCE LOCK BEAM]!');
-      } else {
+      } else if (typeof alert !== 'undefined') {
         alert('ACCESS DENIED: EM Resonance Lock Beam must be engaged by the Intel Analyst to demagnetize fire bar!');
       }
       return;

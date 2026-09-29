@@ -1,7 +1,7 @@
 /* ==========================================================================
-   OPERATION: ZERO HOUR - MAP 4: LEVEL NULL (THE SHIFTING BACKROOMS)
-   MANUAL SPECIALIST: CLEARANCE GATES α, β, & Ω CLASSIFIED DOSSIER
-   EXPERT COOPERATIVE SYNCHRONIZATION PROTOCOL
+   OPERATION: ZERO HOUR - MAP 4: LEVEL NULL (INCIDENT 1989)
+   MANUAL SPECIALIST: "MURDER IDENTITY" CASE FILES & CLEARANCE GATES
+   University War Asymmetric Deduction & Logic Elimination Guide
    ========================================================================== */
 
 class LevelNullManualView {
@@ -12,10 +12,10 @@ class LevelNullManualView {
   static renderTabs(tabContainer) {
     if (!tabContainer) return;
     tabContainer.innerHTML = `
-      <button class="binder-tab-btn active" onclick="manualView.goToSection(0)">I. FIRE DOOR (GATE α)</button>
-      <button class="binder-tab-btn" onclick="manualView.goToSection(1)">II. SUB HATCH (GATE β)</button>
-      <button class="binder-tab-btn" onclick="manualView.goToSection(2)">III. REALITY RIFT (GATE Ω)</button>
-      <button class="binder-tab-btn" onclick="manualView.goToSection(3)">IV. ANOMALY LOGS</button>
+      <button class="binder-tab-btn active" onclick="manualView.goToSection(0)">I. FIRE DOOR (GATE α) - PATHOLOGY</button>
+      <button class="binder-tab-btn" onclick="manualView.goToSection(1)">II. SUB HATCH (GATE β) - TIMELINE</button>
+      <button class="binder-tab-btn" onclick="manualView.goToSection(2)">III. REALITY RIFT (GATE Ω) - ALIBI LOGIC</button>
+      <button class="binder-tab-btn" onclick="manualView.goToSection(3)">IV. ANOMALY LOGS - THE 8 SUSPECTS</button>
       <button class="binder-tab-btn binder-close-btn" onclick="manualView.setView('DESK_OVERVIEW')" title="Return to Desk">✕ CLOSE</button>
     `;
   }
@@ -24,193 +24,233 @@ class LevelNullManualView {
     if (!pageContent) return;
 
     const pages = [
-      // Page 0: Gate Alpha (Fire Door & Breakers)
+      // Page 0: Gate Alpha (Forensic Pathology & Weapon Matrix)
       `
         <div class="parchment-header">
-          <span class="stamp-box">SECTOR 1989 // EXPERT SPEC</span>
-          <h2>CLEARANCE GATE α: INDUSTRIAL FIRE DOOR BREAKER</h2>
+          <span class="stamp-box">SECTOR 1989 // CASE #89-Ω</span>
+          <h2>CLEARANCE GATE α: FORENSIC PATHOLOGY &amp; WEAPON MATRIX</h2>
         </div>
-        <p class="classified-caption">ELECTROMAGNETIC HARMONIC NULLIFICATION &amp; LOCK BEAM PROTOCOL</p>
+        <p class="classified-caption">POST-MORTEM CORONER ANALYSIS // VICTIM: DR. KENNETH ARIS</p>
 
         <div class="parchment-rule-box">
-          <h3>Procedural Breach Protocol:</h3>
-          <p>1. <strong>Identify Resonant Breakers</strong>: Query the <strong>Intel Analyst</strong> for the peak electromagnetic harmonic frequency (kHz). Cross-reference with the matrix below to energize the two designated phase breakers (leave the other two disengaged):</p>
+          <h3>Deduction Rule 1: Weapon &amp; Physical Trait Cross-Reference</h3>
+          <p>Query the <strong>Defuser</strong> for the observed trauma marks on Dr. Aris's body, then query the <strong>Intel Analyst</strong> for the toxic chemical spectral peak:</p>
         </div>
 
         <div class="simon-table-container">
           <table class="simon-table">
             <thead>
               <tr>
-                <th>INTEL PEAK FREQUENCY</th>
-                <th>ENGAGE BREAKER 1</th>
-                <th>ENGAGE BREAKER 2</th>
-                <th>DISENGAGED (OPEN)</th>
+                <th>OBSERVED TRAUMA</th>
+                <th>FATAL WEAPON</th>
+                <th>CHEMICAL TEST</th>
+                <th>MANDATORY ASSAILANT TRAIT</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>30.0 kHz – 44.0 kHz</strong></td>
-                <td><strong style="color:#f5d76e;">PHASE α</strong></td>
-                <td><strong style="color:#c084fc;">PHASE γ</strong></td>
-                <td>PHASE β &amp; PHASE δ</td>
+                <td>Crushed cranial trauma on right temple</td>
+                <td><strong style="color:#f5d76e;">BRASS MASTER BATON</strong></td>
+                <td>NONE</td>
+                <td>Must be <strong>LEFT-HANDED</strong> &amp; Height &gt; 180 cm</td>
               </tr>
               <tr>
-                <td><strong>45.0 kHz – 58.0 kHz</strong></td>
-                <td><strong style="color:#00f0ff;">PHASE β</strong></td>
-                <td><strong style="color:#ff3344;">PHASE δ</strong></td>
-                <td>PHASE α &amp; PHASE γ</td>
+                <td>Petechiae &amp; bitter almond lip odor</td>
+                <td><strong style="color:#00f0ff;">POTASSIUM CYANIDE</strong></td>
+                <td>CYANIDE (Teal Precipitate)</td>
+                <td>Requires <strong>Biochem Lab Clearance</strong></td>
               </tr>
               <tr>
-                <td><strong>59.0 kHz – 72.0 kHz</strong></td>
-                <td><strong style="color:#f5d76e;">PHASE α</strong></td>
-                <td><strong style="color:#00f0ff;">PHASE β</strong></td>
-                <td>PHASE γ &amp; PHASE δ</td>
+                <td>Lichtenberg feathering burn on chest</td>
+                <td><strong style="color:#c084fc;">50kV HIGH-VOLTAGE</strong></td>
+                <td>OZONE OVAL</td>
+                <td>Requires <strong>Insulated Gloves</strong> (Fatal to Pacemakers)</td>
               </tr>
               <tr>
-                <td><strong>73.0 kHz – 88.0 kHz</strong></td>
-                <td><strong style="color:#c084fc;">PHASE γ</strong></td>
-                <td><strong style="color:#ff3344;">PHASE δ</strong></td>
-                <td>PHASE α &amp; PHASE β</td>
+                <td>Bilateral thoracic piston collapse</td>
+                <td><strong style="color:#ff3344;">PISTON SHEAR LUG</strong></td>
+                <td>INDUSTRIAL BRINE</td>
+                <td>Requires <strong>Heavy Boots (Size 11)</strong> / Wet Cuffs</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div class="parchment-rule-box" style="margin-top: 14px;">
-          <h3>Real-Time Cooperative Synchronization:</h3>
-          <p>2. <strong>Frequency Tuning</strong>: Defuser tunes the manual dial to match Intel's peak frequency within <strong>±3.0 kHz</strong>.</p>
-          <p>3. <strong>Intel EM Lock Beam</strong>: The magnetic core is permanently energized until the <strong>Intel Analyst</strong> engages the <strong>[EM RESONANCE LOCK BEAM]</strong> (20-second active window).</p>
-          <p>4. <strong>Push Fire Bar</strong>: Defuser must push the <strong>EMERGENCY FIRE BAR</strong> while the EM Lock Beam is actively counting down. The mag-lock will de-energize and unseal Sector 1!</p>
+          <h3>Elimination Action:</h3>
+          <p>Once the Defuser confirms the weapon and reagent in Sector 1, cross off any suspect who does not meet the physical criteria on the 8-photo corkboard!</p>
         </div>
-        <p class="matrix-footnote">⚠️ Forcing the fire bar without the EM Lock Beam active or with mismatched breakers will trip an overcharge STRIKE!</p>
       `,
 
-      // Page 1: Gate Beta (Submarine Vault Hatch)
+      // Page 1: Gate Beta (Spatiotemporal Timeline & Sector Transit)
       `
         <div class="parchment-header">
-          <span class="stamp-box">SECTOR 2 // HYDRO-SUBSTATION</span>
-          <h2>CLEARANCE GATE β: HYDROSTATIC SUBMARINE VAULT HATCH</h2>
+          <span class="stamp-box">SPATIAL TELEMETRY</span>
+          <h2>CLEARANCE GATE β: SPATIOTEMPORAL SECTOR TRANSIT &amp; TIMELINE</h2>
         </div>
-        <p class="classified-caption">DIFFERENTIAL HYDRAULIC EQUILIBRIUM &amp; PURGE SEQUENCE</p>
+        <p class="classified-caption">NON-EUCLIDEAN LEVEL NULL TRAVERSAL BOUNDARIES</p>
 
         <div class="parchment-rule-box">
-          <h3>Equilibrium Protocol:</h3>
-          <p>Sector 2 is flooded with pressurized industrial brine. The 6 locking lugs are pinned by 80 PSI differential hydraulic shear:</p>
-          <p>1. <strong>Intel Aux Drain Pump</strong>: Have the <strong>Intel Analyst</strong> activate the remote <strong>[AUX HYDRO DRAIN PUMP]</strong>. While active, the pump continuously purges brine from the chamber.</p>
-          <p>2. <strong>Backpressure Purge</strong>: If drainage stalls, Intel can pulse <strong>[PURGE -25 PSI]</strong> to instantly dump backpressure.</p>
-          <p>3. <strong>Balance Manifold Valves</strong>: Use the (+ / −) controls on the manifold to dial each pipe pressure to match Intel's target telemetry within <strong>±5 PSI</strong>:</p>
-        </div>
-
-        <div class="simon-table-container">
-          <table class="simon-table">
-            <thead>
-              <tr>
-                <th>MANIFOLD VALVE</th>
-                <th>OPERATIONAL SYSTEM</th>
-                <th>PRESSURE TOLERANCE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong style="color:#00f0ff;">VALVE A (INTAKE)</strong></td>
-                <td>Brine intake conduit</td>
-                <td>Match Intel Target ±5 PSI</td>
-              </tr>
-              <tr>
-                <td><strong style="color:#f5d76e;">VALVE B (RETURN)</strong></td>
-                <td>Recirculation return manifold</td>
-                <td>Match Intel Target ±5 PSI</td>
-              </tr>
-              <tr>
-                <td><strong style="color:#00ff88;">VALVE C (EQUALIZER)</strong></td>
-                <td>6-Lug hydraulic pressure equalizing loop</td>
-                <td>Match Intel Target ±5 PSI</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="parchment-rule-box" style="margin-top: 14px;">
-          <h3>Hatch Unsealing:</h3>
-          <p>4. <strong>Rotate Vault Wheel</strong>: With all 3 valves stabilized, the Aux Pump active, and <strong>Seal Pressure ≤ 15 PSI</strong>, Defuser rotates the central brass hand-wheel. The 6 mechanical lugs will disengage!</p>
-        </div>
-        <p class="matrix-footnote">⚠️ Rotating wheel while valves are unbalanced, pump is offline, or seal pressure exceeds 15 PSI causes a hydraulic water-hammer STRIKE!</p>
-      `,
-
-      // Page 2: Gate Omega (Quantum Core Reality Anchor)
-      `
-        <div class="parchment-header">
-          <span class="stamp-box">FINAL GATE // SECTOR 3</span>
-          <h2>CLEARANCE GATE Ω: REALITY ANCHOR PORTAL</h2>
-        </div>
-        <p class="classified-caption">SPATIAL-TEMPORAL EXTRACTION &amp; ANCHOR STABILIZATION</p>
-
-        <div class="parchment-rule-box">
-          <h3>Portal Extraction Protocol:</h3>
-          <p>Consensus reality has collapsed into an extradimensional rift. Stabilization requires three synchronized actions:</p>
-          <p>1. <strong>Tri-Axis Prism Beam Alignment</strong>: Defuser clicks <em>ROTATE 90°</em> on the 3 optical beam prisms. Have the <strong>Intel Analyst</strong> monitor the live <strong>Reality Distortion Index (RDI)</strong>:</p>
-          <ul class="dossier-list" style="margin: 4px 0 8px 16px; font-size: 0.85rem;">
-            <li><strong style="color:#c084fc;">PRISM 1 (LEFT PEDESTAL)</strong>: Correct angle reduces distortion by 33%.</li>
-            <li><strong style="color:#c084fc;">PRISM 2 (RIGHT PEDESTAL)</strong>: Correct angle reduces distortion by 33%.</li>
-            <li><strong style="color:#c084fc;">PRISM 3 (CENTER PEDESTAL)</strong>: Correct angle stabilizes field to <strong>RDI: 0%</strong>.</li>
+          <h3>Deduction Rule 2: Minimum Transit Times</h3>
+          <p>Level Null's corridors fold through anomalous geometry. Walking between chambers obeys strict physical time limits:</p>
+          <ul class="dossier-list" style="margin: 6px 0 10px 18px; font-size: 0.86rem; line-height: 1.6;">
+            <li><strong>Sector 1 (Office) ➔ Sector 2 (Hydro)</strong>: Exactly <strong>6 minutes</strong> on foot.</li>
+            <li><strong>Sector 2 (Hydro) ➔ Sector 3 (Quantum Core)</strong>: Exactly <strong>6 minutes</strong> on foot.</li>
+            <li><strong>Sector 1 (Office) ➔ Sector 3 (Direct)</strong>: Impossible without passing Sector 2 (Total <strong>12 minutes</strong>).</li>
+            <li><strong>Emergency Ventilation Duct Bypass</strong>: Takes <strong>3 minutes</strong>, but entry is restricted to individuals under <strong>170 cm</strong> in height with no heavy bulky equipment.</li>
+            <li><strong>EM Radiation Hazard</strong>: Sector 1 Breaker and Sector 3 Core emit high-frequency fields that will trigger fatal arrhythmia in anyone with a <strong>cardiac pacemaker</strong>.</li>
           </ul>
         </div>
 
-        <div class="parchment-rule-box" style="margin-top: 14px;">
-          <h3>Intel Reality Tether &amp; Stabilization Key:</h3>
-          <p>2. <strong>Discharge Reality Tether</strong>: Once RDI reaches 0%, the <strong>Intel Analyst</strong> must press <strong>[DISCHARGE REALITY TETHER PULSE]</strong> (45-second stabilization window).</p>
-          <p>3. <strong>Anchor Key Decrypt &amp; Commit</strong>: Intel relays the decrypted <strong>4-Digit Anchor Key</strong> from their console. Defuser enters the 4 digits into the core terminal and presses <strong>COMMIT ANCHOR STABILIZATION KEY</strong>.</p>
-        </div>
-
-        <div class="formula-callout" style="border-color:#00ff88; color:#00ff88; background:rgba(0,255,136,0.08); padding:10px; font-weight:bold; text-align:center;">
-          ✓ EXPERT VICTORY: Align 3 prisms (RDI 0%) + Intel Reality Tether pulse + 4-digit anchor code unlocks the portal gateway!
-        </div>
-        <p class="matrix-footnote">⚠️ Entering an incorrect key or committing without active tether pulse causes temporal backlash and triggers a STRIKE!</p>
-      `,
-
-      // Page 3: Sector 1989 Incident Logs & Quick Reference
-      `
-        <div class="parchment-header">
-          <span class="stamp-box">ARCHIVAL DOSSIER</span>
-          <h2>INCIDENT 1989-Ω: LEVEL NULL CONTAINMENT LOGS</h2>
-        </div>
-        <p class="classified-caption">CONFIDENTIAL MEMORANDUM // EXPERT MODE (20:00 MISSION CLOCK)</p>
-
-        <div class="parchment-rule-box">
-          <h3>Operative Synchronization Matrix:</h3>
-          <table class="simon-table" style="font-size:0.8rem;">
+        <div class="simon-table-container">
+          <table class="simon-table">
             <thead>
               <tr>
-                <th>CHAMBER</th>
-                <th>INTEL ACTION</th>
-                <th>DEFUSER ACTION</th>
+                <th>SECTOR</th>
+                <th>KEY ENVIRONMENT</th>
+                <th>LETHAL HAZARDS &amp; RESTRICTIONS</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>CHAMBER 1: OFFICE</strong></td>
-                <td>Relays peak kHz + pulses [EM RESONANCE LOCK BEAM].</td>
-                <td>Engages 2 phase breakers + dials kHz ±3 + pushes Fire Bar.</td>
+                <td><strong>SECTOR 1</strong></td>
+                <td>Director Executive Office</td>
+                <td>Master safe, fluorescent breaker panel (65 kHz EM field)</td>
               </tr>
               <tr>
-                <td><strong>CHAMBER 2: SUBSTATION</strong></td>
-                <td>Sets [AUX DRAIN PUMP] ONLINE + pulses [PURGE -25 PSI].</td>
-                <td>Matches Valves A/B/C ±5 PSI + turns Sub Wheel when Seal ≤15 PSI.</td>
+                <td><strong>SECTOR 2</strong></td>
+                <td>Hydrostatic Substation</td>
+                <td>Flooded brine floor, deep water drains, heavy pistons</td>
               </tr>
               <tr>
-                <td><strong>CHAMBER 3: QUANTUM CORE</strong></td>
-                <td>Tracks RDI to 0% + fires [REALITY TETHER] + transmits 4-digit code.</td>
-                <td>Rotates Prisms until RDI 0% + keys in 4-digit anchor code.</td>
+                <td><strong>SECTOR 3</strong></td>
+                <td>Quantum Core Rift</td>
+                <td>High-voltage busbars, spatial rupture, radio intercept array</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="matrix-footnote">⚠️ If a suspect swiped into Sector 3 within 4 minutes of a crime in Sector 1, they could NOT have committed the murder—unless their badge was stolen!</p>
+      `,
+
+      // Page 2: Gate Omega (Sworn Alibi Statements & Logic Matrix)
+      `
+        <div class="parchment-header">
+          <span class="stamp-box">LOGIC MATRIX</span>
+          <h2>CLEARANCE GATE Ω: SWORN ALIBI STATEMENTS &amp; CIPHER</h2>
+        </div>
+        <p class="classified-caption">INTERROGATION TRANSCRIPTS // UNIVERSITY WAR TRUTH/LIE PUZZLE</p>
+
+        <div class="parchment-rule-box">
+          <h3>Sworn Statements (Recorded at 14:30 Lockdown):</h3>
+          <ol style="margin: 6px 0 10px 20px; font-size: 0.85rem; line-height: 1.6;">
+            <li><strong>Cmdr. Ramos</strong>: <em>"I was checking the Sector 1 fire door when the alarm tripped. Dr. Vance was in the core."</em></li>
+            <li><strong>Dr. Park</strong>: <em>"I was running toxicology assays. Sophia can confirm I never touched the potassium cyanide bottle."</em></li>
+            <li><strong>Eng. Chen</strong>: <em>"I was balancing Valve B in Hydro. The pressure dropped suddenly at the time of breach."</em></li>
+            <li><strong>Dr. Thorne</strong>: <em>"My headphones were tuned to the telemetry array. I heard footsteps near the victim’s office."</em></li>
+            <li><strong>Agent Miller</strong>: <em>"I saw someone wearing heavy rubber diving boots running toward the emergency vent."</em></li>
+            <li><strong>Tech. O'Connor</strong>: <em>"I was asleep in the bunk. My boots were locked in the dry room all morning."</em></li>
+          </ol>
+        </div>
+
+        <div class="parchment-rule-box" style="margin-top: 14px;">
+          <h3>University War Cross-Examination Rules:</h3>
+          <p>1. <strong>Contradiction Analysis</strong>: If physical evidence proves wet diving boot prints at the crime scene, Tech. O'Connor's statement #6 is a <strong>confirmed lie</strong>!</p>
+          <p>2. <strong>The Wiretap Carrier</strong>: Have the <strong>Intel Analyst</strong> scan the covert surveillance channels (88.5, 94.2, 108.6, or 122.4 MHz). Locking onto the active carrier will intercept the saboteur's broadcast and decrypt the <strong>4-digit Override Cipher</strong>!</p>
+        </div>
+      `,
+
+      // Page 3: Incident 1989-Ω Logs & Suspects Dossier
+      `
+        <div class="parchment-header">
+          <span class="stamp-box">ARCHIVAL DOSSIER</span>
+          <h2>INCIDENT 1989-Ω: LEVEL NULL ANOMALY LOGS &amp; DOSSIERS</h2>
+        </div>
+        <p class="classified-caption">CONFIDENTIAL PERSONNEL DOSSIERS // 8 SUSPECTS MATRIX</p>
+
+        <div class="simon-table-container">
+          <table class="simon-table" style="font-size: 0.8rem;">
+            <thead>
+              <tr>
+                <th>PHOTO ID</th>
+                <th>NAME &amp; ROLE</th>
+                <th>BLOOD</th>
+                <th>HAND</th>
+                <th>HEIGHT</th>
+                <th>NOTABLE TRAITS &amp; GEAR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>PHOTO-01</strong></td>
+                <td>Dr. Elena Vance (Quantum)</td>
+                <td>Type O</td>
+                <td>Right</td>
+                <td>168 cm</td>
+                <td>Gold glasses, wrist scar, vent eligible</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-02</strong></td>
+                <td>Cmdr. Viktor Ramos (Security)</td>
+                <td>Type A</td>
+                <td><strong>LEFT</strong></td>
+                <td><strong>188 cm</strong></td>
+                <td>Military build, carries brass master baton</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-03</strong></td>
+                <td>Dr. Jin-Woo Park (Biochem)</td>
+                <td>Type B</td>
+                <td>Right</td>
+                <td>174 cm</td>
+                <td>Lab coat, chemical access, missing finger tip</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-04</strong></td>
+                <td>Eng. Sophia Chen (Hydro)</td>
+                <td>Type AB</td>
+                <td>Right</td>
+                <td>165 cm</td>
+                <td>Rubber gauntlets, grease smudges, vent eligible</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-05</strong></td>
+                <td>Dr. Marcus Thorne (Telemetry)</td>
+                <td>Type O</td>
+                <td>Right</td>
+                <td>179 cm</td>
+                <td>Heavy headphones, right leg limp (uses cane)</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-06</strong></td>
+                <td>Agent Sarah Miller (Archives)</td>
+                <td>Type A</td>
+                <td>Right</td>
+                <td>161 cm</td>
+                <td>Trench coat, matches in pocket, vent eligible</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-07</strong></td>
+                <td>Dr. Dmitry Volkov (Electrical)</td>
+                <td>Type B</td>
+                <td>Right</td>
+                <td>182 cm</td>
+                <td><strong>Pacemaker</strong>, insulated apron, high EM danger</td>
+              </tr>
+              <tr>
+                <td><strong>PHOTO-08</strong></td>
+                <td>Tech. Liam O'Connor (Diver)</td>
+                <td>Type AB</td>
+                <td>Right</td>
+                <td>185 cm</td>
+                <td><strong>Size 11 Diving Boots</strong>, wet cuffs, piston tool</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="parchment-rule-box" style="margin-top: 14px;">
-          <h3>Excerpt from Dr. K. Aris (Chief Research Physicist, 1989):</h3>
-          <p style="font-style:italic; font-size:0.83rem; line-height:1.5;">
-            "The architecture down here refuses to obey Euclidean geometry. Doors lead into subterranean reservoirs that shouldn't fit inside the perimeter. Total mission clock is 20 minutes before dimensional collapse. Maintain constant voice or telemetry link between the field operative and the surface monitor station."
-          </p>
+        <div class="formula-callout" style="border-color:#ff3344; color:#ff7788; background:rgba(255,51,68,0.08); padding:10px; font-weight:bold; text-align:center; margin-top:14px;">
+          ✓ GRAND INDICTMENT: Eliminate 7 suspects until exactly 1 matches the weapon, timeline, and alibi. Enter their Photo #, Weapon, Sector, and 4-Digit Cipher to lift Level Null lockdown!
         </div>
       `
     ];
@@ -222,34 +262,37 @@ class LevelNullManualView {
     if (!boardContent) return;
     boardContent.innerHTML = `
       <div class="polaroid-photo" style="transform: rotate(-3deg);">
-        <div class="photo-img" style="background: #151d18; color: #f5d76e; display:flex; align-items:center; justify-content:center; height:100px; font-weight:bold;">
-          🚪 SECTOR 1 FIRE DOOR
+        <div class="photo-img" style="background: #1e1b18; color: #f5d76e; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100px; font-weight:bold; font-size:0.8rem; text-align:center;">
+          <span style="font-size:1.6rem; margin-bottom:4px;">🚪</span>
+          SECTOR 1 FIRE DOOR
         </div>
-        <span>FIRE BAR // EM LOCK BEAM</span>
+        <span>FIRE BAR // CRIME SCENE</span>
       </div>
 
       <div class="polaroid-photo" style="transform: rotate(2deg);">
-        <div class="photo-img" style="background: #081a20; color: #00f0ff; display:flex; align-items:center; justify-content:center; height:100px; font-weight:bold;">
-          ⚓ SUB VAULT HATCH
+        <div class="photo-img" style="background: #111a1f; color: #00f0ff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100px; font-weight:bold; font-size:0.8rem; text-align:center;">
+          <span style="font-size:1.6rem; margin-bottom:4px;">⚓</span>
+          SUB VAULT HATCH
         </div>
-        <span>SEAL PURGE ≤15 PSI</span>
+        <span>HYDROSTATION SECTOR 2</span>
       </div>
 
-      <div class="polaroid-photo" style="transform: rotate(-1deg);">
-        <div class="photo-img" style="background: #180d24; color: #c084fc; display:flex; align-items:center; justify-content:center; height:100px; font-weight:bold;">
-          🌀 QUANTUM CORE RIFT
+      <div class="polaroid-photo" style="transform: rotate(-2deg);">
+        <div class="photo-img" style="background: #1d1124; color: #c084fc; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100px; font-weight:bold; font-size:0.8rem; text-align:center;">
+          <span style="font-size:1.6rem; margin-bottom:4px;">🌀</span>
+          QUANTUM CORE RIFT
         </div>
-        <span>45s REALITY TETHER PULSE</span>
+        <span>8-PHOTO CORKBOARD &amp; CARRIER</span>
       </div>
 
       <div class="sticky-memo">
-        <h4>SYNCHRONIZATION:</h4>
-        <p>In Sector 1, Defuser CANNOT open the fire door until Intel engages the [EM RESONANCE LOCK BEAM]!</p>
+        <h4>UNIVERSITY WAR TIP:</h4>
+        <p>Do NOT guess! A false indictment trips an emergency security strike. Eliminate all 7 suspects with verified alibis or physical impossibilities first!</p>
       </div>
 
       <div class="sticky-memo yellow">
-        <h4>SEAL PRESSURE:</h4>
-        <p>In Sector 2, hatch seal must drain to ≤15 PSI with Intel's Aux Pump before turning the submarine wheel!</p>
+        <h4>PACEMAKER WARNING:</h4>
+        <p>Dr. Volkov has a pacemaker. If the crime weapon involved 50kV electrical discharge or took place in high-EM zones, he is physically excluded!</p>
       </div>
     `;
   }

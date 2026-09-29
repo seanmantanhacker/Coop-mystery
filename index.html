@@ -291,24 +291,27 @@
             <span class="step-badge">1</span>
             <span>OFFICE</span>
           </div>
-          <button class="btn btn-apparatus" data-view="INSPECT_BREAKER" onclick="bomb3D.setView('INSPECT_BREAKER')">
-            <span class="app-icon">⚡</span> BREAKER PANEL
+          <button class="btn btn-apparatus" data-view="INSPECT_FORENSICS" onclick="bomb3D.setView('INSPECT_FORENSICS')">
+            <span class="app-icon">🔬</span> PATHOLOGY
           </button>
           <span class="levelnull-arrow">➔</span>
           <div class="levelnull-room-step" id="step-room-2" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(2)">
             <span class="step-badge">2</span>
             <span>HYDRO</span>
           </div>
-          <button class="btn btn-apparatus" data-view="INSPECT_HYDRO" onclick="bomb3D.setView('INSPECT_HYDRO')">
-            <span class="app-icon">⚓</span> SUB HATCH
+          <button class="btn btn-apparatus" data-view="INSPECT_TIMELINE" onclick="bomb3D.setView('INSPECT_TIMELINE')">
+            <span class="app-icon">🗄️</span> TIMELINE
           </button>
           <span class="levelnull-arrow">➔</span>
           <div class="levelnull-room-step" id="step-room-3" onclick="if (window.levelNullEnv) window.levelNullEnv.transitionToRoom(3)">
             <span class="step-badge">3</span>
             <span>QUANTUM</span>
           </div>
-          <button class="btn btn-apparatus" data-view="INSPECT_CORE" onclick="bomb3D.setView('INSPECT_CORE')">
-            <span class="app-icon">🌀</span> PRISMS
+          <button class="btn btn-apparatus" data-view="INSPECT_INTERROGATION" onclick="bomb3D.setView('INSPECT_INTERROGATION')">
+            <span class="app-icon">📻</span> WIRETAP
+          </button>
+          <button class="btn btn-apparatus btn-indictment-pulse" data-view="INSPECT_INDICTMENT" onclick="bomb3D.setView('INSPECT_INDICTMENT')">
+            <span class="app-icon">📌</span> 8-PHOTO INDICTMENT
           </button>
         </div>
 
@@ -656,84 +659,430 @@
           </button>
         </div>
 
-        <!-- Level Null Chamber 1: Breaker & Fire Door HUD -->
+        <!-- Level Null Module 1: Forensic Pathology HUD -->
+        <div id="levelnull-inspect-forensics" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">🔬 SECTOR 1: FORENSIC PATHOLOGY &amp; WEAPON ANALYZER</span>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()">✕</button>
+          </div>
+          <div id="forensics-status" class="module-status-badge pending">PATHOLOGY EVIDENCE UNVERIFIED</div>
+
+          <!-- Two-Column Tactical Diagnostic Layout -->
+          <div class="forensics-telemetry-container">
+            <!-- Left: Anatomical Trauma Scanner Graphic (SVG) -->
+            <div class="anatomy-scanner-card">
+              <div class="scanner-header">
+                <span class="scan-tag">BIOMETRIC AUTOPSY DIAGNOSTIC</span>
+                <span class="scan-vital glow-red">00 BPM // FLATLINE</span>
+              </div>
+              <div class="anatomy-visual-frame">
+                <svg class="body-scan-svg" viewBox="0 0 160 230" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Grid Scan Lines Background -->
+                  <defs>
+                    <pattern id="scanner-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+                      <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(0, 240, 255, 0.08)" stroke-width="0.8"/>
+                    </pattern>
+                  </defs>
+                  <rect width="160" height="230" fill="url(#scanner-grid)" />
+                  <!-- Wireframe Human Silhouette -->
+                  <g class="body-silhouette" stroke="#00f0ff" stroke-width="1.6" fill="rgba(0, 240, 255, 0.06)">
+                    <!-- Head & Neck -->
+                    <circle cx="80" cy="32" r="16" />
+                    <rect x="75" y="48" width="10" height="12" />
+                    <!-- Torso -->
+                    <path d="M 52 60 L 108 60 L 98 135 L 62 135 Z" />
+                    <!-- Arms -->
+                    <path d="M 50 62 L 32 110 L 26 142" fill="none" stroke-linecap="round" />
+                    <path d="M 110 62 L 128 110 L 134 142" fill="none" stroke-linecap="round" />
+                    <!-- Legs -->
+                    <path d="M 66 135 L 62 185 L 58 220" fill="none" stroke-linecap="round" />
+                    <path d="M 94 135 L 98 185 L 102 220" fill="none" stroke-linecap="round" />
+                  </g>
+                  <!-- Trauma Target Crosshair (Right Parietal / Temple) -->
+                  <g id="trauma-target-reticle" class="trauma-reticle" transform="translate(93, 28)">
+                    <circle cx="0" cy="0" r="8" fill="none" stroke="#ff3344" stroke-width="1.8" class="pulse-ring"/>
+                    <circle cx="0" cy="0" r="3" fill="#ff3344" />
+                    <line x1="-12" y1="0" x2="12" y2="0" stroke="#ff3344" stroke-width="1"/>
+                    <line x1="0" y1="-12" x2="0" y2="12" stroke="#ff3344" stroke-width="1"/>
+                    <text x="14" y="4" fill="#ff7788" font-family="'Share Tech Mono', monospace" font-size="8" font-weight="bold">FATAL CRANIAL TEMPLE</text>
+                  </g>
+                  <!-- Sweeping Scan Radar Bar -->
+                  <line x1="0" y1="0" x2="160" y2="0" stroke="rgba(0, 255, 136, 0.65)" stroke-width="2" class="scan-laser-line" />
+                </svg>
+              </div>
+              <div class="anatomy-metrics-bar">
+                <span>EST TOD: <strong>14:20 HRS</strong></span>
+                <span>CORE TEMP: <strong>31.2°C</strong></span>
+                <span>RIGOR: <strong>EARLY</strong></span>
+              </div>
+            </div>
+
+            <!-- Right: Pathology Clues & Control Panel -->
+            <div class="forensics-details-column">
+              <div class="levelnull-card-box">
+                <div class="evidence-label">TRAUMA REPORT (DR. KENNETH ARIS):</div>
+                <div id="forensics-trauma-text" class="evidence-readout glow-yellow">Analyzing trauma markers...</div>
+              </div>
+
+              <!-- Reagent Reaction Preview Vial -->
+              <div class="reagent-reaction-card">
+                <div class="reagent-label-row">
+                  <span class="ctrl-label">CHEMICAL ASSAY / SPECTRAL TEST</span>
+                  <span id="forensics-reaction-badge" class="reagent-badge glow-cyan">TEST READY</span>
+                </div>
+                <div class="ctrl-row">
+                  <button class="btn btn-ctrl" onclick="window.levelNullForensicsModule.cycleReagent(-1)">◀</button>
+                  <span id="forensics-reagent-val" class="ctrl-val glow-yellow">NONE</span>
+                  <button class="btn btn-ctrl" onclick="window.levelNullForensicsModule.cycleReagent(1)">▶</button>
+                </div>
+              </div>
+
+              <!-- Weapon Determination -->
+              <div class="control-box">
+                <span class="ctrl-label">SUSPECTED MURDER WEAPON DETERMINATION</span>
+                <div class="ctrl-row">
+                  <button class="btn btn-ctrl" onclick="window.levelNullForensicsModule.cycleWeapon(-1)">◀</button>
+                  <span id="forensics-weapon-val" class="ctrl-val glow-cyan">BRASS MASTER BATON</span>
+                  <button class="btn btn-ctrl" onclick="window.levelNullForensicsModule.cycleWeapon(1)">▶</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="forensics-confirm-btn" class="btn-latch-action" onclick="window.levelNullForensicsModule.confirmForensicAnalysis()">
+            CONFIRM WEAPON &amp; PATHOLOGY DETERMINATION
+          </button>
+        </div>
+
+        <!-- Level Null Module 2: Keycard Telemetry & Timeline HUD -->
+        <div id="levelnull-inspect-timeline" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">🗄️ SECTOR 2: KEYCARD TELEMETRY &amp; TIMELINE MAINFRAME</span>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()">✕</button>
+          </div>
+          <div id="timeline-status" class="module-status-badge pending">SPATIOTEMPORAL BREACH UNRESOLVED</div>
+
+          <!-- Tactical Facility Transit Blueprint Schematic (SVG) -->
+          <div class="timeline-schematic-card">
+            <div class="schematic-header">
+              <span class="schem-tag">FACILITY TRANSIT VECTOR BLUEPRINT</span>
+              <span class="schem-rule glow-yellow">CORRIDOR: 6 MIN // VENT BYPASS: 3 MIN (&lt;170CM)</span>
+            </div>
+            <div class="schematic-svg-frame">
+              <svg class="facility-blueprint-svg" viewBox="0 0 460 110" xmlns="http://www.w3.org/2000/svg">
+                <!-- Transit Conduits -->
+                <line x1="80" y1="55" x2="230" y2="55" stroke="rgba(0, 240, 255, 0.4)" stroke-dasharray="4,4" stroke-width="2"/>
+                <line x1="230" y1="55" x2="380" y2="55" stroke="rgba(0, 240, 255, 0.4)" stroke-dasharray="4,4" stroke-width="2"/>
+                <!-- Upper Ventilation Shaft Route (3 min bypass) -->
+                <path d="M 80 40 L 80 20 L 230 20 L 230 40" fill="none" stroke="#f5d76e" stroke-dasharray="3,3" stroke-width="1.5"/>
+                <text x="155" y="16" fill="#f5d76e" font-family="'Share Tech Mono', monospace" font-size="9" text-anchor="middle">VENT BYPASS (3m) [H &lt; 170cm ONLY]</text>
+
+                <!-- Sector 1: Office Node -->
+                <g id="node-sector-1" class="sector-node" transform="translate(80, 55)">
+                  <rect x="-42" y="-24" width="84" height="48" rx="6" fill="#0d1b1f" stroke="#00f0ff" stroke-width="1.8"/>
+                  <text x="0" y="-6" fill="#00f0ff" font-family="'Orbitron', sans-serif" font-size="9" font-weight="bold" text-anchor="middle">SECTOR 1</text>
+                  <text x="0" y="8" fill="#888" font-family="'Share Tech Mono', monospace" font-size="8" text-anchor="middle">OFFICE</text>
+                  <circle cx="0" cy="18" r="3" fill="#00ff88"/>
+                </g>
+
+                <!-- Sector 2: Hydro Node -->
+                <g id="node-sector-2" class="sector-node" transform="translate(230, 55)">
+                  <rect x="-42" y="-24" width="84" height="48" rx="6" fill="#0d1b1f" stroke="#00f0ff" stroke-width="1.8"/>
+                  <text x="0" y="-6" fill="#00f0ff" font-family="'Orbitron', sans-serif" font-size="9" font-weight="bold" text-anchor="middle">SECTOR 2</text>
+                  <text x="0" y="8" fill="#888" font-family="'Share Tech Mono', monospace" font-size="8" text-anchor="middle">HYDRO</text>
+                  <circle cx="0" cy="18" r="3" fill="#f5d76e"/>
+                </g>
+
+                <!-- Sector 3: Quantum Core Node -->
+                <g id="node-sector-3" class="sector-node" transform="translate(380, 55)">
+                  <rect x="-42" y="-24" width="84" height="48" rx="6" fill="#0d1b1f" stroke="#c084fc" stroke-width="1.8"/>
+                  <text x="0" y="-6" fill="#c084fc" font-family="'Orbitron', sans-serif" font-size="9" font-weight="bold" text-anchor="middle">SECTOR 3</text>
+                  <text x="0" y="8" fill="#888" font-family="'Share Tech Mono', monospace" font-size="8" text-anchor="middle">QUANTUM</text>
+                  <circle cx="0" cy="18" r="3" fill="#ff3344"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Spatiotemporal Controls Grid -->
+          <div class="timeline-controls-grid">
+            <div class="control-box">
+              <span class="ctrl-label">CRIME SCENE CHAMBER</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.cycleSector(-1)">◀</button>
+                <span id="timeline-sector-val" class="ctrl-val glow-cyan">SECTOR 1: EXECUTIVE OFFICE</span>
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.cycleSector(1)">▶</button>
+              </div>
+            </div>
+
+            <div class="control-box">
+              <span class="ctrl-label">FATAL INCIDENT TIMESTAMP</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.adjustMinute(-5)">-5m</button>
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.adjustMinute(-1)">-1m</button>
+                <span id="timeline-time-val" class="ctrl-val glow-yellow">14:22</span>
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.adjustMinute(1)">+1m</button>
+                <button class="btn btn-ctrl" onclick="window.levelNullTimelineModule.adjustMinute(5)">+5m</button>
+              </div>
+            </div>
+          </div>
+
+          <button id="timeline-confirm-btn" class="btn-latch-action" onclick="window.levelNullTimelineModule.confirmTimeline()">
+            VERIFY CRIME LOCATION &amp; FATAL TIMESTAMP
+          </button>
+        </div>
+
+        <!-- Level Null Module 3: Interrogation Wiretap HUD -->
+        <div id="levelnull-inspect-interrogation" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">📻 SECTOR 3: WIRETAP DEMODULATOR &amp; CIPHER DECRYPTER</span>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()">✕</button>
+          </div>
+          <div id="interrogation-status" class="module-status-badge pending">CARRIER SEARCHING...</div>
+
+          <!-- Live Animated Phosphor CRT Oscilloscope -->
+          <div class="oscilloscope-wrapper">
+            <div class="oscilloscope-header">
+              <span class="osc-title">PHOSPHOR AUDIO SPECTRUM DEMODULATOR</span>
+              <div class="rssi-meter-row">
+                <span class="rssi-label">CARRIER LOCK:</span>
+                <div class="rssi-bar-container">
+                  <div id="interrogation-rssi-bar" class="rssi-bar-fill" style="width: 35%;"></div>
+                </div>
+                <span id="interrogation-rssi-val" class="rssi-db">-24 dB</span>
+              </div>
+            </div>
+            <canvas id="wiretap-oscilloscope" width="520" height="96" class="oscilloscope-canvas"></canvas>
+          </div>
+
+          <div class="interrogation-display-box">
+            <div class="radio-readout-row">
+              <span class="radio-label">DEMODULATOR FREQUENCY:</span>
+              <span id="interrogation-freq-val" class="glow-yellow font-mono">88.0 MHz</span>
+            </div>
+            <div id="interrogation-cipher-val" class="cipher-readout glow-cyan font-mono">SABOTEUR CIPHER: [ENCRYPTED]</div>
+          </div>
+
+          <div class="radio-tune-buttons">
+            <button class="btn btn-ctrl" onclick="window.levelNullInterrogationModule.tuneFrequencyDelta(-5.0)">-5.0</button>
+            <button class="btn btn-ctrl" onclick="window.levelNullInterrogationModule.tuneFrequencyDelta(-0.5)">-0.5</button>
+            <button class="btn btn-ctrl" onclick="window.levelNullInterrogationModule.tuneFrequencyDelta(0.5)">+0.5</button>
+            <button class="btn btn-ctrl" onclick="window.levelNullInterrogationModule.tuneFrequencyDelta(5.0)">+5.0</button>
+          </div>
+
+          <button id="interrogation-confirm-btn" class="btn-latch-action" onclick="window.levelNullInterrogationModule.confirmWiretapLock()">
+            LOCK COVERT CARRIER &amp; REVEAL OVERRIDE CIPHER
+          </button>
+        </div>
+
+        <!-- Level Null Module 4: 8-Photo Investigation Board & Grand Indictment Terminal HUD -->
+        <div id="levelnull-inspect-indictment" class="module-inspect-hud levelnull-inspect-panel corkboard-panel glass-panel hidden">
+          <div class="levelnull-panel-header">
+            <span class="levelnull-title">📌 GRAND INDICTMENT: 8-PHOTO SUSPECT INVESTIGATION BOARD</span>
+            <button class="btn btn-ctrl btn-close-modal" onclick="bomb3D.handleStepBack()">✕</button>
+          </div>
+          <div id="indictment-status" class="module-status-badge pending">SELECT 8-PHOTO EVIDENCE &amp; COMMIT VERDICT</div>
+
+          <!-- Suspect Filter Toolbar -->
+          <div class="indictment-filter-bar">
+            <span class="filter-label">SUSPECT ROSTER:</span>
+            <button class="btn-filter-tab active" id="filter-all" onclick="window.levelNullIndictmentModule.filterSuspects('ALL')">ALL (8)</button>
+            <button class="btn-filter-tab" id="filter-suspects" onclick="window.levelNullIndictmentModule.filterSuspects('SUSPECT')">PRIME SUSPECTS</button>
+            <button class="btn-filter-tab" id="filter-alibi" onclick="window.levelNullIndictmentModule.filterSuspects('ALIBI')">VERIFIED ALIBIS</button>
+          </div>
+
+          <!-- 8 Polaroid Suspect Photos Grid -->
+          <div class="corkboard-grid">
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-01" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-01')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-01">SUSPECT</span>
+                <span class="avatar-icon">👓</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-01</strong>
+                <span>Dr. Elena Vance</span>
+                <small>Quantum Physicist</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-02" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-02')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-02">SUSPECT</span>
+                <span class="avatar-icon">🎖️</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-02</strong>
+                <span>Cmdr. Viktor Ramos</span>
+                <small>Security Chief</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-03" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-03')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-03">SUSPECT</span>
+                <span class="avatar-icon">🧪</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-03</strong>
+                <span>Dr. Jin-Woo Park</span>
+                <small>Biochemist</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-04" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-04')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-04">SUSPECT</span>
+                <span class="avatar-icon">🔧</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-04</strong>
+                <span>Eng. Sophia Chen</span>
+                <small>Hydro Engineer</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-05" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-05')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-05">SUSPECT</span>
+                <span class="avatar-icon">🎧</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-05</strong>
+                <span>Dr. Marcus Thorne</span>
+                <small>Telemetry Specialist</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-06" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-06')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-06">SUSPECT</span>
+                <span class="avatar-icon">📁</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-06</strong>
+                <span>Agent Sarah Miller</span>
+                <small>Internal Affairs</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-07" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-07')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-07">SUSPECT</span>
+                <span class="avatar-icon">⚡</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-07</strong>
+                <span>Dr. Dmitry Volkov</span>
+                <small>Electrical Engineer</small>
+              </div>
+            </div>
+
+            <div class="polaroid-card suspect" id="photo-card-PHOTO-08" onclick="window.levelNullIndictmentModule.toggleSuspectTag('PHOTO-08')">
+              <div class="polaroid-thumb">
+                <span class="photo-badge suspect" id="photo-tag-PHOTO-08">SUSPECT</span>
+                <span class="avatar-icon">🤿</span>
+              </div>
+              <div class="polaroid-caption">
+                <strong>PHOTO-08</strong>
+                <span>Tech. Liam O'Connor</span>
+                <small>Core Diver</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indictment Submission Terminal Form -->
+          <div class="indictment-terminal-form">
+            <div class="terminal-row">
+              <span class="t-label">ACCUSED KILLER:</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleCulprit(-1)">◀</button>
+                <span id="indictment-accused-name" class="ctrl-val glow-yellow">PHOTO-01: Dr. Elena Vance</span>
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleCulprit(1)">▶</button>
+              </div>
+            </div>
+
+            <div class="terminal-row">
+              <span class="t-label">VERIFIED WEAPON:</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleWeapon(-1)">◀</button>
+                <span id="indictment-weapon-val" class="ctrl-val glow-cyan">BRASS MASTER BATON</span>
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleWeapon(1)">▶</button>
+              </div>
+            </div>
+
+            <div class="terminal-row">
+              <span class="t-label">CRIME SCENE:</span>
+              <div class="ctrl-row">
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleSector(-1)">◀</button>
+                <span id="indictment-sector-val" class="ctrl-val glow-yellow">SECTOR 1: EXECUTIVE OFFICE</span>
+                <button class="btn btn-ctrl" onclick="window.levelNullIndictmentModule.cycleSector(1)">▶</button>
+              </div>
+            </div>
+
+            <div class="terminal-row">
+              <span class="t-label">OVERRIDE CIPHER:</span>
+              <div class="cipher-input-cluster">
+                <span id="indictment-cipher-val" class="font-mono glow-green cipher-box">----</span>
+                <button class="btn btn-sm btn-outline" onclick="window.levelNullIndictmentModule.clearCipher()">CLR</button>
+              </div>
+            </div>
+
+            <div class="cipher-keypad-mini">
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('1')">1</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('2')">2</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('3')">3</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('4')">4</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('5')">5</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('6')">6</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('7')">7</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('8')">8</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('9')">9</button>
+              <button class="btn btn-sm" onclick="window.levelNullIndictmentModule.appendCipher('0')">0</button>
+            </div>
+          </div>
+
+          <button id="indictment-submit-btn" class="btn-latch-action btn-indictment-submit" onclick="window.levelNullIndictmentModule.submitGrandIndictment()">
+            SUBMIT GRAND INDICTMENT &amp; UNLOCK LEVEL NULL
+          </button>
+        </div>
+
+        <!-- Legacy Chamber HUDs (Kept for fallback) -->
         <div id="levelnull-inspect-room1" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
           <div class="levelnull-panel-header">
             <span class="levelnull-title">🚪 SECTOR 1: FIRE DOOR BREAKER CONSOLE</span>
             <span class="levelnull-status-badge">MAG-LOCK ENGAGED</span>
           </div>
-          <p style="font-size:0.75rem; color:#aaa; margin-bottom:8px;">
-            Coordinate with Intel to identify active phase breakers and match resonant frequency.
-          </p>
           <div id="breaker-switches-grid" class="breaker-grid"></div>
-          <div class="dial-control-container">
-            <span style="font-size:0.8rem; color:#f5d76e; font-weight:bold;">MAGNETIC FREQ:</span>
-            <input type="range" id="breaker-freq-slider" class="freq-slider" min="20" max="90" step="0.5" value="20" oninput="window.room1BreakerModule.setFrequency(this.value)">
-            <span id="breaker-freq-readout" style="font-size:0.9rem; font-weight:bold; color:#fff; min-width:65px; text-align:right;">20.0 kHz</span>
-          </div>
-          <button id="btn-fire-bar-latch" class="btn-latch-action" onclick="window.room1BreakerModule.triggerFireBar()">
-            PUSH EMERGENCY FIRE BAR
-          </button>
+          <button id="btn-fire-bar-latch" class="btn-latch-action" onclick="if (window.room1BreakerModule) window.room1BreakerModule.triggerFireBar()">PUSH EMERGENCY FIRE BAR</button>
         </div>
 
-        <!-- Level Null Chamber 2: Hydro Valves & Sub Hatch HUD -->
         <div id="levelnull-inspect-room2" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
           <div class="levelnull-panel-header">
             <span class="levelnull-title">⚓ SECTOR 2: HYDROSTATIC SUB HATCH MANIFOLD</span>
             <span class="levelnull-status-badge">HYDRO-LOCK SEALED</span>
           </div>
-          <div id="hydro-pump-status" style="font-size:0.8rem; font-weight:bold; color:#ff3344; margin-bottom:8px;">
-            DRAIN PUMP: STANDBY (AWAITING INTEL)
-          </div>
           <div id="hydro-valves-grid" class="hydro-valves-container"></div>
-          <button id="btn-sub-wheel-action" class="btn-latch-action" onclick="window.room2HydroModule.turnSubmarineWheel()">
-            ROTATE SUBMARINE VAULT WHEEL
-          </button>
+          <button id="btn-sub-wheel-action" class="btn-latch-action" onclick="if (window.room2HydroModule) window.room2HydroModule.turnSubmarineWheel()">ROTATE SUBMARINE VAULT WHEEL</button>
         </div>
 
-        <!-- Level Null Chamber 3: Quantum Resonance Prisms HUD -->
         <div id="levelnull-inspect-room3" class="module-inspect-hud levelnull-inspect-panel glass-panel hidden">
           <div class="levelnull-panel-header">
             <span class="levelnull-title">🌀 SECTOR 3: QUANTUM PRISM REALITY ANCHOR</span>
             <span class="levelnull-status-badge">RDI FLUX: 100% DISTORTION</span>
           </div>
-          <p style="font-size:0.75rem; color:#c084fc; margin-bottom:8px;">
-            Rotate prisms to nullify Reality Distortion Index (0%), then commit stabilization code.
-          </p>
           <div id="quantum-prism-grid" class="prism-grid"></div>
-          <div style="background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid rgba(192,132,252,0.3); margin-top:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span style="font-size:0.75rem; color:#aaa;">ANCHOR CODE:</span>
-              <span id="quantum-code-display" style="font-size:1.2rem; font-weight:bold; color:#00ff88; letter-spacing:4px;">____</span>
-              <button class="btn btn-sm btn-outline" onclick="window.room3CoreModule.clearKeypad()" style="padding:2px 8px; font-size:0.7rem;">CLR</button>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('1')">1</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('2')">2</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('3')">3</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('4')">4</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('5')">5</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('6')">6</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('7')">7</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('8')">8</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('9')">9</button>
-              <button class="btn btn-sm" onclick="window.room3CoreModule.appendKeypad('0')">0</button>
-            </div>
-          </div>
-          <button id="btn-commit-anchor" class="btn-latch-action" onclick="window.room3CoreModule.commitAnchorStabilization()">
-            COMMIT ANCHOR STABILIZATION KEY
-          </button>
+          <button id="btn-commit-anchor" class="btn-latch-action" onclick="if (window.room3CoreModule) window.room3CoreModule.commitAnchorStabilization()">COMMIT ANCHOR STABILIZATION KEY</button>
         </div>
 
         <!-- Level Null In-Room Quick Inspect Action Banners -->
-        <div id="levelnull-prompt-room1" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_BREAKER')">
-          <span>⚡ CLICK TO INSPECT FIRE DOOR BREAKER PANEL</span>
+        <div id="levelnull-prompt-room1" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_FORENSICS')">
+          <span>🔬 CLICK TO INSPECT FORENSIC CRIME SCENE &amp; AUTOPSY</span>
         </div>
-        <div id="levelnull-prompt-room2" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_HYDRO')">
-          <span>⚓ CLICK TO INSPECT SUB HATCH PRESSURE MANIFOLD</span>
+        <div id="levelnull-prompt-room2" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_TIMELINE')">
+          <span>🗄️ CLICK TO ACCESS KEYCARD TELEMETRY &amp; MAINFRAME</span>
         </div>
-        <div id="levelnull-prompt-room3" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_CORE')">
-          <span>🌀 CLICK TO INSPECT QUANTUM PRISMS & ANCHOR</span>
+        <div id="levelnull-prompt-room3" class="room-prompt-banner hidden" onclick="bomb3D.setView('INSPECT_INDICTMENT')">
+          <span>📌 CLICK TO OPEN 8-PHOTO INVESTIGATION BOARD</span>
         </div>
 
         <!-- Three.js 3D Canvas -->
@@ -1102,7 +1451,11 @@
   <script src="src/maps/morgue/morgue_intel.js"></script>
   <script src="src/maps/morgue/morgue_config.js"></script>
 
-  <!-- Map 4: Level Null (The Shifting Backrooms 1989) -->
+  <!-- Map 4: Level Null (Incident 1989 - Murder Identity) -->
+  <script src="src/maps/levelnull/modules/forensics.js"></script>
+  <script src="src/maps/levelnull/modules/timeline.js"></script>
+  <script src="src/maps/levelnull/modules/interrogation.js"></script>
+  <script src="src/maps/levelnull/modules/indictment.js"></script>
   <script src="src/maps/levelnull/modules/room1_breaker.js"></script>
   <script src="src/maps/levelnull/modules/room2_hydro.js"></script>
   <script src="src/maps/levelnull/modules/room3_core.js"></script>

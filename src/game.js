@@ -824,6 +824,10 @@ class GameEngine {
     const body = document.getElementById('lore-modal-body');
     if (!modal || !title || !body) return;
 
+    modal.classList.remove('hidden');
+    const scrollEl = document.getElementById('lore-modal-body');
+    if (scrollEl) scrollEl.scrollTop = 0;
+
     if (loreId === 'logbook') {
       title.innerText = 'DOCUMENT: STAINED MAINTENANCE LOG (W/O VORONIN)';
       body.innerHTML = `
@@ -924,18 +928,109 @@ class GameEngine {
           <p><strong>[SOUND: HISS OF HIGH-PRESSURE GAS, STRUGGLE, TAPE SHUTS OFF]</strong></p>
         </div>
       `;
+    } else if (loreId === 'levelnull_aris_tape') {
+      title.innerText = "MAGNETIC CASSETTE TAPE: DR. ARIS'S DYING WORDS (1989)";
+      body.innerHTML = `
+        <div class="lore-audio-paper">
+          <div class="audio-player-mock" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; padding:12px 16px; background:rgba(10,12,16,0.85); border:1px solid #f5d76e; border-radius:6px; box-shadow:0 0 12px rgba(245,215,110,0.15);">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button id="btn-play-tape" class="btn btn-ctrl" style="background:#f5d76e; color:#111; font-weight:700; padding:8px 18px; border:none; border-radius:4px; cursor:pointer;" onclick="game.playArisTapeAudio()">▶ PLAY TAPE</button>
+              <span id="tape-status-text" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:#f5d76e; letter-spacing:0.5px;">[STATUS: TAPE LOADED // 14:20 HRS]</span>
+            </div>
+            <span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#888;">FORMAT: COMPACT CASSETTE (Fe2O3)</span>
+          </div>
+          <p><strong>[SOUND: MAGNETIC TAPE HEAD HISS, DISTANT RUMBLING OF QUANTUM CORE]</strong></p>
+          <p><strong>VOICE (DR. KENNETH ARIS):</strong> <em>"Date: October 14th, 1989... The time is 14:20 hours. If anyone finds this dictaphone... the facility breach was NOT an accident. Someone disabled the primary safety dampeners."</em></p>
+          <p><em>"I confronted them in the corridor. I recognized the silhouette—one of the eight researchers on our team! They struck me from behind... I can feel my heart slowing. They stole the master telemetry key to smuggle the anomalous core out of Level Null."</em></p>
+          <p><em>"To whoever finds this: DO NOT let them escape! Cross-reference the autopsy trauma with our personnel medical files. Check the mainframe keycard swipe logs—nobody can transit between Sectors in less than six minutes! Unmask the killer on the investigation board!"</em></p>
+          <p class="blood-note" style="color:#d44; font-weight:bold; margin-top:12px;">[Sound of lab equipment crashing, followed by labored gasps and automated lockdown klaxon]</p>
+        </div>
+      `;
+    } else if (loreId === 'levelnull_autopsy_slip') {
+      title.innerText = "EMERGENCY CORONER REPORT: DR. KENNETH ARIS";
+      body.innerHTML = `
+        <div class="lore-document-paper">
+          <p><strong>DECEASED:</strong> Dr. Kenneth Aris (Director, Level Null Sector 1989)</p>
+          <p><strong>ESTIMATED TIME OF DEATH:</strong> 14:20 – 14:26 Hours (Biometric Vital Flatline)</p>
+          <p><strong>PRIMARY PATHOLOGY FINDINGS:</strong></p>
+          <ul style="margin: 8px 0 12px 20px; line-height: 1.6;">
+            <li><strong>Blunt Occipital Trauma:</strong> Severe depressed skull fracture on the right parietal margin. Angle of blow indicates a strike from an assailant standing behind or using their left hand.</li>
+            <li><strong>Chemical/Toxin Markers:</strong> Check reaction with ferrocyanide reagent. If teal precipitate forms, lethal potassium cyanide ingestion is confirmed.</li>
+            <li><strong>High-Voltage Arcing:</strong> 50kV Lichtenberg burns signify contact with exposed busbars (requires electrical insulation gloves).</li>
+            <li><strong>Mechanical Compression:</strong> Bilateral thoracic collapse consistent with submarine hatch piston shear.</li>
+          </ul>
+          <p><em>"The forensic evidence will definitively eliminate any suspect lacking the required physical traits or tool access."</em></p>
+        </div>
+      `;
+    } else if (loreId === 'levelnull_stolen_keycard') {
+      title.innerText = "SECURITY TELEMETRY LOG: CLONED KEYCARD INCIDENT";
+      body.innerHTML = `
+        <div class="lore-document-paper">
+          <p><strong>SECURITY MEMORANDUM // SECTOR 1989 INTERNAL POLICE</strong></p>
+          <p><strong>SUBJECT:</strong> Anomalous Keycard Telemetry & Spatial Constraints</p>
+          <p><em>"Due to the non-Euclidean curvature of Level Null, foot transit between Sector 1 (Office) and Sector 2 (Hydro) requires a minimum of <strong>6 minutes</strong>. Transit between Sector 2 and Sector 3 requires another <strong>6 minutes</strong>."</em></p>
+          <p><em>"The only exception is the emergency bypass ventilation conduit (3 minutes), but the duct diameter is strictly restricted to personnel under <strong>170 cm in height</strong> with no heavy equipment."</em></p>
+          <p><strong>WARNING:</strong> Card swipe logs show an authorized badge was registered in two opposite sectors within 3 minutes of the fatal breach. One of those swipes was performed with a <strong>stolen or cloned card</strong> to fabricate a false alibi!</p>
+        </div>
+      `;
+    } else if (loreId === 'levelnull_wiretap_intercept') {
+      title.innerText = "SIGINT WIRE-TAP TRANSCRIPT: COVERT 122.4 MHz INTERCEPT";
+      body.innerHTML = `
+        <div class="lore-audio-paper">
+          <div class="audio-player-mock" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; padding:12px 16px; background:rgba(10,12,16,0.85); border:1px solid #00f0ff; border-radius:6px; box-shadow:0 0 12px rgba(0,240,255,0.15);">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button id="btn-play-tape" class="btn btn-ctrl" style="background:#00f0ff; color:#111; font-weight:700; padding:8px 18px; border:none; border-radius:4px; cursor:pointer;" onclick="game.playArisTapeAudio()">▶ PLAY INTERCEPT</button>
+              <span id="tape-status-text" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:#00f0ff; letter-spacing:0.5px;">[CARRIER: 122.4 MHz // DEMODULATED]</span>
+            </div>
+            <span style="font-family:'JetBrains Mono', monospace; font-size:11px; color:#888;">ENCRYPTION: COVERT SHORT-WAVE</span>
+          </div>
+          <p><strong>[INTERCEPTED SHORT-WAVE CIPHER BROADCAST // LEVEL NULL 1989]</strong></p>
+          <p><strong>[FREQUENCY: 122.4 MHz // SIGNAL PHASE LOCKED]</strong></p>
+          <p><strong>UNKNOWN COLD VOICE:</strong> <em>"Package acquired. Aris has been eliminated. The emergency lockdown has trapped the remaining research team in the backrooms."</em></p>
+          <p><strong>OUTSIDE CONTACT:</strong> <em>"What about the override code for the perimeter blast gates?"</em></p>
+          <p><strong>UNKNOWN COLD VOICE:</strong> <em>"The four-digit cipher is broadcast on our covert carrier frequency. Tune your receiver. When the team eliminates the wrong suspects and dies of oxygen starvation, I will punch the code into the grand indictment console and walk out."</em></p>
+          <p><strong>OUTSIDE CONTACT:</strong> <em>"Do not fail. If they reconstruct the 8-photo investigation board, you will be trapped."</em></p>
+        </div>
+      `;
     }
-
-    modal.classList.remove('hidden');
     if (window.audio) window.audio.playPageTurn();
+  }
+
+  playArisTapeAudio() {
+    const btn = document.getElementById('btn-play-tape');
+    const statusText = document.getElementById('tape-status-text');
+    if (!btn) return;
+
+    if (this.tapePlaying) {
+      this.tapePlaying = false;
+      if (window.audio && window.audio.stopCassetteTape) window.audio.stopCassetteTape();
+      btn.innerText = '▶ PLAY TAPE';
+      btn.style.background = '#f5d76e';
+      if (statusText) statusText.innerText = '[STATUS: TAPE PAUSED // 14:20 HRS]';
+    } else {
+      this.tapePlaying = true;
+      if (window.audio && window.audio.playCassetteTape) window.audio.playCassetteTape();
+      btn.innerText = '⏹ STOP TAPE';
+      btn.style.background = '#ff4d4d';
+      if (statusText) statusText.innerText = '▶ [PLAYING: TAPE HEAD ENGAGED // 4.75 cm/s]';
+    }
   }
 
   closeLoreModal() {
     const modal = document.getElementById('lore-inspect-modal');
     if (modal) modal.classList.add('hidden');
+    if (this.tapePlaying) {
+      this.tapePlaying = false;
+      if (window.audio && window.audio.stopCassetteTape) window.audio.stopCassetteTape();
+    }
     if (window.audio) window.audio.playClick();
-    if (window.bomb3D && window.bomb3D.currentView !== 'OVERVIEW') {
-      window.bomb3D.setView('OVERVIEW');
+    if (window.bomb3D) {
+      if (this.scenario === 'levelnull') {
+        const rm = (window.levelNullEnv && window.levelNullEnv.currentRoom) ? window.levelNullEnv.currentRoom : 1;
+        window.bomb3D.setView(`ROOM_${rm}`);
+      } else if (window.bomb3D.currentView !== 'OVERVIEW') {
+        window.bomb3D.setView('OVERVIEW');
+      }
     }
   }
 

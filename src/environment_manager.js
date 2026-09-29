@@ -63,8 +63,16 @@ class EscapeRoomEnvironmentManager {
 
     // Show hotspots in OVERVIEW and Room exploration views, hide during inspection to keep clean view
     if (this.activeEnv && this.activeEnv.hotspots) {
+      const isOverview = (viewKey === 'OVERVIEW' || viewKey === 'ROOM_1' || viewKey === 'ROOM_2' || viewKey === 'ROOM_3');
+      const targetRoom = viewKey === 'ROOM_2' ? 2 : (viewKey === 'ROOM_3' ? 3 : 1);
       this.activeEnv.hotspots.forEach(h => {
-        h.visible = (viewKey === 'OVERVIEW' || viewKey === 'ROOM_1' || viewKey === 'ROOM_2' || viewKey === 'ROOM_3');
+        if (!isOverview) {
+          h.visible = false;
+        } else if (this.activeMapId === 'levelnull' && h.userData && h.userData.room) {
+          h.visible = (h.userData.room === targetRoom);
+        } else {
+          h.visible = true;
+        }
       });
     }
 
@@ -86,7 +94,7 @@ class EscapeRoomEnvironmentManager {
     if (backBtn) {
       if (viewKey === 'OVERVIEW' || viewKey === 'ROOM_1' || viewKey === 'ROOM_2' || viewKey === 'ROOM_3') {
         backBtn.classList.add('hidden');
-      } else if (this.activeMapId === 'levelnull' && (viewKey === 'INSPECT_BREAKER' || viewKey === 'INSPECT_HYDRO' || viewKey === 'INSPECT_CORE')) {
+      } else if (this.activeMapId === 'levelnull') {
         backBtn.classList.remove('hidden');
         backBtn.innerText = '← STEP BACK TO ROOM';
       } else if (this.activeMapId === 'alchemist' || this.activeMapId === 'morgue') {
@@ -112,13 +120,17 @@ class EscapeRoomEnvironmentManager {
     const room1Hud = document.getElementById('levelnull-inspect-room1');
     const room2Hud = document.getElementById('levelnull-inspect-room2');
     const room3Hud = document.getElementById('levelnull-inspect-room3');
+    const forensicsHud = document.getElementById('levelnull-inspect-forensics');
+    const timelineHud = document.getElementById('levelnull-inspect-timeline');
+    const interrogationHud = document.getElementById('levelnull-inspect-interrogation');
+    const indictmentHud = document.getElementById('levelnull-inspect-indictment');
 
     // Level Null In-Room Action Prompts
     const prompt1 = document.getElementById('levelnull-prompt-room1');
     const prompt2 = document.getElementById('levelnull-prompt-room2');
     const prompt3 = document.getElementById('levelnull-prompt-room3');
 
-    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud, toxHud, autopsyHud, keypadHud, lifeHud, room1Hud, room2Hud, room3Hud].forEach(el => {
+    [radioHud, zodiacHud, mercuryHud, prismHud, escapementHud, toxHud, autopsyHud, keypadHud, lifeHud, room1Hud, room2Hud, room3Hud, forensicsHud, timelineHud, interrogationHud, indictmentHud].forEach(el => {
       if (el) el.classList.add('hidden');
     });
 
@@ -165,18 +177,64 @@ class EscapeRoomEnvironmentManager {
       if (window.lifeSupportModule) window.lifeSupportModule.updateDOM();
     }
 
-    // Level Null Inspection HUDs
-    if (viewKey === 'INSPECT_BREAKER' && room1Hud) {
-      room1Hud.classList.remove('hidden');
-      if (window.room1BreakerModule) window.room1BreakerModule.renderInspectUI();
+    // Level Null Inspection HUDs (Murder Identity & Legacy support)
+    if ((viewKey === 'INSPECT_FORENSICS' || viewKey === 'INSPECT_BREAKER') && (forensicsHud || room1Hud)) {
+      if (forensicsHud) {
+        forensicsHud.classList.remove('hidden');
+        if (window.levelNullForensicsModule) window.levelNullForensicsModule.renderInspectUI();
+      } else if (room1Hud) {
+        room1Hud.classList.remove('hidden');
+        if (window.room1BreakerModule) window.room1BreakerModule.renderInspectUI();
+      }
     }
-    if (viewKey === 'INSPECT_HYDRO' && room2Hud) {
-      room2Hud.classList.remove('hidden');
-      if (window.room2HydroModule) window.room2HydroModule.renderInspectUI();
+    if ((viewKey === 'INSPECT_TIMELINE' || viewKey === 'INSPECT_HYDRO') && (timelineHud || room2Hud)) {
+      if (timelineHud) {
+        timelineHud.classList.remove('hidden');
+        if (window.levelNullTimelineModule) window.levelNullTimelineModule.renderInspectUI();
+      } else if (room2Hud) {
+        room2Hud.classList.remove('hidden');
+        if (window.room2HydroModule) window.room2HydroModule.renderInspectUI();
+      }
     }
-    if (viewKey === 'INSPECT_CORE' && room3Hud) {
-      room3Hud.classList.remove('hidden');
-      if (window.room3CoreModule) window.room3CoreModule.renderInspectUI();
+    if ((viewKey === 'INSPECT_INTERROGATION' || viewKey === 'INSPECT_CORE') && (interrogationHud || room3Hud)) {
+      if (interrogationHud) {
+        interrogationHud.classList.remove('hidden');
+        if (window.levelNullInterrogationModule) window.levelNullInterrogationModule.renderInspectUI();
+      } else if (room3Hud) {
+        room3Hud.classList.remove('hidden');
+        if (window.room3CoreModule) window.room3CoreModule.renderInspectUI();
+      }
+    }
+    if (viewKey === 'INSPECT_INDICTMENT' && indictmentHud) {
+      indictmentHud.classList.remove('hidden');
+      if (window.levelNullIndictmentModule) window.levelNullIndictmentModule.renderInspectUI();
+    }
+
+    // Door Traversal & Mag-lock Status Checks
+    if (viewKey === 'INSPECT_DOOR1') {
+      if (this.activeEnv && this.activeEnv.door1Open) {
+        if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+        this.activeEnv.transitionToRoom(2);
+        if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 2: FLOODED HYDRO-SUBSTATION...', 2500);
+        return;
+      } else {
+        if (window.audio && window.audio.playKeypadBeep) window.audio.playKeypadBeep();
+        if (window.game && window.game.showToast) {
+          window.game.showToast('🔒 FIRE EXIT DOOR 1: MAG-LOCK ENGAGED // Complete Sector 1 Forensic Pathology to release magnetic deadbolt.', 3500);
+        }
+      }
+    } else if (viewKey === 'INSPECT_DOOR2') {
+      if (this.activeEnv && this.activeEnv.door2Open) {
+        if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+        this.activeEnv.transitionToRoom(3);
+        if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 3: QUANTUM CORE...', 2500);
+        return;
+      } else {
+        if (window.audio && window.audio.playKeypadBeep) window.audio.playKeypadBeep();
+        if (window.game && window.game.showToast) {
+          window.game.showToast('🔒 SUB VAULT HATCH: PNEUMATIC SEAL ENGAGED // Reconstruct Keycard Timeline to depressurize vault.', 3500);
+        }
+      }
     }
 
     // Trigger Lore Document Modals
@@ -192,6 +250,14 @@ class EscapeRoomEnvironmentManager {
       window.game.openLoreModal('phonograph');
     } else if (viewKey === 'INSPECT_LOG' && window.game) {
       window.game.openLoreModal('morgue_dictaphone');
+    } else if (viewKey === 'INSPECT_ARIS_TAPE' && window.game) {
+      window.game.openLoreModal('levelnull_aris_tape');
+    } else if (viewKey === 'INSPECT_CRIME_LOG' && window.game) {
+      window.game.openLoreModal('levelnull_autopsy_slip');
+    } else if (viewKey === 'INSPECT_STOLEN_CARD' && window.game) {
+      window.game.openLoreModal('levelnull_stolen_keycard');
+    } else if (viewKey === 'INSPECT_WIRETAP_LORE' && window.game) {
+      window.game.openLoreModal('levelnull_wiretap_intercept');
     }
   }
 
@@ -202,8 +268,9 @@ class EscapeRoomEnvironmentManager {
   onPointerClick(raycaster) {
     if (!this.activeEnv) return false;
 
-    // If currently in OVERVIEW, test intersection with hotspot rings
-    if (this.currentView === 'OVERVIEW') {
+    // If currently in OVERVIEW or room overview, test intersection with hotspot rings
+    const isOverview = (this.currentView === 'OVERVIEW' || this.currentView === 'ROOM_1' || this.currentView === 'ROOM_2' || this.currentView === 'ROOM_3');
+    if (isOverview) {
       const hits = raycaster.intersectObjects(this.activeEnv.hotspots, false);
       if (hits.length > 0) {
         const targetView = hits[0].object.userData.targetView;

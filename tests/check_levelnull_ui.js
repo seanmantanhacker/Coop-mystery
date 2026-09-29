@@ -22,6 +22,7 @@ global.document = {
     value: ''
   })
 };
+global.alert = () => {};
 global.audio = {
   playSwitch: () => {},
   playDisarmed: () => {},
@@ -81,6 +82,7 @@ m1.targetBreakers.forEach((targetState, idx) => {
 });
 // Set target frequency
 m1.setFrequency(m1.targetFreq);
+window.LevelNullIntelView.triggerStabilizerPulse();
 m1.triggerFireBar();
 
 assert.strictEqual(m1.disarmed, true, 'Module 1 should be disarmed');
@@ -103,8 +105,9 @@ assert.strictEqual(m2.disarmed, false, 'Wheel should not turn without equilibriu
 
 // Set valves to targets
 m2.valves = [...m2.targetValves];
-// Turn on remote pump
+// Turn on remote pump and purge seal pressure
 m2.setDrainPump(true);
+m2.hydraulicLockPsi = 10;
 m2.turnSubmarineWheel();
 
 assert.strictEqual(m2.disarmed, true, 'Module 2 should be disarmed');
@@ -137,6 +140,8 @@ for (const char of m3.targetCode) {
 }
 assert.strictEqual(m3.currentCode, m3.targetCode, 'Keypad code must match target');
 
+// Trigger reality tether pulse
+window.LevelNullIntelView.triggerRealityTetherPulse();
 m3.commitAnchorStabilization();
 assert.strictEqual(m3.disarmed, true, 'Module 3 should be disarmed');
 assert.strictEqual(window.levelNullEnv.portalOpen, true, 'Reality Portal should be open for escape');

@@ -657,7 +657,7 @@ class Bomb3DEngine {
     if (backBtn) {
       if (viewMode === 'OVERVIEW' || viewMode === 'ROOM_1' || viewMode === 'ROOM_2' || viewMode === 'ROOM_3') {
         backBtn.classList.add('hidden');
-      } else if (this.currentMap === 'levelnull' && (viewMode === 'INSPECT_BREAKER' || viewMode === 'INSPECT_HYDRO' || viewMode === 'INSPECT_CORE')) {
+      } else if (this.currentMap === 'levelnull') {
         backBtn.classList.remove('hidden');
         backBtn.innerText = '← STEP BACK TO ROOM';
       } else if (this.currentMap === 'alchemist' || this.currentMap === 'morgue') {
@@ -924,7 +924,8 @@ class Bomb3DEngine {
     const hudIds = [
       'radio-inspect-hud', 'zodiac-inspect-hud', 'mercury-inspect-hud', 'prism-inspect-hud', 'escapement-inspect-hud',
       'toxicology-inspect-hud', 'autopsy-inspect-hud', 'morgue-keypad-inspect-hud', 'life-support-inspect-hud',
-      'levelnull-inspect-room1', 'levelnull-inspect-room2', 'levelnull-inspect-room3'
+      'levelnull-inspect-room1', 'levelnull-inspect-room2', 'levelnull-inspect-room3',
+      'levelnull-inspect-forensics', 'levelnull-inspect-timeline', 'levelnull-inspect-interrogation', 'levelnull-inspect-indictment'
     ];
     hudIds.forEach(id => {
       const el = document.getElementById(id);
@@ -969,6 +970,18 @@ class Bomb3DEngine {
           let targetView = envHits[0].object.userData.targetView;
           if (!targetView && envHits[0].object.parent) targetView = envHits[0].object.parent.userData.targetView;
           if (targetView) {
+            if (targetView === 'INSPECT_DOOR1' && this.envManager.activeEnv.door1Open) {
+              if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+              this.envManager.activeEnv.transitionToRoom(2);
+              if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 2: FLOODED HYDRO-SUBSTATION...', 2500);
+              return;
+            }
+            if (targetView === 'INSPECT_DOOR2' && this.envManager.activeEnv.door2Open) {
+              if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+              this.envManager.activeEnv.transitionToRoom(3);
+              if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 3: QUANTUM CORE...', 2500);
+              return;
+            }
             this.setView(targetView);
             return;
           }
@@ -980,7 +993,20 @@ class Bomb3DEngine {
           let curr = hit.object;
           while (curr && curr !== this.envManager.activeEnv.group) {
             if (curr.userData && curr.userData.targetView) {
-              this.setView(curr.userData.targetView);
+              const tv = curr.userData.targetView;
+              if (tv === 'INSPECT_DOOR1' && this.envManager.activeEnv.door1Open) {
+                if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+                this.envManager.activeEnv.transitionToRoom(2);
+                if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 2: FLOODED HYDRO-SUBSTATION...', 2500);
+                return;
+              }
+              if (tv === 'INSPECT_DOOR2' && this.envManager.activeEnv.door2Open) {
+                if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+                this.envManager.activeEnv.transitionToRoom(3);
+                if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 3: QUANTUM CORE...', 2500);
+                return;
+              }
+              this.setView(tv);
               return;
             }
             curr = curr.parent;
@@ -1006,6 +1032,65 @@ class Bomb3DEngine {
         }
       }
       return;
+    }
+
+    // ================= LORE INSPECTION VIEWS =================
+    // If in any lore inspect view, clicking anywhere on the prop or screen re-opens the document
+    if (this.currentView === 'INSPECT_ARIS_TAPE') {
+      if (window.game && window.game.openLoreModal) {
+        window.game.openLoreModal('levelnull_aris_tape');
+        return;
+      }
+    }
+    if (this.currentView === 'INSPECT_CRIME_LOG') {
+      if (window.game && window.game.openLoreModal) {
+        window.game.openLoreModal('levelnull_autopsy_slip');
+        return;
+      }
+    }
+    if (this.currentView === 'INSPECT_STOLEN_CARD') {
+      if (window.game && window.game.openLoreModal) {
+        window.game.openLoreModal('levelnull_stolen_keycard');
+        return;
+      }
+    }
+    if (this.currentView === 'INSPECT_WIRETAP_LORE') {
+      if (window.game && window.game.openLoreModal) {
+        window.game.openLoreModal('levelnull_wiretap_intercept');
+        return;
+      }
+    }
+    if (this.currentView === 'INSPECT_DOOR1') {
+      if (this.envManager && this.envManager.activeEnv) {
+        if (this.envManager.activeEnv.door1Open) {
+          if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+          this.envManager.activeEnv.transitionToRoom(2);
+          if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 2: FLOODED HYDRO-SUBSTATION...', 2500);
+          return;
+        } else {
+          if (window.audio && window.audio.playKeypadBeep) window.audio.playKeypadBeep();
+          if (window.game && window.game.showToast) {
+            window.game.showToast('🔒 FIRE EXIT DOOR 1: MAG-LOCK ENGAGED // Complete Sector 1 Forensic Pathology to release magnetic deadbolt.', 3500);
+          }
+          return;
+        }
+      }
+    }
+    if (this.currentView === 'INSPECT_DOOR2') {
+      if (this.envManager && this.envManager.activeEnv) {
+        if (this.envManager.activeEnv.door2Open) {
+          if (window.audio && window.audio.playFootsteps) window.audio.playFootsteps();
+          this.envManager.activeEnv.transitionToRoom(3);
+          if (window.game && window.game.showToast) window.game.showToast('TRANSITING TO SECTOR 3: QUANTUM CORE...', 2500);
+          return;
+        } else {
+          if (window.audio && window.audio.playKeypadBeep) window.audio.playKeypadBeep();
+          if (window.game && window.game.showToast) {
+            window.game.showToast('🔒 SUB VAULT HATCH: PNEUMATIC SEAL ENGAGED // Reconstruct Keycard Timeline to depressurize vault.', 3500);
+          }
+          return;
+        }
+      }
     }
 
     // ================= INSPECTION VIEWS =================

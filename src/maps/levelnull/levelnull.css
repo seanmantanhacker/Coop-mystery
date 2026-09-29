@@ -461,3 +461,568 @@
   color: #fff;
 }
 
+/* ==========================================================================
+   6. UNIVERSITY WAR "MURDER IDENTITY" - 8-PHOTO CORKBOARD & TERMINAL UI
+   ========================================================================== */
+
+.corkboard-panel {
+  max-width: 900px !important;
+  width: 95vw !important;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: radial-gradient(circle at 50% 30%, #201712 0%, #110d0a 100%) !important;
+  border: 2px solid #8e623f !important;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.corkboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 14px 0 18px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  border: 1px dashed rgba(142, 98, 63, 0.5);
+}
+
+.polaroid-card {
+  background: #fdfcf7;
+  color: #1a1a1a;
+  padding: 8px 8px 12px 8px;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.polaroid-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(245, 215, 110, 0.4);
+}
+
+.polaroid-thumb {
+  background: #2b2c28;
+  height: 85px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #111;
+}
+
+.avatar-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.polaroid-caption {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.polaroid-caption strong {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  color: #777;
+}
+
+.polaroid-caption span {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.polaroid-caption small {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+/* Status Badges on Polaroids */
+.photo-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.photo-badge.suspect {
+  background: rgba(255, 170, 0, 0.9);
+  color: #000;
+}
+
+.photo-badge.alibi {
+  background: rgba(0, 255, 136, 0.9);
+  color: #000;
+}
+
+.photo-badge.accused {
+  background: rgba(255, 51, 68, 0.95);
+  color: #fff;
+  animation: pulse-accused 1.2s infinite;
+}
+
+.polaroid-card.alibi {
+  opacity: 0.55;
+  filter: grayscale(70%);
+  background: #e2e0d8;
+}
+
+.polaroid-card.accused {
+  outline: 3px solid #ff3344;
+  box-shadow: 0 0 20px rgba(255, 51, 68, 0.6);
+  transform: translateY(-4px) scale(1.04);
+}
+
+@keyframes pulse-accused {
+  0% { box-shadow: 0 0 0 0 rgba(255, 51, 68, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(255, 51, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 51, 68, 0); }
+}
+
+/* Indictment Terminal Form */
+.indictment-terminal-form {
+  background: rgba(10, 8, 14, 0.85);
+  border: 1px solid rgba(245, 215, 110, 0.4);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.terminal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.t-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--ln-liminal-yellow);
+  font-weight: bold;
+  min-width: 140px;
+}
+
+.cipher-input-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cipher-box {
+  background: #000;
+  border: 1px solid var(--ln-safety-green);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  letter-spacing: 4px;
+  min-width: 90px;
+  text-align: center;
+}
+
+.cipher-keypad-mini {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.btn-indictment-submit {
+  background: linear-gradient(135deg, #ff3344 0%, #aa1122 100%) !important;
+  color: #fff !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 20px rgba(255, 51, 68, 0.5) !important;
+  border: 1px solid #ff7788 !important;
+}
+
+.btn-indictment-submit:hover {
+  box-shadow: 0 0 35px rgba(255, 51, 68, 0.8) !important;
+  filter: brightness(1.15);
+}
+
+.btn-indictment-pulse {
+  background: rgba(255, 51, 68, 0.2) !important;
+  border-color: #ff3344 !important;
+  color: #ff7788 !important;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(255, 51, 68, 0.4); box-shadow: 0 0 8px rgba(255, 51, 68, 0.2); }
+  50% { border-color: rgba(255, 51, 68, 1); box-shadow: 0 0 16px rgba(255, 51, 68, 0.6); }
+}
+
+/* ==========================================================================
+   6B. ADVANCED HUD ELEMENTS: ANATOMICAL SCANNER, SCHEMATICS & OSCILLOSCOPE
+   ========================================================================== */
+
+/* Forensics Telemetry Container */
+.forensics-telemetry-container {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 14px;
+  margin: 12px 0;
+}
+
+.anatomy-scanner-card {
+  background: rgba(6, 14, 18, 0.88);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.scan-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--ln-hydro-cyan);
+  letter-spacing: 0.5px;
+}
+
+.scan-vital {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.body-scan-svg {
+  width: 100%;
+  height: 180px;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.3));
+}
+
+.scan-laser-line {
+  animation: scan-sweep 3s ease-in-out infinite alternate;
+}
+
+@keyframes scan-sweep {
+  0% { transform: translateY(10px); opacity: 0.8; }
+  100% { transform: translateY(220px); opacity: 0.4; }
+}
+
+.trauma-reticle .pulse-ring {
+  animation: pulse-reticle 1.5s infinite ease-out;
+  transform-origin: 0 0;
+}
+
+@keyframes pulse-reticle {
+  0% { r: 5; opacity: 1; }
+  100% { r: 16; opacity: 0; }
+}
+
+.anatomy-metrics-bar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  color: #aaa;
+}
+
+.anatomy-metrics-bar strong {
+  color: #fff;
+}
+
+.forensics-details-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reagent-reaction-card {
+  background: rgba(10, 16, 20, 0.7);
+  border: 1px solid rgba(245, 215, 110, 0.25);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reagent-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reagent-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--ln-hydro-cyan);
+}
+
+/* Timeline Schematic Blueprint */
+.timeline-schematic-card {
+  background: rgba(8, 14, 18, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 10px 0;
+  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.08);
+}
+
+.schematic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  margin-bottom: 6px;
+}
+
+.schem-tag {
+  color: var(--ln-hydro-cyan);
+}
+
+.facility-blueprint-svg {
+  width: 100%;
+  height: 95px;
+  display: block;
+}
+
+.sector-node rect {
+  transition: all 0.3s ease;
+}
+
+.sector-node:hover rect {
+  filter: brightness(1.3);
+  stroke-width: 2.5;
+}
+
+/* Oscilloscope CRT & Signal HUD */
+.oscilloscope-wrapper {
+  background: #040908;
+  border: 2px solid #163628;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 10px 0;
+  box-shadow: inset 0 0 25px rgba(0, 255, 136, 0.2), 0 4px 15px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+.oscilloscope-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.osc-title {
+  color: var(--ln-safety-green);
+  letter-spacing: 0.5px;
+}
+
+.rssi-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rssi-label {
+  color: #777;
+  font-size: 0.65rem;
+}
+
+.rssi-bar-container {
+  width: 60px;
+  height: 8px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rssi-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff3344 0%, #f5d76e 50%, #00ff88 100%);
+  transition: width 0.3s ease;
+}
+
+.rssi-db {
+  color: var(--ln-liminal-yellow);
+  font-size: 0.7rem;
+  min-width: 45px;
+}
+
+.oscilloscope-canvas {
+  width: 100%;
+  height: 88px;
+  background: #020705;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  display: block;
+}
+
+/* Indictment Filter Tabs & Pushpins */
+.indictment-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px 0;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  border: 1px solid rgba(142, 98, 63, 0.4);
+}
+
+.filter-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #bfa182;
+  font-weight: bold;
+}
+
+.btn-filter-tab {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ccc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filter-tab:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.btn-filter-tab.active {
+  background: var(--ln-liminal-yellow);
+  border-color: var(--ln-liminal-yellow);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(245, 215, 110, 0.4);
+}
+
+.pushpin-pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff5566, #991122);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.6);
+  z-index: 5;
+}
+
+.polaroid-card.alibi .pushpin-pin {
+  background: radial-gradient(circle at 35% 35%, #cccccc, #666666);
+}
+
+.polaroid-card.accused .pushpin-pin {
+  background: radial-gradient(circle at 35% 35%, #ffff66, #ccaa00);
+}
+
+/* ==========================================================================
+   7. MOBILE RESPONSIVENESS & TOUCH ERGONOMICS (max-width: 768px)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .levelnull-apparatus-bar {
+    top: 56px;
+    width: 95vw;
+    padding: 4px 8px;
+    gap: 6px;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .levelnull-room-step {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .corkboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .polaroid-thumb {
+    height: 70px;
+  }
+
+  .avatar-icon {
+    font-size: 1.8rem;
+  }
+
+  .terminal-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .t-label {
+    min-width: auto;
+  }
+
+  .cipher-keypad-mini {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .cipher-keypad-mini .btn {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .btn-latch-action {
+    min-height: 48px;
+    font-size: 0.85rem;
+  }
+
+  .ctrl-row .btn-ctrl {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
