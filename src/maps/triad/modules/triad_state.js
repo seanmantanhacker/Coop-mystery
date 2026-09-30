@@ -6,7 +6,7 @@
 
 class TriadStateManager {
   constructor() {
-    this.chronalStability = 18;
+    this.chronalStability = 20;
     this.round = 1;
     this.activeEra = '1979'; // '1979' -> '1999' -> '2019' -> 'CONSENSUS'
     this.gameEnded = false;

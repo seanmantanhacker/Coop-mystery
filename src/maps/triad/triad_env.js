@@ -20,65 +20,68 @@ class TriadEnvironment {
     this.tapeReels = [];
     this.lights = {};
 
-    // Camera Presets for 5 Nodes & Close-Up Inspections
+    // Camera Presets for 5 Distinct Enclosed Rooms & Close-Up Inspections
     this.cameraPresets = {
       OVERVIEW: {
-        pos: new THREE.Vector3(0, 14, 18),
+        pos: new THREE.Vector3(0, 18, 18),
         target: new THREE.Vector3(0, 0, -2),
         fov: 52,
         label: '1979: PROMETHEUS FACILITY OVERVIEW'
       },
       NODE_1_LAB: {
-        pos: new THREE.Vector3(-6, 2.5, -4),
-        target: new THREE.Vector3(-6, 1.2, -8),
-        fov: 48,
+        pos: new THREE.Vector3(-8.0, 2.2, -6.5),
+        target: new THREE.Vector3(-8.0, 1.4, -13.0),
+        fov: 52,
         label: 'NODE 1: RESEARCH LABORATORY'
       },
       NODE_2_OFFICE: {
-        pos: new THREE.Vector3(6, 2.5, -4),
-        target: new THREE.Vector3(6, 1.2, -8),
-        fov: 48,
+        pos: new THREE.Vector3(8.0, 2.2, -6.5),
+        target: new THREE.Vector3(8.0, 1.4, -13.0),
+        fov: 52,
         label: "NODE 2: DIRECTOR'S OFFICE"
       },
       NODE_3_VAULT: {
-        pos: new THREE.Vector3(0, 2.8, -8),
-        target: new THREE.Vector3(0, 1.5, -14),
+        pos: new THREE.Vector3(0, 2.2, -7.5),
+        target: new THREE.Vector3(0, 1.6, -14.2),
         fov: 52,
         label: 'NODE 3: TEMPORAL VAULT BULKHEAD'
       },
       NODE_4_COURTYARD: {
-        pos: new THREE.Vector3(-5, 3.2, 5),
-        target: new THREE.Vector3(-5, 0.5, 0),
-        fov: 50,
+        pos: new THREE.Vector3(-7.5, 3.2, 9.5),
+        target: new THREE.Vector3(-7.5, 0.6, 2.5),
+        fov: 54,
         label: 'NODE 4: CENTRAL DRAINAGE COURTYARD'
       },
       NODE_5_SECURITY: {
-        pos: new THREE.Vector3(5, 2.6, 5),
-        target: new THREE.Vector3(5, 1.2, 0),
-        fov: 48,
+        pos: new THREE.Vector3(7.5, 2.4, 9.5),
+        target: new THREE.Vector3(7.5, 1.2, 2.5),
+        fov: 52,
         label: 'NODE 5: SECURITY MAIN HUB'
       },
       INSPECT_VALVE: {
-        pos: new THREE.Vector3(-6.2, 1.8, -6.8),
-        target: new THREE.Vector3(-6.2, 1.5, -8.0),
+        pos: new THREE.Vector3(-8.2, 1.8, -11.5),
+        target: new THREE.Vector3(-8.2, 1.8, -13.1),
         fov: 36,
         label: 'COOLANT PRESSURE MANIFOLD'
       },
       INSPECT_CISTERN: {
-        pos: new THREE.Vector3(-5.0, 1.8, 0.8),
-        target: new THREE.Vector3(-5.0, 0.05, 0.0),
+        pos: new THREE.Vector3(-7.5, 1.8, 4.5),
+        target: new THREE.Vector3(-7.5, 0.1, 3.5),
         fov: 38,
         label: 'SUBTERRANEAN CISTERN GRATE'
       },
       INSPECT_SAFE: {
-        pos: new THREE.Vector3(5.8, 1.8, -7.5),
-        target: new THREE.Vector3(7.8, 1.8, -7.5),
+        pos: new THREE.Vector3(12.5, 1.8, -10.0),
+        target: new THREE.Vector3(14.0, 1.8, -10.0),
         fov: 36,
         label: 'BIOMETRIC WALL SAFE'
       }
     };
 
     this.built = false;
+    this.handDrawerCollapsed = false;
+    this.nodesNavCollapsed = false;
+    this.whisperBannerDismissed = false;
     this.build();
     window.triadEnv = this;
     window.triadEnvInstance = this;
@@ -113,6 +116,8 @@ class TriadEnvironment {
     }
     const hud = document.getElementById('triad-1979-hud');
     if (hud) hud.remove();
+    const whisperModal = document.getElementById('triad-whisper-modal');
+    if (whisperModal) whisperModal.remove();
 
     // Restore legacy defuser hud
     const defHud = document.querySelector('.defuser-hud');
@@ -161,286 +166,414 @@ class TriadEnvironment {
   }
 
   // =========================================================================
-  // 2. FACILITY FLOOR, WALLS & ATRIUM
+  // 2. FACILITY FLOOR, WALLS, PARTITIONS & ARCHITECTURAL ROOMS
   // =========================================================================
   buildFacilityFloor() {
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x1f242d, roughness: 0.85, metalness: 0.2 });
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x2b3340, roughness: 0.9 });
-    const stripeMat = new THREE.MeshBasicMaterial({ color: 0xd97706 });
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.9, metalness: 0.1 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x222a36, roughness: 0.9 });
+    const partitionMat = new THREE.MeshStandardMaterial({ color: 0x2a3442, roughness: 0.85, metalness: 0.2 });
     const metalMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.4 });
+    const hazardMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 });
 
-    // Main facility floor (30m wide x 32m deep)
+    // Main facility base foundation floor (30m wide x 32m deep)
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 32), floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(0, 0, -2);
     this.group.add(floor);
 
-    // North wall (behind Lab, Vault, Office)
-    const northWall = new THREE.Mesh(new THREE.BoxGeometry(30, 4.5, 0.5), wallMat);
+    // North perimeter wall (behind Lab, Vault, Office)
+    const northWall = new THREE.Mesh(new THREE.BoxGeometry(30, 4.5, 0.6), wallMat);
     northWall.position.set(0, 2.25, -16);
     this.group.add(northWall);
 
-    // East wall
-    const eastWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 32), wallMat);
+    // East outer wall
+    const eastWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.5, 32), wallMat);
     eastWall.position.set(15, 2.25, -2);
     this.group.add(eastWall);
 
-    // West wall
-    const westWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 32), wallMat);
+    // West outer wall
+    const westWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.5, 32), wallMat);
     westWall.position.set(-15, 2.25, -2);
     this.group.add(westWall);
 
-    // South perimeter fence/barrier
-    const southWall = new THREE.Mesh(new THREE.BoxGeometry(30, 1.2, 0.4), metalMat);
-    southWall.position.set(0, 0.6, 13);
+    // South perimeter wall
+    const southWall = new THREE.Mesh(new THREE.BoxGeometry(30, 4.5, 0.6), wallMat);
+    southWall.position.set(0, 2.25, 13);
     this.group.add(southWall);
 
-    // Hazard guide stripes connecting nodes on floor
-    const stripe1 = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 20), stripeMat);
-    stripe1.rotation.x = -Math.PI / 2;
-    stripe1.position.set(0, 0.01, -2);
-    this.group.add(stripe1);
+    // -------------------------------------------------------------------------
+    // INTERIOR ARCHITECTURAL PARTITION WALLS (ENCLOSES EACH ROOM AS DISTINCT SPACE)
+    // -------------------------------------------------------------------------
 
-    const stripe2 = new THREE.Mesh(new THREE.PlaneGeometry(24, 0.3), stripeMat);
-    stripe2.rotation.x = -Math.PI / 2;
-    stripe2.position.set(0, 0.01, -1);
-    this.group.add(stripe2);
+    // 1. Vault West Partition Wall (Separates Node 1 Lab from Node 3 Vault Corridor)
+    // Runs Z: -16 to -5.5 at X = -3.5
+    const vaultWestWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 10.5), partitionMat);
+    vaultWestWall.position.set(-3.5, 2.25, -10.75);
+    this.group.add(vaultWestWall);
 
-    // Support pillars
-    const pillarGeo = new THREE.BoxGeometry(0.8, 4.5, 0.8);
-    const pillarPositions = [
-      [-3, 2.25, -5], [3, 2.25, -5],
-      [-3, 2.25, 2], [3, 2.25, 2]
-    ];
-    pillarPositions.forEach(([px, py, pz]) => {
-      const pillar = new THREE.Mesh(pillarGeo, metalMat);
-      pillar.position.set(px, py, pz);
-      this.group.add(pillar);
-    });
+    // 2. Vault East Partition Wall (Separates Node 2 Office from Node 3 Vault Corridor)
+    // Runs Z: -16 to -5.5 at X = +3.5
+    const vaultEastWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 10.5), partitionMat);
+    vaultEastWall.position.set(3.5, 2.25, -10.75);
+    this.group.add(vaultEastWall);
+
+    // 3. North/South Dividing Wall - West Section (Separates Lab from Courtyard)
+    // Runs X: -15 to -3.5 at Z = -5.5, with doorway opening at X: -5.5
+    const labSouthWall1 = new THREE.Mesh(new THREE.BoxGeometry(7.0, 4.5, 0.5), partitionMat);
+    labSouthWall1.position.set(-10.5, 2.25, -5.5);
+    this.group.add(labSouthWall1);
+
+    const labDoorArch = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.2, 0.5), metalMat);
+    labDoorArch.position.set(-5.5, 3.9, -5.5);
+    this.group.add(labDoorArch);
+
+    // 4. North/South Dividing Wall - East Section (Separates Office from Security Hub)
+    // Runs X: +3.5 to +15 at Z = -5.5, with doorway opening at X: +5.5
+    const officeSouthWall1 = new THREE.Mesh(new THREE.BoxGeometry(7.0, 4.5, 0.5), partitionMat);
+    officeSouthWall1.position.set(10.5, 2.25, -5.5);
+    this.group.add(officeSouthWall1);
+
+    const officeDoorArch = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.2, 0.5), metalMat);
+    officeDoorArch.position.set(5.5, 3.9, -5.5);
+    this.group.add(officeDoorArch);
+
+    // 5. South Facility Central Dividing Wall (Separates Node 4 Courtyard from Node 5 Security Hub)
+    // Runs Z: -5.5 to +13 at X = 0, with central industrial portal at Z = +3.5
+    const southMidWallNorth = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 7.0), partitionMat);
+    southMidWallNorth.position.set(0, 2.25, -2.0);
+    this.group.add(southMidWallNorth);
+
+    const southMidWallSouth = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.5, 7.5), partitionMat);
+    southMidWallSouth.position.set(0, 2.25, 9.25);
+    this.group.add(southMidWallSouth);
+
+    const courtyardPortalTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.3, 4.0), metalMat);
+    courtyardPortalTop.position.set(0, 3.85, 3.5);
+    this.group.add(courtyardPortalTop);
+
+    // -------------------------------------------------------------------------
+    // DISTINCT ROOM FLOOR MATERIALS & AMBIANCE TILES
+    // -------------------------------------------------------------------------
+    // Lab Floor: Clinical Cleanroom Tiles (Teal/Grey)
+    const labFloorMat = new THREE.MeshStandardMaterial({ color: 0x1e2e38, roughness: 0.3, metalness: 0.3 });
+    const labFloor = new THREE.Mesh(new THREE.PlaneGeometry(11, 10), labFloorMat);
+    labFloor.rotation.x = -Math.PI / 2;
+    labFloor.position.set(-9.25, 0.02, -10.75);
+    this.group.add(labFloor);
+
+    // Office Floor: Warm Executive Parquet Hardwood
+    const officeFloorMat = new THREE.MeshStandardMaterial({ color: 0x36180a, roughness: 0.6 });
+    const officeFloor = new THREE.Mesh(new THREE.PlaneGeometry(11, 10), officeFloorMat);
+    officeFloor.rotation.x = -Math.PI / 2;
+    officeFloor.position.set(9.25, 0.02, -10.75);
+    this.group.add(officeFloor);
+
+    // Director's Persian Rug (Center of Office)
+    const rugMat = new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.9 });
+    const rug = new THREE.Mesh(new THREE.PlaneGeometry(6.0, 4.5), rugMat);
+    rug.rotation.x = -Math.PI / 2;
+    rug.position.set(8.5, 0.03, -11.0);
+    this.group.add(rug);
+
+    // Vault Floor: Titanium Blast Plating with Violet Tachyon Lines
+    const vaultFloorMat = new THREE.MeshStandardMaterial({ color: 0x111624, metalness: 0.85, roughness: 0.2 });
+    const vaultFloor = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 9.5), vaultFloorMat);
+    vaultFloor.rotation.x = -Math.PI / 2;
+    vaultFloor.position.set(0, 0.02, -10.75);
+    this.group.add(vaultFloor);
+
+    // Courtyard Floor: Wet Dark Flagstone / Asphalt Paving
+    const courtyardFloorMat = new THREE.MeshStandardMaterial({ color: 0x171e27, roughness: 0.95 });
+    const courtyardFloor = new THREE.Mesh(new THREE.PlaneGeometry(14.5, 17.5), courtyardFloorMat);
+    courtyardFloor.rotation.x = -Math.PI / 2;
+    courtyardFloor.position.set(-7.25, 0.02, 3.75);
+    this.group.add(courtyardFloor);
+
+    // Security Floor: Raised Anti-Static Slate Grid
+    const securityFloorMat = new THREE.MeshStandardMaterial({ color: 0x1c222d, roughness: 0.7, metalness: 0.4 });
+    const securityFloor = new THREE.Mesh(new THREE.PlaneGeometry(14.5, 17.5), securityFloorMat);
+    securityFloor.rotation.x = -Math.PI / 2;
+    securityFloor.position.set(7.25, 0.02, 3.75);
+    this.group.add(securityFloor);
   }
 
   // =========================================================================
-  // 3. NODE 1: RESEARCH LABORATORY (X: -6, Z: -6)
+  // 3. NODE 1: RESEARCH LABORATORY (Sector Alpha: Enclosed Lab Chamber)
   // =========================================================================
   buildNode1_Laboratory() {
     const benchMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.6, roughness: 0.3 });
     const pipeMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.8, roughness: 0.3 });
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9, roughness: 0.2 });
     const redMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.5 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7, roughness: 0.1 });
 
-    // Lab Counter
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.9, 1.4), benchMat);
-    bench.position.set(-6, 0.45, -7);
+    // Laboratory Main Counter Station (Facing North inside Lab)
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.9, 1.5), benchMat);
+    bench.position.set(-8.0, 0.45, -12.5);
     this.group.add(bench);
 
-    // Mass Spectrometer / Centrifuge on Bench
-    const spectro = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 0.9), new THREE.MeshStandardMaterial({ color: 0x64748b }));
-    spectro.position.set(-7, 1.3, -7);
+    // Mass Spectrometer & Centrifuge on Bench
+    const spectro = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.85, 1.0), new THREE.MeshStandardMaterial({ color: 0x64748b }));
+    spectro.position.set(-9.5, 1.35, -12.5);
     this.group.add(spectro);
 
-    // Oscilloscope Screen
-    const oscScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.3), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
-    oscScreen.position.set(-7, 1.4, -6.54);
+    // Glowing Oscilloscope Screen
+    const oscScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 0.35), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+    oscScreen.position.set(-9.5, 1.45, -11.99);
     this.group.add(oscScreen);
 
-    // Coolant Pressure Manifold Pipe
-    const coolantPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 4.0, 16), pipeMat);
+    // Chemical Reagent Glassware on Bench
+    for (let i = -0.5; i <= 0.5; i += 0.35) {
+      const flask = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.14, 0.35, 12), glassMat);
+      flask.position.set(-7.0 + i, 1.08, -12.4);
+      this.group.add(flask);
+    }
+
+    // Heavy Coolant Pressure Manifold Pipe on North Wall
+    const coolantPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 5.0, 16), pipeMat);
     coolantPipe.rotation.z = Math.PI / 2;
-    coolantPipe.position.set(-6, 1.8, -8.2);
+    coolantPipe.position.set(-8.0, 1.8, -15.5);
     this.group.add(coolantPipe);
 
     // Pressure Gauge Dial
-    const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.08, 16), brassMat);
+    const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.08, 16), brassMat);
     gauge.rotation.x = Math.PI / 2;
-    gauge.position.set(-5.5, 2.1, -8.1);
+    gauge.position.set(-7.2, 2.2, -15.4);
     this.group.add(gauge);
 
     // Large Red Hydraulic Valve Wheel (Interactive Ripple Control)
     const valveGroup = new THREE.Group();
-    valveGroup.position.set(-6.2, 1.8, -8.1);
+    valveGroup.position.set(-8.2, 1.8, -15.4);
 
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 8, 24), redMat);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.045, 8, 24), redMat);
     valveGroup.add(rim);
 
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1, 12), brassMat);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.12, 12), brassMat);
     hub.rotation.x = Math.PI / 2;
     valveGroup.add(hub);
 
-    const spoke1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8), brassMat);
+    const spoke1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.7, 8), brassMat);
     valveGroup.add(spoke1);
 
-    const spoke2 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8), brassMat);
+    const spoke2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.7, 8), brassMat);
     spoke2.rotation.z = Math.PI / 2;
     valveGroup.add(spoke2);
 
     this.group.add(valveGroup);
     this.valveWheel = valveGroup;
+
+    // West Wall Blackboard with Tachyon Calculations
+    const board = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.0, 3.5), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 }));
+    board.position.set(-14.65, 2.2, -10.5);
+    this.group.add(board);
+
+    // Reagent Storage Shelving on West Wall
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.5, 3.0, 2.0), benchMat);
+    shelf.position.set(-14.4, 1.6, -13.5);
+    this.group.add(shelf);
   }
 
   // =========================================================================
-  // 4. NODE 2: DIRECTOR'S OFFICE (X: +6, Z: -6)
+  // 4. NODE 2: DIRECTOR'S OFFICE (Sector Beta: Enclosed Executive Suite)
   // =========================================================================
   buildNode2_DirectorOffice() {
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.7 });
     const steelMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 });
     const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
+    const leatherMat = new THREE.MeshStandardMaterial({ color: 0x1e3a29, roughness: 0.8 }); // Emerald green leather
 
-    // Julian Vance's Executive Mahogany Desk
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.85, 1.8), woodMat);
-    desk.position.set(6, 0.42, -6.5);
+    // Julian Vance's Massive Executive Mahogany Desk
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.88, 2.0), woodMat);
+    desk.position.set(8.5, 0.44, -11.5);
     this.group.add(desk);
 
-    // Desk blotter & lamp
-    const blotter = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.02, 1.0), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-    blotter.position.set(6, 0.86, -6.5);
+    // Desk Blotter & Documents
+    const blotter = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.02, 1.2), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+    blotter.position.set(8.5, 0.89, -11.5);
     this.group.add(blotter);
 
-    const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.04, 16), goldMat);
-    lampBase.position.set(7.2, 0.87, -6.8);
+    // Brass Banker's Lamp with Emerald Glass Shade
+    const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.05, 16), goldMat);
+    lampBase.position.set(10.0, 0.91, -11.8);
     this.group.add(lampBase);
 
-    const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x15803d }));
-    lampShade.position.set(7.2, 1.15, -6.8);
+    const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.22, 16), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+    lampShade.position.set(10.0, 1.18, -11.8);
     this.group.add(lampShade);
 
-    // Bookcase on East Wall
-    const bookcase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 3.2, 3.0), woodMat);
-    bookcase.position.set(14.5, 1.6, -6.5);
+    // High-back Executive Armchair behind Desk
+    const chairBack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 0.2), leatherMat);
+    chairBack.position.set(8.5, 1.3, -13.0);
+    this.group.add(chairBack);
+
+    const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 1.0), leatherMat);
+    chairSeat.position.set(8.5, 0.65, -12.5);
+    this.group.add(chairSeat);
+
+    // Executive Bookcase on East Wall
+    const bookcase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 3.4, 4.0), woodMat);
+    bookcase.position.set(14.3, 1.7, -12.0);
     this.group.add(bookcase);
 
-    // Biometric Wall Safe embedded in wall
-    const safeFrame = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.4, 1.4), steelMat);
-    safeFrame.position.set(7.6, 1.8, -7.5);
+    // Biometric Wall Safe embedded in East Wall (Interactive Ripple Control)
+    const safeFrame = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.6, 1.6), steelMat);
+    safeFrame.position.set(14.5, 1.8, -9.0);
     this.group.add(safeFrame);
 
-    const safeDoorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 1.2), steelMat);
-    safeDoorMesh.position.set(7.66, 1.8, -7.5);
+    const safeDoorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 1.4), steelMat);
+    safeDoorMesh.position.set(14.45, 1.8, -9.0);
 
-    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.08, 16), goldMat);
+    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.09, 16), goldMat);
     dial.rotation.z = Math.PI / 2;
-    dial.position.set(-0.06, 0, 0);
+    dial.position.set(-0.07, 0, 0);
     safeDoorMesh.add(dial);
 
     this.group.add(safeDoorMesh);
     this.safeDoor = safeDoorMesh;
+
+    // Grandfather Clock on West Partition Wall
+    const clock = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.2, 0.6), woodMat);
+    clock.position.set(4.0, 1.6, -10.0);
+    this.group.add(clock);
   }
 
   // =========================================================================
-  // 5. NODE 3: TEMPORAL VAULT (X: 0, Z: -12)
+  // 5. NODE 3: TEMPORAL VAULT (Sector Omega: Enclosed Blast Chamber)
   // =========================================================================
   buildNode3_TemporalVault() {
     const vaultMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.2 });
     const hazardMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
-    const ringMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0x7c3aed, emissiveIntensity: 0.8, roughness: 0.1 });
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0x7c3aed, emissiveIntensity: 0.9, roughness: 0.1 });
 
-    // Blast Archway
-    const archLeft = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4.0, 1.0), vaultMat);
-    archLeft.position.set(-3.2, 2.0, -13.5);
-    this.group.add(archLeft);
+    // Reinforced Blast Portal Entrance Archway (Z = -6.5)
+    const portalArch = new THREE.Mesh(new THREE.BoxGeometry(6.6, 4.5, 0.8), vaultMat);
+    portalArch.position.set(0, 2.25, -6.5);
+    this.group.add(portalArch);
 
-    const archRight = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4.0, 1.0), vaultMat);
-    archRight.position.set(3.2, 2.0, -13.5);
-    this.group.add(archRight);
+    // Portal Cutout Frame & Hazard Stripes
+    const hazardStripeTop = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.4, 0.9), hazardMat);
+    hazardStripeTop.position.set(0, 3.5, -6.5);
+    this.group.add(hazardStripeTop);
 
-    const archTop = new THREE.Mesh(new THREE.BoxGeometry(7.6, 1.0, 1.0), vaultMat);
-    archTop.position.set(0, 3.8, -13.5);
-    this.group.add(archTop);
-
-    // Massive Circular Titanium Bulkhead Door
-    const door = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.4, 32), vaultMat);
+    // Massive Circular Titanium Bulkhead Door (North Wall of Chamber Z = -15.4)
+    const door = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.5, 32), vaultMat);
     door.rotation.x = Math.PI / 2;
-    door.position.set(0, 2.0, -13.6);
+    door.position.set(0, 2.2, -15.4);
 
-    // Radial locking lugs
+    // 8 Radial Locking Lugs
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2;
-      const lug = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.4, 0.5), hazardMat);
-      lug.position.set(Math.cos(angle) * 1.9, Math.sin(angle) * 1.9, 0);
+      const lug = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.45, 0.6), hazardMat);
+      lug.position.set(Math.cos(angle) * 2.1, Math.sin(angle) * 2.1, 0);
       door.add(lug);
     }
     this.group.add(door);
     this.vaultBulkhead = door;
 
-    // Tachyon Resonance Core Plinth
-    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.6, 0.6, 8), vaultMat);
-    plinth.position.set(0, 0.3, -11.0);
+    // Tachyon Resonance Core Plinth (Center of Chamber)
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.8, 0.6, 8), vaultMat);
+    plinth.position.set(0, 0.3, -11.5);
     this.group.add(plinth);
 
     // Floating Glowing Tachyon Ring
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.12, 16, 32), ringMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.14, 16, 32), ringMat);
     ring.rotation.x = Math.PI / 2;
-    ring.position.set(0, 1.4, -11.0);
+    ring.position.set(0, 1.5, -11.5);
     this.group.add(ring);
     this.tachyonRing = ring;
+
+    // Magnetic Containment Pylons surrounding Tachyon Core
+    const pylonGeo = new THREE.CylinderGeometry(0.12, 0.15, 2.8, 12);
+    [[-1.8, -10.0], [1.8, -10.0], [-1.8, -13.0], [1.8, -13.0]].forEach(([px, pz]) => {
+      const pylon = new THREE.Mesh(pylonGeo, vaultMat);
+      pylon.position.set(px, 1.4, pz);
+      this.group.add(pylon);
+    });
   }
 
   // =========================================================================
-  // 6. NODE 4: CENTRAL DRAINAGE COURTYARD (X: -5, Z: +4)
+  // 6. NODE 4: CENTRAL DRAINAGE COURTYARD (Sector Gamma: Exterior Courtyard)
   // =========================================================================
   buildNode4_Courtyard() {
     const wetStoneMat = new THREE.MeshStandardMaterial({ color: 0x1e2631, roughness: 0.95 });
     const grateMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.3 });
+    const pipeMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7 });
 
-    // Recessed Courtyard Pit
-    const pit = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.4, 6.0), wetStoneMat);
-    pit.position.set(-5, 0.05, 4);
+    // Recessed Courtyard Cistern Basin Pit
+    const pit = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.5, 6.5), wetStoneMat);
+    pit.position.set(-7.5, 0.05, 3.5);
     this.group.add(pit);
 
     // Heavy Subterranean Iron Cistern Grate (Interactive Ripple Control)
     const grateGroup = new THREE.Group();
-    grateGroup.position.set(-5, 0.26, 4);
+    grateGroup.position.set(-7.5, 0.28, 3.5);
 
-    const grateFrame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 2.2), grateMat);
+    const grateFrame = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.1, 2.6), grateMat);
     grateGroup.add(grateFrame);
 
-    for (let i = -0.9; i <= 0.9; i += 0.2) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.09, 1.9), grateMat);
+    for (let i = -1.1; i <= 1.1; i += 0.22) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.11, 2.3), grateMat);
       bar.position.set(i, 0, 0);
       grateGroup.add(bar);
     }
 
     this.group.add(grateGroup);
     this.cisternGrate = grateGroup;
+
+    // Storm Downspouts descending on West Wall
+    const downspout = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 4.5, 12), pipeMat);
+    downspout.position.set(-14.4, 2.25, 3.5);
+    this.group.add(downspout);
+
+    // Industrial Safety Railings around Courtyard Pit
+    const railMat = new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.5 });
+    const railNorth = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.8, 0.06), railMat);
+    railNorth.position.set(-7.5, 0.7, 0.2);
+    this.group.add(railNorth);
+
+    const railSouth = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.8, 0.06), railMat);
+    railSouth.position.set(-7.5, 0.7, 6.8);
+    this.group.add(railSouth);
   }
 
   // =========================================================================
-  // 7. NODE 5: SECURITY MAIN HUB (X: +5, Z: +4)
+  // 7. NODE 5: SECURITY MAIN HUB (Sector Delta: Enclosed Surveillance Station)
   // =========================================================================
   buildNode5_SecurityHub() {
     const rackMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.4 });
     const crtMat = new THREE.MeshBasicMaterial({ color: 0x059669 });
     const tapeMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9 });
 
-    // Mainframe Rack Cabinets
-    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 4.0), rackMat);
-    rack.position.set(13.8, 1.6, 4.0);
+    // Mainframe Computer Server Rack Cabinets on East Wall
+    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 3.4, 5.0), rackMat);
+    rack.position.set(14.0, 1.7, 3.5);
     this.group.add(rack);
 
-    // Reel-to-Reel Tape Drives
-    for (let y = 1.4; y <= 2.4; y += 0.8) {
-      for (let z = 3.2; z <= 4.8; z += 1.2) {
-        const reel = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.04, 24), tapeMat);
+    // 6 Spinning Reel-to-Reel Tape Drives
+    for (let y = 1.3; y <= 2.5; y += 0.8) {
+      for (let z = 2.2; z <= 4.8; z += 1.3) {
+        const reel = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.05, 24), tapeMat);
         reel.rotation.z = Math.PI / 2;
-        reel.position.set(13.18, y, z);
+        reel.position.set(13.25, y, z);
         this.group.add(reel);
         this.tapeReels.push(reel);
       }
     }
 
     // Security Operator Workstation Desk
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.85, 1.6), rackMat);
-    desk.position.set(5.0, 0.42, 4.0);
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.88, 1.8), rackMat);
+    desk.position.set(7.5, 0.44, 3.5);
     this.group.add(desk);
 
     // Bank of 3 CRT Surveillance Monitors
-    const monOffsets = [-0.9, 0, 0.9];
+    const monOffsets = [-1.0, 0, 1.0];
     monOffsets.forEach((ox) => {
-      const monBox = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.5), rackMat);
-      monBox.position.set(5.0 + ox, 1.2, 3.8);
+      const monBox = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.65, 0.55), rackMat);
+      monBox.position.set(7.5 + ox, 1.25, 3.3);
       this.group.add(monBox);
 
-      const monScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.45), crtMat);
-      monScreen.position.set(5.0 + ox, 1.2, 4.06);
+      const monScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.5), crtMat);
+      monScreen.position.set(7.5 + ox, 1.25, 3.59);
       this.group.add(monScreen);
     });
   }
@@ -449,11 +582,11 @@ class TriadEnvironment {
   // 8. HOTSPOTS & CAMERA INTERACTION TARGETS
   // =========================================================================
   buildHotspots() {
-    this.addHotspot(new THREE.Vector3(-6, 1.8, -7.5), 'INSPECT_VALVE', 'COOLANT PRESSURE MANIFOLD', 1);
-    this.addHotspot(new THREE.Vector3(6.8, 1.8, -7.0), 'INSPECT_SAFE', 'BIOMETRIC WALL SAFE', 2);
-    this.addHotspot(new THREE.Vector3(0, 2.0, -12.5), 'NODE_3_VAULT', 'TEMPORAL VAULT BULKHEAD', 3);
-    this.addHotspot(new THREE.Vector3(-5, 0.5, 3.0), 'INSPECT_CISTERN', 'DRAINAGE CISTERN GRATE', 4);
-    this.addHotspot(new THREE.Vector3(5, 1.5, 4.0), 'NODE_5_SECURITY', 'SECURITY SURVEILLANCE HUB', 5);
+    this.addHotspot(new THREE.Vector3(-8.0, 1.8, -12.5), 'INSPECT_VALVE', 'COOLANT PRESSURE MANIFOLD', 1);
+    this.addHotspot(new THREE.Vector3(13.8, 1.8, -9.0), 'INSPECT_SAFE', 'BIOMETRIC WALL SAFE', 2);
+    this.addHotspot(new THREE.Vector3(0, 2.0, -13.5), 'NODE_3_VAULT', 'TEMPORAL VAULT BULKHEAD', 3);
+    this.addHotspot(new THREE.Vector3(-7.5, 0.5, 3.5), 'INSPECT_CISTERN', 'DRAINAGE CISTERN GRATE', 4);
+    this.addHotspot(new THREE.Vector3(7.5, 1.5, 3.5), 'NODE_5_SECURITY', 'SECURITY SURVEILLANCE HUB', 5);
   }
 
   addHotspot(position, targetView, label, nodeNum) {
@@ -513,81 +646,341 @@ class TriadEnvironment {
     if (defHud) defHud.classList.add('hidden');
     if (quadBar) quadBar.classList.add('hidden');
 
-    const existing = document.getElementById('triad-1979-hud');
-    if (existing) existing.remove();
-
     const state = window.triadState;
     const currentNode = state ? state.meepleNodes['1979'] : 5;
     const currentNodeName = state ? state.nodeNames[currentNode - 1] : 'Security Hub';
-    const stab = state ? state.chronalStability : 18;
+    const stab = state ? state.chronalStability : 20;
     const ap = state ? state.ap['1979'] : 3;
 
-    const hud = document.createElement('div');
-    hud.id = 'triad-1979-hud';
-    hud.className = 'triad-architect-hud';
-    hud.innerHTML = `
-      <div class="hud-top-bar glass-panel">
-        <div class="station-identity">
-          <span class="station-era-badge badge-1979">1979: THE ARCHITECT</span>
-          <span class="station-sub-title">PRISTINE TEMPORAL RESEARCH FACILITY</span>
-        </div>
-        <div class="station-metrics">
-          <div class="metric-chip">
-            <span class="m-label">STABILITY:</span>
-            <strong id="hud-1979-stab" class="m-val" style="color:${stab <= 5 ? '#ff3344' : (stab <= 10 ? '#f5d76e' : '#00f0ff')};">${stab}</strong>
-          </div>
-          <div class="metric-chip">
-            <span class="m-label">ACTION POINTS:</span>
-            <strong id="hud-1979-ap" class="m-val ap-val">${ap} / 3</strong>
-          </div>
-          <div class="metric-chip">
-            <span class="m-label">LOCATION:</span>
-            <strong id="hud-1979-loc" class="m-val">N${currentNode}: ${currentNodeName}</strong>
-          </div>
-          <button class="btn btn-primary btn-sm btn-matrix-toggle" onclick="triadRippleUI.openModal()">
-            🌀 RIPPLE MATRIX
-          </button>
-        </div>
-      </div>
+    let hud = document.getElementById('triad-1979-hud');
 
-      <!-- NODE MOVEMENT BAR -->
-      <div class="triad-nodes-navbar glass-panel" style="margin-top: 6px;">
-        <span class="nav-label">1979 MOVEMENT (1 AP):</span>
-        <div class="nodes-nav-grid" id="hud-1979-nodes-grid">
-          ${[1, 2, 3, 4, 5].map(n => `
-            <button class="btn-node-nav ${currentNode === n ? 'active' : ''}" onclick="triadEnv.onMoveNode(${n})">
-              <span class="node-num-tag">NODE ${n}</span>
-              <span class="node-title-tag">${state ? state.nodeNames[n - 1] : ''}</span>
-              ${currentNode === n ? '<span class="meeple-here-badge">YOU ARE HERE</span>' : ''}
+    if (!hud) {
+      hud = document.createElement('div');
+      hud.id = 'triad-1979-hud';
+      hud.className = 'triad-architect-hud';
+      hud.innerHTML = `
+        <!-- TOP COMMAND BAR (ULTRA-SLIM SINGLE STRIP, DOES NOT OBSTRUCT 3D FACILITY) -->
+        <div class="hud-top-bar glass-panel">
+          <div class="station-identity">
+            <span class="station-era-badge badge-1979">1979 ARCHITECT</span>
+            <span class="facility-status-pill">PRISTINE FACILITY</span>
+          </div>
+
+          <div class="station-metrics">
+            <div class="metric-chip" title="Temporal Fabric Integrity">
+              <span class="m-label">STABILITY:</span>
+              <strong id="hud-1979-stab" class="m-val" style="color:${stab <= 5 ? '#ff3344' : (stab <= 10 ? '#f5d76e' : '#00f0ff')};">${stab}</strong>
+            </div>
+            <div class="metric-chip" title="Turn Action Points (Recharges each round)">
+              <span class="m-label">AP:</span>
+              <strong id="hud-1979-ap" class="m-val ap-val">${ap} / 3</strong>
+            </div>
+            <div class="metric-chip" title="Current Facility Room">
+              <span class="m-label">LOCATION:</span>
+              <strong id="hud-1979-loc" class="m-val">N${currentNode}: ${currentNodeName}</strong>
+            </div>
+          </div>
+
+          <div class="hud-top-actions">
+            <button class="btn btn-hud-action action-search" onclick="triadEnv.onSearchClick()" title="Search current room for confidential blueprints and items (1 AP)">
+              <span class="act-icon">🔍</span>
+              <span class="act-text">SEARCH <span class="ap-badge">1 AP</span></span>
             </button>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- ARCHITECT ACTIONS & HAND DRAWER -->
-      <div class="hud-actions-and-hand" style="display:flex; gap:12px; margin-top:8px;">
-        <div class="hud-action-btns glass-panel" style="display:flex; flex-direction:column; gap:8px; padding:12px; min-width:200px;">
-          <button class="btn btn-hud-action" onclick="triadEnv.onSearchClick()">🔍 SEARCH NODE (1 AP)</button>
-          <button class="btn btn-hud-action" onclick="triadRippleUI.openModal()">🌀 TEMPORAL RIPPLE (2 AP)</button>
-          <button class="btn btn-hud-action" onclick="triadRippleUI.openModal()">⚖️ CONSENSUS NOTEBOOK</button>
-        </div>
-
-        <div class="hud-hand-drawer glass-panel" id="hud-1979-hand-drawer" style="flex:1;">
-          <div class="hand-drawer-header">
-            <span>ARCHITECT PRIVATE HAND (WHISPER RULE APPLIES)</span>
-          </div>
-          <div class="hand-cards-list" id="hud-1979-cards-container">
-            <!-- Rendered dynamically -->
+            <button class="btn btn-hud-action action-ripple" onclick="triadRippleUI.openModal()" title="Modify physical causality tracks on the Ripple Matrix (2 AP)">
+              <span class="act-icon">🌀</span>
+              <span class="act-text">RIPPLE <span class="ap-badge">2 AP</span></span>
+            </button>
+            <button class="btn btn-hud-action action-consensus" onclick="triadRippleUI.openModal()" title="View timeline consensus notebook">
+              <span class="act-icon">⚖️</span>
+              <span class="act-text">NOTEBOOK</span>
+            </button>
+            <button class="btn btn-hud-action action-rooms ${this.nodesNavCollapsed ? '' : 'active'}" id="btn-top-toggle-rooms" onclick="triadEnv.toggleNodesNav()" title="Toggle Facility Room Movement buttons">
+              <span class="act-icon">🗺️</span>
+              <span class="act-text">ROOMS</span>
+            </button>
+            <button class="btn btn-hud-action action-overview" onclick="triadEnv.onOverviewClick()" title="Reset 3D camera to full facility overview">
+              <span class="act-icon">🎥</span>
+              <span class="act-text">OVERVIEW</span>
+            </button>
           </div>
         </div>
-      </div>
-    `;
 
-    const container = document.getElementById('screen-defuser');
-    if (container) {
-      container.appendChild(hud);
-      this.render1979Hand();
+        <!-- BOTTOM CONTROL DOCK (ROOM NAVIGATION & PRIVATE HAND DOCKED AT BOTTOM) -->
+        <div class="hud-bottom-dock">
+          <!-- 1979 FACILITY ROOM MOVEMENT BAR (SLIM, COLLAPSIBLE, SITS ABOVE HAND DRAWER) -->
+          <div class="triad-nodes-navbar glass-panel ${this.nodesNavCollapsed ? 'nav-collapsed' : ''}" id="hud-1979-nodes-bar">
+            <div class="nodes-nav-header" onclick="triadEnv.toggleNodesNav()">
+              <div class="nodes-header-left">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">FACILITY ROOM MOVEMENT (1 AP):</span>
+                <span class="nav-loc-chip">CURRENT: <strong>${currentNodeName.toUpperCase()}</strong></span>
+              </div>
+              <div class="nodes-header-right">
+                <button class="btn-toggle-nodes" id="btn-toggle-nodes-state" onclick="event.stopPropagation(); triadEnv.toggleNodesNav();">
+                  <span class="toggle-icon">${this.nodesNavCollapsed ? '▴' : '▾'}</span>
+                  <span class="toggle-text">${this.nodesNavCollapsed ? 'EXPAND ROOMS' : 'MINIMIZE'}</span>
+                </button>
+              </div>
+            </div>
+            <div class="nodes-nav-grid" id="hud-1979-nodes-grid">
+              ${this.renderNodesGridHtml(state, currentNode)}
+            </div>
+          </div>
+
+          <!-- BOTTOM SECTION: ARCHITECT PRIVATE HAND (WHISPER RULE APPLIES) -->
+          <div class="hud-hand-drawer glass-panel ${this.handDrawerCollapsed ? 'drawer-collapsed' : ''}" id="hud-1979-hand-drawer">
+            <div class="hand-drawer-header" onclick="triadEnv.toggleHandDrawer()">
+              <div class="drawer-header-left">
+                <span class="drawer-drag-pill"></span>
+                <span class="drawer-folder-icon">📐</span>
+                <div class="drawer-title-group">
+                  <strong class="drawer-main-title">ARCHITECT PRIVATE HAND</strong>
+                  <span class="drawer-sub-title">1979 BLUEPRINT DOSSIERS & PROTOTYPES</span>
+                </div>
+                <span class="hand-count-badge" id="hud-hand-count-badge">0 CARDS</span>
+              </div>
+
+              <div class="drawer-header-center">
+                <div class="whisper-rule-pill" onclick="event.stopPropagation(); triadEnv.showWhisperModal();" title="Click to view Whisper Rule details">
+                  <span class="whisper-lock-icon">🔒</span>
+                  <span class="whisper-pill-text">WHISPER RULE APPLIES</span>
+                  <span class="whisper-help-icon">ℹ️</span>
+                </div>
+              </div>
+
+              <div class="drawer-header-right">
+                <button class="btn-drawer-toggle" id="btn-drawer-toggle-state" aria-label="Toggle Hand Drawer" onclick="event.stopPropagation(); triadEnv.toggleHandDrawer();">
+                  <span class="toggle-icon">${this.handDrawerCollapsed ? '▴' : '▾'}</span>
+                  <span class="toggle-label">${this.handDrawerCollapsed ? 'EXPAND' : 'COLLAPSE'}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- WHISPER RULE INLINE REMINDER BANNER -->
+            <div class="hand-whisper-banner ${this.whisperBannerDismissed ? 'hidden' : ''}" id="hand-whisper-banner">
+              <div class="whisper-banner-left">
+                <span class="whisper-banner-icon">🤫</span>
+                <div class="whisper-banner-text">
+                  <strong>OPERATIVE 1 WHISPER DIRECTIVE:</strong>
+                  <span>Describe concepts, symbols, and clues verbally in your own words. <em>Do NOT read text verbatim</em> until you spend <strong>1 AP to ANALYZE</strong> the card into Public Intel!</span>
+                </div>
+              </div>
+              <div class="whisper-banner-right">
+                <button class="btn-whisper-details" onclick="event.stopPropagation(); triadEnv.showWhisperModal();">FULL RULES</button>
+                <button class="btn-dismiss-whisper" title="Dismiss banner" onclick="event.stopPropagation(); triadEnv.dismissWhisperBanner();">✕</button>
+              </div>
+            </div>
+
+            <!-- CARDS CONTAINER (HORIZONTAL CAROUSEL ON DESKTOP & TOUCH SLIDER ON MOBILE) -->
+            <div class="hand-cards-container" id="hud-1979-cards-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      `;
+
+      const container = document.getElementById('screen-defuser');
+      if (container) {
+        container.appendChild(hud);
+      }
+    } else {
+      // Dynamic update of existing DOM without resetting scroll/collapse state
+      const stabEl = document.getElementById('hud-1979-stab');
+      const apEl = document.getElementById('hud-1979-ap');
+      const locEl = document.getElementById('hud-1979-loc');
+      const gridEl = document.getElementById('hud-1979-nodes-grid');
+      const locChip = document.querySelector('.nav-loc-chip');
+
+      if (stabEl) {
+        stabEl.innerText = stab;
+        stabEl.style.color = stab <= 5 ? '#ff3344' : (stab <= 10 ? '#f5d76e' : '#00f0ff');
+      }
+      if (apEl) apEl.innerText = `${ap} / 3`;
+      if (locEl) locEl.innerText = `N${currentNode}: ${currentNodeName}`;
+      if (locChip) locChip.innerHTML = `CURRENT: <strong>${currentNodeName.toUpperCase()}</strong>`;
+      if (gridEl) gridEl.innerHTML = this.renderNodesGridHtml(state, currentNode);
     }
+
+    this.render1979Hand();
+  }
+
+  toggleNodesNav(forcedState) {
+    if (typeof forcedState === 'boolean') {
+      this.nodesNavCollapsed = forcedState;
+    } else {
+      this.nodesNavCollapsed = !this.nodesNavCollapsed;
+    }
+
+    const navBar = document.getElementById('hud-1979-nodes-bar');
+    const toggleBtn = document.getElementById('btn-toggle-nodes-state');
+    const topBtn = document.getElementById('btn-top-toggle-rooms');
+
+    if (navBar) {
+      if (this.nodesNavCollapsed) {
+        navBar.classList.add('nav-collapsed');
+      } else {
+        navBar.classList.remove('nav-collapsed');
+      }
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = `
+        <span class="toggle-icon">${this.nodesNavCollapsed ? '▴' : '▾'}</span>
+        <span class="toggle-text">${this.nodesNavCollapsed ? 'EXPAND ROOMS' : 'MINIMIZE'}</span>
+      `;
+    }
+    if (topBtn) {
+      if (this.nodesNavCollapsed) {
+        topBtn.classList.remove('active');
+      } else {
+        topBtn.classList.add('active');
+      }
+    }
+  }
+
+  onOverviewClick() {
+    if (window.bomb3D) {
+      window.bomb3D.setView('OVERVIEW');
+    }
+  }
+
+  renderNodesGridHtml(state, currentNode) {
+    return [1, 2, 3, 4, 5].map(n => {
+      const isHere = (currentNode === n);
+      let statusNotice = '';
+      if (state) {
+        if (n === 1) {
+          const cool = state.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
+          statusNotice = cool ? '<span class="node-tag vent">💨 VENTED</span>' : '<span class="node-tag cold">❄️ CRYO ACTIVE</span>';
+        } else if (n === 2) {
+          const safeBypassed = state.rippleTracks.directorSafe.state === 'BYPASSED';
+          statusNotice = safeBypassed ? '<span class="node-tag open">🔓 SAFE BYPASSED</span>' : '<span class="node-tag locked">🔐 SAFE SECURE</span>';
+        } else if (n === 3) {
+          const vaultOpen = state.rippleTracks.vaultDoor.state === 'UNLOCKED';
+          statusNotice = vaultOpen ? '<span class="node-tag open">🚪 VAULT OPEN</span>' : '<span class="node-tag locked">🔒 VAULT LOCKED</span>';
+        } else if (n === 4) {
+          const flooded = state.rippleTracks.courtyardCistern.state === 'FLOODED';
+          statusNotice = flooded ? '<span class="node-tag wet">🌊 CISTERN FULL</span>' : '<span class="node-tag dry">☀️ DRAINED</span>';
+        } else if (n === 5) {
+          const shielded = state.rippleTracks.securityArchive.state === 'FARADAY_SHIELDED';
+          statusNotice = shielded ? '<span class="node-tag dry">🛡️ FARADAY SHIELD</span>' : '<span class="node-tag warning">📼 UNSHIELDED</span>';
+        }
+        if (state.plantedItems && state.plantedItems[n]) {
+          statusNotice += '<span class="node-tag planted">🌱 ITEM STASHED</span>';
+        }
+      }
+      return `
+        <button class="btn-node-nav ${isHere ? 'active' : ''}" onclick="triadEnv.onMoveNode(${n})">
+          <span class="node-num-tag">NODE ${n}</span>
+          <span class="node-title-tag">${state ? state.nodeNames[n - 1] : ''}</span>
+          ${isHere ? '<span class="meeple-here-badge">YOU ARE HERE</span>' : ''}
+          ${statusNotice}
+        </button>
+      `;
+    }).join('');
+  }
+
+  toggleHandDrawer(forcedState) {
+    if (typeof forcedState === 'boolean') {
+      this.handDrawerCollapsed = forcedState;
+    } else {
+      this.handDrawerCollapsed = !this.handDrawerCollapsed;
+    }
+
+    const drawer = document.getElementById('hud-1979-hand-drawer');
+    const toggleBtn = document.getElementById('btn-drawer-toggle-state');
+    if (drawer) {
+      if (this.handDrawerCollapsed) {
+        drawer.classList.add('drawer-collapsed');
+      } else {
+        drawer.classList.remove('drawer-collapsed');
+      }
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = `
+        <span class="toggle-icon">${this.handDrawerCollapsed ? '▴' : '▾'}</span>
+        <span class="toggle-label">${this.handDrawerCollapsed ? 'EXPAND' : 'COLLAPSE'}</span>
+      `;
+    }
+  }
+
+  dismissWhisperBanner() {
+    this.whisperBannerDismissed = true;
+    const banner = document.getElementById('hand-whisper-banner');
+    if (banner) banner.classList.add('hidden');
+  }
+
+  showWhisperModal() {
+    let modal = document.getElementById('triad-whisper-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'triad-whisper-modal';
+      modal.className = 'triad-modal-overlay';
+      modal.innerHTML = `
+        <div class="triad-modal-card whisper-modal-card" style="max-width: 600px; max-height: 88vh;">
+          <div class="triad-modal-header" style="background: rgba(30, 20, 10, 0.95); border-bottom: 2px solid #f59e0b;">
+            <div class="triad-header-title">
+              <h2 style="color: #fbbf24; display: flex; align-items: center; gap: 8px;">
+                <span>🔒</span> THE WHISPER RULE
+              </h2>
+              <span class="triad-case-tag" style="color: #f59e0b;">CASE 005: THE TRIAD PARADOX // OPERATIVE 1 DIRECTIVE</span>
+            </div>
+            <button class="modal-close-btn" onclick="triadEnv.closeWhisperModal()">✕</button>
+          </div>
+          <div class="triad-modal-body" style="padding: 22px; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; line-height: 1.5; color: #e2e8f0;">
+            <div style="background: rgba(245, 158, 11, 0.12); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-bottom: 18px;">
+              <strong style="color: #fbbf24; font-size: 1.15rem; display: block; margin-bottom: 4px;">TOP-SECRET ASYMMETRIC INFORMATION SPLIT</strong>
+              <p style="margin: 0; font-size: 0.95rem; color: #fde68a;">As The Architect in 1979, cards in your private hand are known <em>only to you</em>. To maintain co-operative deduction integrity, you must strictly follow this protocol:</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="font-size: 1.5rem; line-height: 1;">🗣️</span>
+                <div>
+                  <strong style="color: #38bdf8;">1. SUMMARIZE CONCEPTS VERBALLY</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">You may describe what you see in your own words over voice chat (e.g., <em>"I have a heavy lead canister that shields radioactive isotopes"</em> or <em>"I found a pressure valve controlling subterranean coolant"</em>).</p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="font-size: 1.5rem; line-height: 1;">🚫</span>
+                <div>
+                  <strong style="color: #ef4444;">2. NEVER READ VERBATIM TEXT</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">You may <strong>NEVER</strong> read the exact technical phrasing, serial codes, or card text word-for-word to Operative 2 or Operative 3 while the card remains in your private hand.</p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="font-size: 1.5rem; line-height: 1;">📜</span>
+                <div>
+                  <strong style="color: #00f0ff;">3. ANALYZE (1 AP) -> REVEAL TO PUBLIC INTEL</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">Spending 1 AP analyzes the card, moving it from your private hand to the <strong>Public Intel Board</strong>! All operatives can now view full text and highlight keywords in the Consensus Notebook.</p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="font-size: 1.5rem; line-height: 1;">🌱</span>
+                <div>
+                  <strong style="color: #10b981;">4. PLANT ITEM (1 AP) -> TIME CAPSULE STASH</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">Plantable prototype items can be hidden in your current 1979 room. In 1999, Operative 2 (Detective) can spend 1 AP to secure this exact planted item!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="triad-modal-footer" style="padding: 12px 20px; background: rgba(18, 14, 10, 0.95); border-top: 1px solid rgba(245, 158, 11, 0.2); display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="triadEnv.closeWhisperModal()" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #111; font-weight: 800; font-family: 'JetBrains Mono', monospace; padding: 10px 20px; border-radius: 4px; border: none; cursor: pointer;">
+              UNDERSTOOD // RETURN TO OPERATION
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+    modal.style.display = 'flex';
+  }
+
+  closeWhisperModal() {
+    const modal = document.getElementById('triad-whisper-modal');
+    if (modal) modal.style.display = 'none';
   }
 
   renderHUD() {
@@ -602,33 +995,135 @@ class TriadEnvironment {
     if (window.bomb3D && viewKeys[nodeNum]) {
       window.bomb3D.setView(viewKeys[nodeNum]);
     }
+    this.showRoomTransitNotice(nodeNum);
+  }
+
+  showRoomTransitNotice(nodeNum) {
+    const state = window.triadState;
+    const roomName = (state && state.nodeNames[nodeNum - 1]) ? state.nodeNames[nodeNum - 1] : `Node ${nodeNum}`;
+    
+    // Play transition sound effect
+    if (window.audio) {
+      if (window.audio.playSlide) window.audio.playSlide();
+      else if (window.audio.playClick) window.audio.playClick();
+    }
+
+    let banner = document.getElementById('triad-room-transit-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'triad-room-transit-banner';
+      banner.className = 'triad-room-transit-banner';
+      document.body.appendChild(banner);
+    }
+
+    banner.innerHTML = `
+      <div class="transit-banner-content">
+        <span class="transit-era-tag">1979 ARCHITECT // FACILITY TRANSIT</span>
+        <div class="transit-room-name">
+          <span class="transit-node-badge">SECTOR 0${nodeNum}</span>
+          <strong>${roomName.toUpperCase()}</strong>
+        </div>
+        <span class="transit-status-sub">PRESSURIZED AIRLOCK SEAL VERIFIED ✓</span>
+      </div>
+    `;
+
+    banner.classList.remove('active');
+    void banner.offsetWidth; // Force reflow
+    banner.classList.add('active');
+
+    if (this._transitTimeout) clearTimeout(this._transitTimeout);
+    this._transitTimeout = setTimeout(() => {
+      banner.classList.remove('active');
+    }, 2200);
   }
 
   render1979Hand() {
     const container = document.getElementById('hud-1979-cards-container');
-    const apEl = document.getElementById('hud-1979-ap');
-    if (!container || !window.triadState) return;
+    const badgeEl = document.getElementById('hud-hand-count-badge');
+    const shortcutEl = document.getElementById('hud-hand-count-shortcut');
+    const state = window.triadState;
+    if (!container || !state) return;
 
-    if (apEl) apEl.innerText = `${window.triadState.ap['1979']} / 3`;
+    const hand = state.hands['1979'] || [];
+    const count = hand.length;
 
-    const hand = window.triadState.hands['1979'];
-    if (!hand || hand.length === 0) {
-      container.innerHTML = '<div class="empty-hand" style="padding:10px; color:#888;">No cards in hand. Click SEARCH NODE (1 AP) to gather 1979 blueprints and items!</div>';
+    if (badgeEl) badgeEl.innerText = `${count} CARD${count === 1 ? '' : 'S'}`;
+    if (shortcutEl) shortcutEl.innerText = `${count}`;
+
+    const currentNode = state.meepleNodes['1979'];
+    const currentNodeName = state.nodeNames[currentNode - 1] || `Node ${currentNode}`;
+
+    if (count === 0) {
+      container.innerHTML = `
+        <div class="empty-hand-blueprint">
+          <div class="empty-hand-icon">📂</div>
+          <div class="empty-hand-title">NO BLUEPRINTS IN PRIVATE HAND</div>
+          <p class="empty-hand-desc">Search the current facility station (<strong>${currentNodeName}</strong>) to gather 1979 engineering schematics, physical prototypes, and classified files.</p>
+          <button class="btn btn-primary btn-search-prompt" onclick="triadEnv.onSearchClick()">
+            🔍 SEARCH ${currentNodeName.toUpperCase()} (1 AP)
+          </button>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = hand.map(card => {
-      const canPlant = card.canPlant ? `<button class="btn btn-sm btn-plant" onclick="triadEnv.onPlantClick('${card.id}')">PLANT (1 AP)</button>` : '';
+      const typeLower = (card.type || 'clue').toLowerCase();
+      let typeIcon = '🔍';
+      if (card.type === 'ITEM') typeIcon = '🔧';
+      else if (card.type === 'EVENT') typeIcon = '⚡';
+
+      const originName = (card.node && state.nodeNames[card.node - 1]) 
+        ? state.nodeNames[card.node - 1] 
+        : `NODE ${card.node || 1}`;
+
+      const keywords = (card.keywords || []).map(kw => 
+        `<span class="card-kw-chip" title="Consensus Keyword">🔑 ${kw}</span>`
+      ).join('');
+
+      let plantHtml = '';
+      if (card.canPlant) {
+        plantHtml = `
+          <button class="btn btn-card-action btn-plant" onclick="triadEnv.onPlantClick('${card.id}')" title="Stash in ${currentNodeName} for 1999 detective to uncover">
+            <span class="btn-icon">🌱</span>
+            <div class="btn-text-col">
+              <span class="btn-primary-text">PLANT ITEM (1 AP)</span>
+              <span class="btn-sub-text">Stash in ${currentNodeName}</span>
+            </div>
+          </button>
+        `;
+      }
+
       return `
-        <div class="hand-card-chip glass-panel">
-          <div class="card-chip-top">
-            <strong class="card-chip-title">${card.title}</strong>
-            <span class="card-chip-type">${card.type}</span>
+        <div class="hand-card-chip card-type-${typeLower}">
+          <!-- Card Header Strip -->
+          <div class="card-chip-header">
+            <div class="card-header-left">
+              <span class="card-type-tag tag-${typeLower}">
+                ${typeIcon} ${card.type}
+              </span>
+              <span class="card-origin-tag">📍 ${originName}</span>
+            </div>
+            <span class="card-whisper-stamp">PRIVATE</span>
           </div>
-          <p class="card-chip-desc">${card.text}</p>
-          <div class="card-chip-actions">
-            <button class="btn btn-sm btn-analyze" onclick="triadEnv.onAnalyzeClick('${card.id}')">ANALYZE (1 AP)</button>
-            ${canPlant}
+
+          <!-- Card Body -->
+          <div class="card-chip-body">
+            <h4 class="card-chip-title">${card.title}</h4>
+            <p class="card-chip-desc">${card.text}</p>
+            ${keywords ? `<div class="card-chip-keywords">${keywords}</div>` : ''}
+          </div>
+
+          <!-- Card Actions -->
+          <div class="card-chip-footer">
+            <button class="btn btn-card-action btn-analyze" onclick="triadEnv.onAnalyzeClick('${card.id}')" title="Spend 1 AP to reveal exact text to all 3 operatives on the Public Intel Board">
+              <span class="btn-icon">📜</span>
+              <div class="btn-text-col">
+                <span class="btn-primary-text">ANALYZE (1 AP)</span>
+                <span class="btn-sub-text">Reveal to Public Intel</span>
+              </div>
+            </button>
+            ${plantHtml}
           </div>
         </div>
       `;

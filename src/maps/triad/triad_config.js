@@ -10,7 +10,7 @@ window.ESCAPE_MAPS['triad'] = {
   id: 'triad',
   name: 'THE TRIAD PARADOX: THE OUROBOROS CONVERGENCE',
   era: 'MAP 5 // TEMPORAL ANOMALY 1979-2019',
-  baseTimer: 1080, // 18:00 minutes (18 Chronal Units)
+  baseTimer: 3000, // 50:00 minutes (Deep Asymmetric Investigation)
   danger: 'Class-Omega Paradox (LEVEL 5 MASTER)',
   modulesCount: '6 Ripple Tracks & 3-Era Investigation',
   desc: "Cross-era temporal murder mystery across 1979, 1999, and 2019. Manipulate the 6-track Ripple Matrix, investigate the sealed vault crime scene, and synthesize quantum archives before stability collapses.",
@@ -28,7 +28,7 @@ window.ESCAPE_MAPS['triad'] = {
   },
 
   generateSpecs(seed, game) {
-    game.timerSeconds = 1080; // 18 minutes base
+    game.timerSeconds = 3000; // 50:00 minutes base gameplay
 
     // Initialize or reset TriadStateManager
     if (window.TriadStateManager) {

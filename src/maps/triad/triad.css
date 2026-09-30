@@ -508,154 +508,905 @@
   box-shadow: 0 0 24px rgba(225, 29, 72, 0.7);
 }
 
-/* 1979 ARCHITECT HUD OVERLAY */
+/* ==========================================================================
+   1979 ARCHITECT HUD OVERLAY & RESPONSIVE PRIVATE HAND DRAWER
+   ========================================================================== */
 .triad-architect-hud {
   position: absolute;
-  top: 60px;
-  left: 20px;
-  right: 20px;
+  top: 52px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
   z-index: 100;
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .triad-architect-hud > * {
   pointer-events: auto;
 }
 
+/* TOP COMMAND BAR (SLIM, NON-OBSTRUCTIVE SINGLE STRIP) */
 .hud-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  border: 1px solid rgba(230, 161, 92, 0.3);
+  padding: 6px 14px;
+  height: 44px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: 6px;
-  background: rgba(18, 14, 10, 0.85);
+  background: rgba(10, 16, 28, 0.92);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 240, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.hud-era-badge {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 800;
-  color: #e6a15c;
-  font-size: 0.95rem;
-}
-
-.hud-ap-counter {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  color: #aaa;
-}
-
-.hud-ap-counter strong, .hud-ap-counter .ap-value {
-  color: #00f0ff;
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-.hud-actions-row {
+.station-identity {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.station-era-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.badge-1979 {
+  background: rgba(230, 161, 92, 0.18);
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+.facility-status-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.station-metrics {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metric-chip {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.metric-chip .m-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.metric-chip .m-val {
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.metric-chip .ap-val {
+  color: #00f0ff;
+  font-weight: 800;
+}
+
+.hud-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .btn-hud-action {
-  background: #2a2016;
-  border: 1px solid #e6a15c;
-  color: #e6a15c;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
   padding: 6px 12px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.btn-hud-action:hover {
-  background: #e6a15c;
-  color: #111;
+.btn-hud-action .ap-badge {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.3);
 }
 
-.hud-hand-drawer {
-  max-width: 480px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  background: rgba(12, 14, 20, 0.88);
-  max-height: 220px;
-  overflow-y: auto;
+.btn-hud-action.action-search {
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
 }
 
-.hand-drawer-header {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: #888;
-  margin-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 4px;
+.btn-hud-action.action-search:hover {
+  background: rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+  transform: translateY(-1px);
 }
 
-.hand-cards-list {
+.btn-hud-action.action-ripple {
+  border-color: rgba(192, 132, 252, 0.4);
+  color: #c084fc;
+}
+
+.btn-hud-action.action-ripple:hover {
+  background: rgba(192, 132, 252, 0.2);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-hud-action.action-consensus {
+  border-color: rgba(245, 215, 110, 0.4);
+  color: #f5d76e;
+}
+
+.btn-hud-action.action-consensus:hover {
+  background: rgba(245, 215, 110, 0.2);
+  box-shadow: 0 0 14px rgba(245, 215, 110, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-hud-action.action-rooms {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.btn-hud-action.action-rooms:hover,
+.btn-hud-action.action-rooms.active {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.btn-hud-action.action-overview {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+}
+
+.btn-hud-action.action-overview:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: #cbd5e1;
+}
+
+/* ==========================================================================
+   BOTTOM CONTROL DOCK (ROOM NAVIGATION & PRIVATE HAND DOCKED AT BOTTOM)
+   ========================================================================== */
+.hud-bottom-dock {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.hand-card-chip {
-  padding: 8px 10px;
-  border-left: 3px solid #e6a15c;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 0 4px 4px 0;
-}
-
-.card-chip-top {
+/* 1979 FACILITY ROOM MOVEMENT BAR (SLIM, COLLAPSIBLE, SITS ABOVE HAND DRAWER) */
+.triad-nodes-navbar {
+  background: linear-gradient(165deg, rgba(10, 18, 34, 0.94), rgba(6, 12, 24, 0.97));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(0, 240, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
+  flex-direction: column;
+}
+
+.nodes-nav-header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.card-chip-title {
-  color: #fff;
-  font-size: 0.85rem;
-}
-
-.card-chip-type {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  color: #e6a15c;
-}
-
-.card-chip-desc {
-  font-size: 0.78rem;
-  color: #94a3b8;
+  cursor: pointer;
+  user-select: none;
+  gap: 10px;
   margin-bottom: 6px;
 }
 
-.card-chip-actions {
+.nodes-header-left {
   display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-icon {
+  font-size: 1rem;
+}
+
+.nav-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.nav-loc-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-loc-chip strong {
+  color: #00f0ff;
+}
+
+.btn-toggle-nodes {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #cbd5e1;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-nodes:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.nodes-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  transition: max-height 0.25s ease, opacity 0.2s ease, margin 0.2s ease;
+}
+
+.triad-nodes-navbar.nav-collapsed .nodes-nav-grid {
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  margin: 0;
+}
+
+.triad-nodes-navbar.nav-collapsed .nodes-nav-header {
+  margin-bottom: 0;
+}
+
+.btn-node-nav {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  border-radius: 5px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  text-align: center;
+}
+
+.btn-node-nav:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.btn-node-nav.active {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: #00f0ff;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+}
+
+.node-nav-main {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.node-num-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.node-title-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.meeple-here-badge {
+  background: #00f0ff;
+  color: #0a0e17;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.node-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   ARCHITECT PRIVATE HAND DRAWER (WHISPER RULE APPLIES)
+   ========================================================================== */
+.hud-hand-drawer {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 8px;
+  background: linear-gradient(165deg, rgba(10, 18, 34, 0.95), rgba(5, 10, 20, 0.98));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 24px rgba(0, 240, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* DRAWER HEADER */
+.hand-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, rgba(16, 32, 58, 0.94), rgba(10, 22, 42, 0.94));
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+  transition: background 0.2s ease;
+}
+
+.hand-drawer-header:hover {
+  background: linear-gradient(90deg, rgba(22, 44, 78, 0.95), rgba(14, 28, 54, 0.95));
+}
+
+.drawer-drag-pill {
+  display: none;
+}
+
+.drawer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.drawer-folder-icon {
+  font-size: 1.25rem;
+}
+
+.drawer-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-main-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+
+.drawer-sub-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.hand-count-badge {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.drawer-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.whisper-rule-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.whisper-rule-pill:hover {
+  background: rgba(245, 158, 11, 0.3);
+  transform: scale(1.03);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.5);
+}
+
+.whisper-help-icon {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.drawer-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-drawer-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-drawer-toggle:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* WHISPER RULE INLINE REMINDER BANNER */
+.hand-whisper-banner {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.16), rgba(30, 20, 10, 0.25));
+  border-left: 4px solid #f59e0b;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #fde68a;
+  box-sizing: border-box;
+}
+
+.whisper-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whisper-banner-icon {
+  font-size: 1.2rem;
+}
+
+.whisper-banner-text strong {
+  color: #fbbf24;
+  margin-right: 6px;
+}
+
+.whisper-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-whisper-details {
+  background: transparent;
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-whisper-details:hover {
+  background: #f59e0b;
+  color: #111;
+}
+
+.btn-dismiss-whisper {
+  background: none;
+  border: none;
+  color: #f59e0b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: color 0.2s ease;
+}
+
+.btn-dismiss-whisper:hover {
+  color: #fff;
+}
+
+/* CARDS HORIZONTAL CONTAINER */
+.hand-cards-container {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  max-height: 310px;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
+  box-sizing: border-box;
+}
+
+.hand-cards-container::-webkit-scrollbar {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.hand-cards-container::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+}
+
+.hand-cards-container::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* COLLAPSED DRAWER STATE */
+.hud-hand-drawer.drawer-collapsed .hand-whisper-banner {
+  display: none !important;
+}
+
+.hud-hand-drawer.drawer-collapsed .hand-cards-container {
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hud-hand-drawer.drawer-collapsed .hand-drawer-header {
+  border-bottom: none;
+}
+
+/* HAND CARD CHIP (BLUEPRINT DOSSIER STYLE) */
+.hand-card-chip {
+  flex: 0 0 320px;
+  min-width: 300px;
+  max-width: 340px;
+  background: linear-gradient(150deg, rgba(16, 26, 44, 0.95), rgba(8, 14, 26, 0.97));
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.hand-card-chip:hover {
+  transform: translateY(-4px);
+  border-color: #38bdf8;
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25);
+}
+
+.hand-card-chip.card-type-item {
+  border-left: 4px solid #f59e0b;
+}
+
+.hand-card-chip.card-type-clue {
+  border-left: 4px solid #00f0ff;
+}
+
+.hand-card-chip.card-type-event {
+  border-left: 4px solid #f43f5e;
+}
+
+.card-chip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
   gap: 6px;
 }
 
-.btn-analyze {
-  background: #00f0ff;
-  color: #111;
-  font-weight: 700;
-  border: none;
-  padding: 3px 8px;
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.card-type-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
   border-radius: 3px;
-  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+}
+
+.card-type-tag.tag-item {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+}
+
+.card-type-tag.tag-clue {
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+  border: 1px solid #00f0ff;
+}
+
+.card-type-tag.tag-event {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fb7185;
+  border: 1px solid #f43f5e;
+}
+
+.card-origin-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-whisper-stamp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #ef4444;
+  border: 1px dashed rgba(239, 68, 68, 0.6);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.card-chip-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-chip-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px 0;
+  line-height: 1.25;
+  letter-spacing: 0.5px;
+}
+
+.card-chip-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+  flex: 1;
+}
+
+.card-chip-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.card-kw-chip {
+  display: inline-block;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+}
+
+.card-chip-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.btn-card-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-card-action .btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-card-action .btn-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-card-action .btn-primary-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.btn-card-action .btn-sub-text {
+  font-size: 0.68rem;
+  opacity: 0.85;
+}
+
+.btn-analyze {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22), rgba(14, 165, 233, 0.38));
+  border: 1px solid #00f0ff;
+  color: #fff;
+}
+
+.btn-analyze:hover {
+  background: #00f0ff;
+  color: #0a0e17;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .btn-plant {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.38));
+  border: 1px solid #10b981;
+  color: #fff;
+}
+
+.btn-plant:hover {
   background: #10b981;
-  color: #111;
+  color: #0a0e17;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+/* EMPTY HAND BLUEPRINT FRAME */
+.empty-hand-blueprint {
+  flex: 1;
+  padding: 28px 20px;
+  text-align: center;
+  border: 2px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.empty-hand-icon {
+  font-size: 2.2rem;
+  opacity: 0.8;
+}
+
+.empty-hand-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
   font-weight: 700;
-  border: none;
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-size: 0.72rem;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+
+.empty-hand-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  max-width: 480px;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.btn-search-prompt {
+  margin-top: 6px;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border: 1px solid #38bdf8;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 18px;
+  border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-search-prompt:hover {
+  background: #38bdf8;
+  color: #0c121e;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -906,6 +1657,37 @@
   background: rgba(245, 215, 110, 0.15);
   color: #f5d76e;
   border: 1px solid rgba(245, 215, 110, 0.3);
+}
+
+.node-tag.planted {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  animation: pulseNodePlanted 2s infinite ease-in-out;
+}
+
+.node-tag.cold {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.node-tag.warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.node-tag.crime {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  font-weight: 800;
+}
+
+@keyframes pulseNodePlanted {
+  0%, 100% { box-shadow: 0 0 4px rgba(52, 211, 153, 0.4); }
+  50% { box-shadow: 0 0 10px rgba(52, 211, 153, 0.8); }
 }
 
 /* ACTION TOOLBAR */
@@ -1513,12 +2295,723 @@
   box-shadow: 0 0 30px rgba(225, 29, 72, 0.75);
 }
 
-/* MEDIA QUERIES FOR NARROW OR LAPTOP SCREENS */
+/* ==========================================================================
+   MEDIA QUERIES FOR NARROW SCREENS, TABLETS & MOBILE PHONES
+   ========================================================================== */
 @media (max-width: 900px) {
-  .nodes-nav-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
   .synth-selection-row {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 860px) {
+  .triad-architect-hud {
+    top: 48px;
+    left: 8px;
+    right: 8px;
+    bottom: 0;
+    gap: 6px;
+  }
+
+  .hud-top-bar {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+
+  .station-identity {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .station-metrics {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .metric-chip {
+    padding: 3px 6px;
+    font-size: 0.68rem;
+    justify-content: center;
+    border-radius: 3px;
+  }
+
+  .metric-chip .m-label {
+    display: none;
+  }
+
+  .hud-top-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .btn-hud-action {
+    padding: 6px 2px;
+    font-size: 0.68rem;
+    justify-content: center;
+    min-height: 36px;
+  }
+
+  /* MOBILE DOCKED BOTTOM DOCK (ROOM NAVIGATION & PRIVATE HAND) */
+  .hud-bottom-dock {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .triad-nodes-navbar {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 6px 10px;
+    background: rgba(8, 14, 26, 0.98);
+  }
+
+  .nodes-nav-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .btn-node-nav {
+    padding: 4px 2px;
+    min-height: 40px;
+  }
+
+  .node-num-tag {
+    font-size: 0.65rem;
+  }
+
+  .node-title-tag {
+    font-size: 0.62rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .node-tag {
+    display: none;
+  }
+
+  .meeple-here-badge {
+    font-size: 0.55rem;
+    padding: 1px 3px;
+  }
+
+  /* MOBILE DOCKED BOTTOM SHEET DRAWER */
+  .hud-hand-drawer {
+    border-radius: 0;
+    border-top: 2px solid #00f0ff;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+    background: rgba(8, 14, 26, 0.98);
+  }
+
+  .drawer-drag-pill {
+    display: block;
+    width: 38px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 2px;
+    margin: 0 auto 6px;
+  }
+
+  .hand-drawer-header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .drawer-header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .drawer-main-title {
+    font-size: 1rem;
+  }
+
+  .drawer-sub-title {
+    font-size: 0.62rem;
+  }
+
+  .hand-count-badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+  }
+
+  .drawer-header-center {
+    order: 3;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .whisper-rule-pill {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 0.74rem;
+    box-sizing: border-box;
+  }
+
+  .drawer-header-right {
+    order: 2;
+  }
+
+  .btn-drawer-toggle {
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+
+  .hand-whisper-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 12px;
+  }
+
+  .whisper-banner-right {
+    margin-top: 6px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hand-cards-container {
+    max-height: 52vh;
+    padding: 10px;
+    gap: 12px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hand-card-chip {
+    flex: 0 0 85vw;
+    min-width: 260px;
+    max-width: 320px;
+    scroll-snap-align: center;
+    padding: 12px;
+  }
+
+  .btn-card-action {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  .btn-card-action .btn-primary-text {
+    font-size: 0.82rem;
+  }
+
+  .btn-card-action .btn-sub-text {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nodes-nav-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+  }
+
+  .btn-node-nav {
+    padding: 3px 1px;
+    min-height: 44px;
+  }
+
+  .node-num-tag {
+    font-size: 0.58rem;
+  }
+
+  .node-title-tag {
+    font-size: 0.55rem;
+  }
+
+  .hud-quick-actions-bar {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .btn-hud-action {
+    padding: 6px 4px;
+    font-size: 0.68rem;
+  }
+
+  .hand-card-chip {
+    flex: 0 0 88vw;
+    min-width: 250px;
+  }
+}
+
+/* ==========================================================================
+   2D ROOM ENVIRONMENT VIEWPORT & MULTI-ROOM TRANSIT OVERHAUL
+   (APPLIED TO ALL OPERATIVES ACROSS 1979, 1999, AND 2019 ERAS)
+   ========================================================================== */
+
+/* Animated Room Transit Notice Banner (Global HUD Overlay) */
+.triad-room-transit-banner {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  z-index: 10000;
+  min-width: 320px;
+  max-width: 90%;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(24, 16, 38, 0.96));
+  border: 1px solid #00f0ff;
+  box-shadow: 0 8px 32px rgba(0, 240, 255, 0.35), 0 0 16px rgba(168, 85, 247, 0.25);
+  border-radius: 8px;
+  padding: 12px 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.triad-room-transit-banner.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.transit-banner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.transit-era-tag, .banner-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #00f0ff;
+  text-transform: uppercase;
+}
+
+.transit-room-name, .banner-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.transit-node-badge {
+  background: #38bdf8;
+  color: #040914;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.transit-status-sub, .banner-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+/* 2D Room Viewport Container */
+.triad-2d-room-viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  margin-bottom: 18px;
+  position: relative;
+}
+
+/* Room Header Information */
+.room-2d-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.room-title-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 680px;
+}
+
+.room-tag-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.room-era-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.room-era-pill.badge-1999 {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.room-era-pill.badge-2019 {
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+}
+
+.room-sector-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.room-name-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 2px 0 0 0;
+  letter-spacing: 0.8px;
+}
+
+.room-desc-text {
+  font-size: 0.84rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.room-status-col {
+  display: flex;
+  align-items: center;
+}
+
+.room-status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+}
+
+.room-status-badge.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.room-status-badge.badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.room-status-badge.badge-blue {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.room-status-badge.badge-cyan {
+  background: rgba(6, 182, 212, 0.15);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+}
+
+.room-status-badge.badge-purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+/* 2D Illustrated Room Stage Wrapper */
+.room-stage-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #060911;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.room-2d-svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 900 / 380;
+  display: block;
+}
+
+/* Interactive Hotspot Pins Overlaid on 2D Room */
+.room-hotspots-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.room-hotspot-pin {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.room-hotspot-pin:hover {
+  transform: translate(-50%, -58%) scale(1.1);
+  z-index: 20;
+}
+
+.hotspot-pulse {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #00f0ff;
+  animation: hotspot-pulse-anim 2.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes hotspot-pulse-anim {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.hotspot-core {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.92);
+  border: 2px solid #00f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.6);
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.room-hotspot-pin:hover .hotspot-core {
+  background: rgba(30, 41, 59, 0.98);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.9);
+}
+
+.hotspot-label {
+  margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(10, 15, 26, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.5px;
+}
+
+/* Room Action Roster Bar */
+.room-roster-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(10, 15, 26, 0.85);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.roster-left, .roster-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Evidence Inspection Modal Popover */
+.evidence-inspect-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10005;
+  width: 92%;
+  max-width: 480px;
+  background: rgba(11, 16, 28, 0.98);
+  border: 1px solid #00f0ff;
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.35);
+  border-radius: 8px;
+  padding: 18px 20px;
+  backdrop-filter: blur(12px);
+  animation: inspect-modal-in 0.25s ease-out;
+}
+
+@keyframes inspect-modal-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.inspect-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.inspect-card-header h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.8px;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-inspect-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.btn-inspect-close:hover {
+  color: #ff3344;
+}
+
+.inspect-card-body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.inspect-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Mobile Responsiveness for 2D Rooms */
+@media (max-width: 768px) {
+  .room-2d-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .room-status-col {
+    justify-content: flex-start;
+  }
+
+  .room-2d-svg {
+    aspect-ratio: 900 / 460;
+  }
+
+  .hotspot-core {
+    width: 30px;
+    height: 30px;
+    font-size: 0.95rem;
+  }
+
+  .hotspot-pulse {
+    width: 38px;
+    height: 38px;
+  }
+
+  .hotspot-label {
+    font-size: 0.58rem;
+    padding: 1px 4px;
+  }
+
+  .room-roster-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .roster-left, .roster-right {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .roster-left .btn, .roster-right .btn {
+    flex: 1 1 auto;
+    font-size: 0.76rem;
+  }
+}
+

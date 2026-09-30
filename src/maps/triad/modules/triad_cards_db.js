@@ -147,6 +147,31 @@ window.TRIAD_CARDS_DB = {
       text: 'Project Ouroboros emitter frequencies must be synchronized precisely to 432.0 Hz to pierce the Vault chronal shielding.',
       keywords: ['RESONANCE-432HZ', 'SPECTRAL-TUNING']
     },
+    {
+      id: '79-item-07',
+      title: 'Tachyon Chamber Emergency Key',
+      type: 'ITEM',
+      node: 3, // Temporal Vault
+      text: 'Specialized magnetic bypass key fitted for the inner blast door lock of the temporal chamber.',
+      keywords: ['VAULT-OVERRIDE', 'DUAL-KEY-PROTOCOL'],
+      canPlant: true
+    },
+    {
+      id: '79-clue-11',
+      title: 'Tachyon Displacement Safety Protocol',
+      type: 'CLUE',
+      node: 3, // Temporal Vault
+      text: 'Safety warning: Activating the displacement ring at 432 Hz without the lead-lined containment cylinder causes violent inverted cellular dissolution.',
+      keywords: ['RESONANCE-432HZ', 'SAFETY-LIMIT-432HZ', 'DISPLACEMENT-CORE']
+    },
+    {
+      id: '79-clue-12',
+      title: 'Cistern Sub-Aquifer Flow Schematics',
+      type: 'CLUE',
+      node: 4, // Courtyard
+      text: 'Architectural records verify the courtyard cistern basin can be fully drained into the municipal storm channel in less than two minutes using the manual valve.',
+      keywords: ['CISTERN-DRAIN', 'DRAINAGE-BYPASS']
+    },
 
     // Events
     {
@@ -281,6 +306,62 @@ window.TRIAD_CARDS_DB = {
       node: 4, // Courtyard
       text: 'Designer Italian leather boots (Women\'s Size 7) pressed into the mud beside the drainage cistern.',
       keywords: ['VALERIE-CROSS', 'PHYSICAL-TRAIT', 'FOOTPRINT-CAST']
+    },
+    {
+      id: '99-item-05',
+      title: "Director Vance's Hidden Dictaphone Tape",
+      type: 'ITEM',
+      node: 2, // Director's Office
+      text: 'Micro-cassette taped underneath Vance\'s desk blotter: "Cross knows the patent value. If I am found dead, inspect the resonance weapon frequencies."',
+      keywords: ['DIRECTOR-VANCE', 'TEMPORAL-FLIGHT', 'DIRECTOR-OFFICE']
+    },
+    {
+      id: '99-clue-09',
+      title: 'Scorched Carpet Residue Near Wall Safe',
+      type: 'CLUE',
+      node: 2, // Director's Office
+      text: 'High-temperature thermal singeing on the oriental rug directly in front of the wall safe, consistent with a hot tachyon emitter discharge.',
+      keywords: ['BIOMETRIC-ENCRYPTION', 'DIRECTOR-OFFICE', 'PATENT-THEFT']
+    },
+    {
+      id: '99-clue-10',
+      title: "Valerie Cross's Swiss Airline Ticket Receipt",
+      type: 'CLUE',
+      node: 2, // Director's Office
+      text: 'Concealed flight coupon for Swissair SR-112 departing JFK at 01:15 AM on October 15, 1999. Booked under the corporate alias "V. Thorne".',
+      keywords: ['VALERIE-CROSS', 'SWISS-ACCOUNTS', 'ALIBI-FRAUD']
+    },
+    {
+      id: '99-clue-11',
+      title: 'Tachyon Emitter Heavy Mounting Screws',
+      type: 'CLUE',
+      node: 3, // Temporal Vault
+      text: 'Industrial tripod mounting bolts sheared off near the primary temporal conduit, proving a heavy directed energy weapon was mounted here.',
+      keywords: ['WEAPON-SIGNATURE', 'DISPLACEMENT-CORE']
+    },
+    {
+      id: '99-clue-12',
+      title: "Dr. Lin's Discarded Pocket Notebook",
+      type: 'CLUE',
+      node: 3, // Temporal Vault
+      text: 'Bloodstained notes recovered near the vault blast door: "Cross forced me to calibrate the 432 Hz emitter... she took my hand..."',
+      keywords: ['MAYA-LIN', 'BIOMETRIC-ENCRYPTION', 'RESONANCE-432HZ']
+    },
+    {
+      id: '99-clue-13',
+      title: 'Courtyard Culvert Scuff Marks',
+      type: 'CLUE',
+      node: 4, // Courtyard
+      text: 'Heavy brass scuff marks on the lip of the cistern drain. An object roughly the size of a cylindrical displacement core was dropped inside.',
+      keywords: ['CISTERN-DRAIN', 'FOOTPRINT-CAST', 'DISPLACEMENT-CORE']
+    },
+    {
+      id: '99-item-06',
+      title: 'Discarded Luxury Silk Scarf with Gunpowder Stains',
+      type: 'ITEM',
+      node: 4, // Courtyard
+      text: 'Hermès silk scarf found caught in the courtyard shrubbery near the cistern. Scented with Chanel No. 19—Valerie Cross\'s signature perfume.',
+      keywords: ['VALERIE-CROSS', 'PHYSICAL-TRAIT', 'BLOOD-STAINED']
     },
 
     // Events
@@ -429,6 +510,70 @@ window.TRIAD_CARDS_DB = {
       node: 3, // Temporal Vault
       text: 'Maya Lin was officially declared dead in the 1979 explosion, but no death certificate was ever signed. Her personal bank account was accessed in 1999.',
       keywords: ['MAYA-LIN', 'STAGED-EXPLOSION', 'BIOMETRIC-ENCRYPTION']
+    },
+    {
+      id: '19-item-04',
+      title: 'Calibrated Mass Spectrometer Core Log',
+      type: 'ITEM',
+      node: 1, // Laboratory
+      text: 'Extracted digital log from the lab ruins showing weapon resonance harmonics calibrated to precisely 432.0 Hz before the power spike.',
+      keywords: ['SPECTRAL-TUNING', 'RESONANCE-432HZ']
+    },
+    {
+      id: '19-clue-07',
+      title: 'Laboratory Chemical Solvent Disposal Audit',
+      type: 'CLUE',
+      node: 1, // Laboratory
+      text: 'Hazardous materials audit reveals two canisters of volatile methyl ether were deliberately drained into the lab conduits at 23:35 on the night of the murder.',
+      keywords: ['LAB-DIVERSION', 'STAGED-EXPLOSION']
+    },
+    {
+      id: '19-clue-08',
+      title: 'Liquid Nitrogen Conduit Ultrasonic Inspection',
+      type: 'CLUE',
+      node: 1, // Laboratory
+      text: 'Ultrasonic pipe sensor telemetry shows the main cryo-coolant valve was depressurized manually from the lab manifold prior to the vault breach.',
+      keywords: ['COOLANT-SYSTEM', 'VENT-BYPASS']
+    },
+    {
+      id: '19-clue-09',
+      title: 'Chronal Waveform Resonance Decay Record',
+      type: 'CLUE',
+      node: 3, // Temporal Vault
+      text: 'Quantum lidar detects inverted chronal decay loops in the vault center. Vance\'s cellular signature shows a 20-year time displacement forward and back.',
+      keywords: ['AGE-ANOMALY', 'TACHYON-RESONANCE', 'DIRECTOR-VANCE']
+    },
+    {
+      id: '19-clue-10',
+      title: 'Reconstructed Vault Door Sensor Micro-Logs',
+      type: 'CLUE',
+      node: 3, // Temporal Vault
+      text: 'Restored magnetic door controller memory verifies the vault was deadbolted from the exterior at 23:41 by biometric palm authorization #02 (Maya Lin).',
+      keywords: ['VAULT-DOOR', 'DEADBOLTED', 'DUAL-KEY-PROTOCOL']
+    },
+    {
+      id: '19-clue-11',
+      title: 'Ground-Penetrating Radar Analysis of Drainage Basin',
+      type: 'CLUE',
+      node: 4, // Courtyard
+      text: 'Subsurface radar profile reveals a high-density crystalline cylinder matching the missing Project Ouroboros displacement core resting in the silt.',
+      keywords: ['CISTERN-DRAIN', 'SUBSURFACE-RADAR', 'DISPLACEMENT-CORE']
+    },
+    {
+      id: '19-clue-12',
+      title: 'Excavated Soil Core Sample from Courtyard Sump',
+      type: 'CLUE',
+      node: 4, // Courtyard
+      text: 'Soil core spectrometry indicates heavy tachyon isotope contamination near the cistern drainage lip, dated precisely to October 1999.',
+      keywords: ['ISOTOPE-DECAY', 'TACHYON-RESONANCE']
+    },
+    {
+      id: '19-item-05',
+      title: 'Restored Digital Security Surveillance Manifest',
+      type: 'ITEM',
+      node: 5, // Security Hub
+      text: 'Laser-restored optical scan of the security mainframe reel-to-reel media. Corroborates Cross\'s departure through the south checkpoint at 23:55.',
+      keywords: ['DEEP-ARCHIVE', 'QUANTUM-BYPASS', 'FARADAY-SHIELD']
     },
 
     // Events
