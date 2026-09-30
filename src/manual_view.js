@@ -24,6 +24,7 @@ class ManualViewEngine {
     if (window.ESCAPE_MAPS && window.ESCAPE_MAPS[this.scenario]) {
       return window.ESCAPE_MAPS[this.scenario].getManualRenderer();
     }
+    if (this.scenario === 'triad') return window.TriadManualView;
     if (this.scenario === 'levelnull') return window.LevelNullManualView;
     if (this.scenario === 'morgue') return window.MorgueManualView;
     if (this.scenario === 'alchemist') return window.AlchemistManualView;
@@ -33,6 +34,28 @@ class ManualViewEngine {
   init(scenario = 'silo44') {
     const activeScenario = scenario || (window.game ? window.game.scenario : 'silo44');
     this.scenario = activeScenario;
+    const triadStation = document.getElementById('triad-detective-station');
+    const viewport = document.querySelector('#screen-manual .room-viewport');
+
+    if (this.scenario === 'triad') {
+      if (viewport) viewport.classList.add('hidden');
+      const deskRoom = document.getElementById('manual-desk-room');
+      const binderInspect = document.getElementById('manual-binder-inspect');
+      const boardInspect = document.getElementById('manual-board-inspect');
+      const backBtn = document.getElementById('manual-back-btn');
+      if (deskRoom) deskRoom.classList.add('hidden');
+      if (binderInspect) binderInspect.classList.add('hidden');
+      if (boardInspect) boardInspect.classList.add('hidden');
+      if (backBtn) backBtn.classList.add('hidden');
+
+      const triadRenderer = new window.TriadManualView(this);
+      triadRenderer.init();
+      return;
+    }
+
+    if (viewport) viewport.classList.remove('hidden');
+    if (triadStation) triadStation.classList.add('hidden');
+
     const renderer = this.getRenderer();
     this.totalPages = renderer ? renderer.totalPages : 5;
     this.currentPage = 0;
@@ -43,6 +66,10 @@ class ManualViewEngine {
 
   setScenario(scenario) {
     this.scenario = scenario;
+    if (this.scenario === 'triad') {
+      this.init('triad');
+      return;
+    }
     const renderer = this.getRenderer();
     this.totalPages = renderer ? renderer.totalPages : 5;
     this.currentPage = 0;

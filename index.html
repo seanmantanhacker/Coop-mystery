@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="src/maps/alchemist/alchemist.css">
   <link rel="stylesheet" href="src/maps/morgue/morgue.css">
   <link rel="stylesheet" href="src/maps/levelnull/levelnull.css">
+  <link rel="stylesheet" href="src/maps/triad/triad.css">
   
   <!-- Modern Tactical & Antique Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,6 +126,17 @@
                   <span>⏱️ 15:00 Base</span>
                   <span>🌀 Class-5 Anomaly</span>
                   <span>🚪 3 Door-to-Door Chambers</span>
+                </div>
+              </div>
+
+              <div class="scenario-card" id="card-scenario-triad" data-scenario="triad" onclick="game.selectScenario('triad')">
+                <div class="scenario-badge purple">MAP 5 // TEMPORAL ANOMALY 1979-2019</div>
+                <h3>THE TRIAD PARADOX: OUROBOROS</h3>
+                <p class="scenario-desc">Cross-era temporal murder mystery across 1979, 1999, and 2019. Manipulate the 6-track Ripple Matrix, investigate the sealed vault crime scene, and synthesize quantum archives before stability collapses.</p>
+                <div class="scenario-meta">
+                  <span>⏱️ 18 Chronal Units</span>
+                  <span>⚡ Paradox Hazard</span>
+                  <span>⏳ 3 Asymmetric Eras</span>
                 </div>
               </div>
             </div>
@@ -1463,6 +1475,15 @@
   <script src="src/maps/levelnull/levelnull_manual.js"></script>
   <script src="src/maps/levelnull/levelnull_intel.js"></script>
   <script src="src/maps/levelnull/levelnull_config.js"></script>
+
+  <!-- Map 5: The Triad Paradox (Case 005 - The Ouroboros Convergence) -->
+  <script src="src/maps/triad/modules/triad_cards_db.js"></script>
+  <script src="src/maps/triad/modules/triad_state.js"></script>
+  <script src="src/maps/triad/modules/triad_ripple_matrix.js"></script>
+  <script src="src/maps/triad/triad_env.js"></script>
+  <script src="src/maps/triad/triad_manual.js"></script>
+  <script src="src/maps/triad/triad_intel.js"></script>
+  <script src="src/maps/triad/triad_config.js"></script>
 
   <!-- Core Game Engines & Controllers -->
   <script src="src/manual_view.js"></script>

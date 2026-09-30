@@ -42,6 +42,8 @@ class EscapeRoomEnvironmentManager {
       if (mapId === 'silo44') EnvClass = window.Silo44Environment;
       else if (mapId === 'alchemist') EnvClass = window.AlchemistStudyEnvironment;
       else if (mapId === 'morgue') EnvClass = window.MorgueEnvironment;
+      else if (mapId === 'levelnull') EnvClass = window.LevelNullEnvironment;
+      else if (mapId === 'triad') EnvClass = window.TriadEnvironment;
     }
 
     if (EnvClass) {

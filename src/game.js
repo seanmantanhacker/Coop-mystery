@@ -83,13 +83,24 @@ class GameEngine {
             return;
           }
 
-          this.startGameMission();
-          network.broadcast({
-            type: 'START_MISSION',
-            roomCode: this.roomCode,
-            scenario: this.scenario,
-            roomState: this.roomState
-          });
+          // 1. Broadcast to all operatives immediately
+          try {
+            network.broadcast({
+              type: 'START_MISSION',
+              roomCode: this.roomCode,
+              scenario: this.scenario,
+              roomState: this.roomState
+            });
+          } catch (netErr) {
+            console.error('[Host] Network broadcast failed:', netErr);
+          }
+
+          // 2. Start mission locally on host
+          try {
+            this.startGameMission();
+          } catch (gameErr) {
+            console.error('[Host] Error in startGameMission:', gameErr);
+          }
         });
       }
 
@@ -253,6 +264,30 @@ class GameEngine {
         titleEl.innerText = 'THE LOCKED MORGUE: WARD 9 AUTOPSY THEATER';
       } else if (scenarioId === 'levelnull') {
         titleEl.innerText = 'LEVEL NULL: THE SHIFTING BACKROOMS';
+      } else if (scenarioId === 'triad') {
+        titleEl.innerText = 'THE TRIAD PARADOX: CASE 005 - THE OUROBOROS CONVERGENCE';
+      }
+    }
+
+    // Dynamic role titles for Map 5 (1979 / 1999 / 2019)
+    const cardDef = document.getElementById('card-role-defuser');
+    const cardMan = document.getElementById('card-role-manual');
+    const cardInt = document.getElementById('card-role-intel');
+    if (cardDef && cardMan && cardInt) {
+      if (scenarioId === 'triad') {
+        cardDef.querySelector('h3').innerText = 'OPERATIVE 1: 1979 THE ARCHITECT';
+        cardDef.querySelector('p').innerText = '3D pristine 1979 facility. Manipulate the 6-track Ripple Matrix, turn coolant valves, drain cisterns, and plant physical evidence for the future!';
+        cardMan.querySelector('h3').innerText = 'OPERATIVE 2: 1999 THE DETECTIVE';
+        cardMan.querySelector('p').innerText = 'Midnight millennium crime scene desk. Run forensic sweeps on Vance’s body in the Vault, recover planted evidence, and log the Consensus Notebook!';
+        cardInt.querySelector('h3').innerText = 'OPERATIVE 3: 2019 THE ARCHIVIST';
+        cardInt.querySelector('p').innerText = 'Quantum Archive console in the 2019 ruins. Synthesize matching keywords across 1979 & 1999 public intel to unlock classified Revelation Cards, and decrypt locks!';
+      } else {
+        cardDef.querySelector('h3').innerText = 'OPERATIVE 1: FIELD DEFUSER';
+        cardDef.querySelector('p').innerText = 'Atmospheric 3D room. Inspect tactile contraptions, cut wires, turn quicksilver valves, align zodiac rings, and pull the clock brake!';
+        cardMan.querySelector('h3').innerText = 'OPERATIVE 2: MANUAL SPECIALIST';
+        cardMan.querySelector('p').innerText = 'Atmospheric detective desk under warm lamp. Inspect the classified dossier or Blackwood\'s Hermetic Grimoire, and translate rules!';
+        cardInt.querySelector('h3').innerText = 'OPERATIVE 3: INTEL ANALYST';
+        cardInt.querySelector('p').innerText = 'Tactical CRT intelligence console. Monitor live oscilloscope waves, tune RF transceivers, and trigger the emergency override!';
       }
     }
   }
@@ -489,7 +524,14 @@ class GameEngine {
         levelName.innerHTML = '<span class="level-short">MAP 3</span><span class="level-long"> // THE LOCKED MORGUE</span>';
       } else if (this.scenario === 'levelnull') {
         levelName.innerHTML = '<span class="level-short">MAP 4</span><span class="level-long"> // LEVEL NULL</span>';
+      } else if (this.scenario === 'triad') {
+        levelName.innerHTML = '<span class="level-short">MAP 5</span><span class="level-long"> // THE TRIAD PARADOX</span>';
       }
+    }
+
+    // Toggle Triad Ripple Matrix floating HUD button
+    if (window.triadRippleUI) {
+      window.triadRippleUI.showHUDButton(this.scenario === 'triad');
     }
 
     // Unhide global timer & strikes for all roles
@@ -742,6 +784,8 @@ class GameEngine {
         title.innerText = 'MORGUE BIO-SEAL BREACHED - CASE SOLVED';
       } else if (this.scenario === 'levelnull') {
         title.innerText = 'REALITY ANCHOR STABILIZED - ESCAPED FROM LEVEL NULL!';
+      } else if (this.scenario === 'triad') {
+        title.innerText = 'OUROBOROS CONVERGENCE CLOSED - TIMELINE RESTORED';
       }
       title.className = 'end-heading victory';
     }
@@ -754,6 +798,8 @@ class GameEngine {
         subtitle.innerText = 'The airlock doors are released, the neural gas dampers are sealed, and the forensic homicide case is solved!';
       } else if (this.scenario === 'levelnull') {
         subtitle.innerText = 'All 3 security blast doors breached, hydro-substation pumped, and the reality anchor stabilized. Operatives returned to consensus reality!';
+      } else if (this.scenario === 'triad') {
+        subtitle.innerText = 'Valerie Cross is convicted across 1979, 1999, and 2019! The Tachyon Emitter weapon is proven, the causal paradox is severed, and the temporal continuum is preserved!';
       }
     }
 
@@ -909,6 +955,24 @@ class GameEngine {
             <p><strong>THE TRAP:</strong> The Defuser is trapped in a linear succession of sealed sectors. The magnetic fire exit door, submerged hydrostation vault hatch, and reality anchor portal are all locked behind fail-safes.</p>
             <p><strong>THE CONSEQUENCE:</strong> The spatial tear is expanding. Operatives have exactly 15 minutes to breach each blast door sequentially, navigate the corridors, and stabilize the quantum resonance anchor before consensus reality collapses.</p>
             <p><strong>COMMUNICATION:</strong> Low-frequency transceiver connecting Field Operative, Intel Floorplan Radar, and Anomaly Classification Dossier.</p>
+          </div>
+        `;
+      } else if (this.scenario === 'triad') {
+        title.innerText = "CASE FILE #005: THE OUROBOROS CONVERGENCE (THE TRIAD PARADOX)";
+        body.innerHTML = `
+          <div class="lore-briefing-paper">
+            <h3>TEMPORAL INVESTIGATION: 1979 // 1999 // 2019</h3>
+            <p><strong>PREMISE:</strong> Chief Director Julian Vance was found dead inside the sealed Temporal Vault on December 31, 1999 at 23:59. Autopsy scans show cellular disintegration from an inverted tachyon weapon patented in 2019, while the dead body is biologically 72 years old—originating 20 years in the future!</p>
+            <p><strong>THE 3 OPERATIVES:</strong>
+              <br>• <strong>1979 (The Architect):</strong> Explores the pristine facility in 3D. Manipulates the 6-track Ripple Matrix (coolant lines, cistern drains) and plants evidence.
+              <br>• <strong>1999 (The Detective):</strong> Investigates the midnight crime scene desk. Runs Forensic Sweeps on Vance's body in the Vault, recovers evidence, and analyzes alibis.
+              <br>• <strong>2019 (The Archivist):</strong> Operates the Quantum Archive Console. Synthesizes matching keywords between 1979 and 1999 public intel cards to unlock classified Revelation cards, and decrypts digital bypasses.
+            </p>
+            <p><strong>THE CAUSAL RULES:</strong>
+              <br>• <strong>Downstream Propagation:</strong> Actions in 1979 immediately alter 1999 and 2019 reality!
+              <br>• <strong>Paradox Hazard (-3 Stability):</strong> 1979 CANNOT take an action that contradicts an established public future truth!
+              <br>• <strong>The Whisper Rule:</strong> Operatives may freely summarize card concepts, but cannot read specific text, names, dates, or keywords aloud unless they spend 1 AP to ANALYZE the card into Public Intel!
+            </p>
           </div>
         `;
       }
@@ -1133,6 +1197,7 @@ class GameEngine {
       }
 
     } else if (data.type === 'START_MISSION') {
+      console.log('[Client] Processing START_MISSION packet:', data);
       if (data.scenario) this.scenario = data.scenario;
       if (data.roomState) {
         this.roomState = data.roomState;
@@ -1153,7 +1218,11 @@ class GameEngine {
         }
       }
 
-      this.startGameMission();
+      try {
+        this.startGameMission();
+      } catch (clientStartErr) {
+        console.error('[Client] Error during startGameMission:', clientStartErr);
+      }
 
     } else if (data.type === 'STRIKE_EVENT') {
       this.strikes = data.strikes;

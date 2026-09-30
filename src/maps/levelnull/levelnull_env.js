@@ -340,9 +340,9 @@ class LevelNullEnvironment {
     this.group.add(noticeGroup);
 
     // Ceiling Dual Fluorescent Light Fixture with Wire Suspension
-    const fixtureMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 });
+    const ceilingFixtureMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 });
     const tubeGlowMat = new THREE.MeshBasicMaterial({ color: 0xfffaed });
-    const fixBox = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 1.6), fixtureMat);
+    const fixBox = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 1.6), ceilingFixtureMat);
     fixBox.position.set(0, 2.75, -2.0);
     this.group.add(fixBox);
 

@@ -133,6 +133,9 @@ class Bomb3DEngine {
       } else if (mapId === 'levelnull') {
         titleEl.innerText = "MAP 4: LEVEL NULL";
         if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.add('cyan'); }
+      } else if (mapId === 'triad') {
+        titleEl.innerText = "MAP 5: THE TRIAD PARADOX (1979)";
+        if (badgeEl) { badgeEl.classList.remove('gold'); badgeEl.classList.remove('cyan'); badgeEl.classList.add('purple'); }
       }
     }
     this.setView('OVERVIEW');

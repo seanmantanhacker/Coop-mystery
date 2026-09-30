@@ -30,6 +30,7 @@ class IntelViewEngine {
     if (window.ESCAPE_MAPS && window.ESCAPE_MAPS[this.scenario]) {
       return window.ESCAPE_MAPS[this.scenario].getIntelRenderer();
     }
+    if (this.scenario === 'triad') return window.TriadIntelView;
     if (this.scenario === 'levelnull') return window.LevelNullIntelView;
     if (this.scenario === 'morgue') return window.MorgueIntelView;
     if (this.scenario === 'alchemist') return window.AlchemistIntelView;
@@ -39,6 +40,30 @@ class IntelViewEngine {
   init(scenario = 'silo44') {
     const activeScenario = scenario || (window.game ? window.game.scenario : 'silo44');
     this.scenario = activeScenario;
+    const triadStation = document.getElementById('triad-archivist-station');
+    const viewport = document.querySelector('#screen-intel .room-viewport');
+
+    if (this.scenario === 'triad') {
+      if (viewport) viewport.classList.add('hidden');
+      const overview = document.getElementById('intel-console-overview');
+      const inspectCenter = document.getElementById('intel-inspect-center');
+      const inspectDossier = document.getElementById('intel-inspect-dossier');
+      const inspectEmergency = document.getElementById('intel-inspect-emergency');
+      const backBtn = document.getElementById('intel-back-btn');
+      if (overview) overview.classList.add('hidden');
+      if (inspectCenter) inspectCenter.classList.add('hidden');
+      if (inspectDossier) inspectDossier.classList.add('hidden');
+      if (inspectEmergency) inspectEmergency.classList.add('hidden');
+      if (backBtn) backBtn.classList.add('hidden');
+
+      const triadRenderer = new window.TriadIntelView(this);
+      triadRenderer.init();
+      return;
+    }
+
+    if (viewport) viewport.classList.remove('hidden');
+    if (triadStation) triadStation.classList.add('hidden');
+
     this.toggleActivated = false;
     this.mathSolved = false;
     this.generateMathProblem();
@@ -50,6 +75,10 @@ class IntelViewEngine {
 
   setScenario(scenario) {
     this.scenario = scenario;
+    if (this.scenario === 'triad') {
+      this.init('triad');
+      return;
+    }
     this.generateMathProblem();
     this.updateDossierData();
   }

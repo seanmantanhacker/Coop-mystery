@@ -569,6 +569,91 @@ class SoundEngine {
       stopOsc.stop(t + 0.05);
     }
   }
+
+  // Temporal Ripple Causality Shift (Phase-shifted resonant pulse)
+  playTemporalRipple() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.exponentialRampToValueAtTime(432, t + 0.25);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.6);
+
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(432, t);
+    osc2.frequency.exponentialRampToValueAtTime(864, t + 0.3);
+    osc2.frequency.exponentialRampToValueAtTime(216, t + 0.6);
+
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.18, t + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+
+    osc.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc2.start(t);
+    osc.stop(t + 0.65);
+    osc2.stop(t + 0.65);
+  }
+
+  // Paradox Alarm (Dissonant descending tritone feedback)
+  playParadoxAlarm() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc1.type = 'sawtooth';
+    osc2.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(440, t);
+    osc2.frequency.setValueAtTime(622.25, t); // Tritone interval
+    osc1.frequency.linearRampToValueAtTime(220, t + 0.4);
+    osc2.frequency.linearRampToValueAtTime(311.13, t + 0.4);
+
+    gain.gain.setValueAtTime(0.22, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.45);
+    osc2.stop(t + 0.45);
+  }
+
+  // Quantum Synthesis Success (Crystalline arpeggio)
+  playSynthesisSuccess() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + idx * 0.08);
+
+      gain.gain.setValueAtTime(0.12, t + idx * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(t + idx * 0.08);
+      osc.stop(t + idx * 0.08 + 0.35);
+    });
+  }
 }
 
 const audio = new SoundEngine();

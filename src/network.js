@@ -195,7 +195,9 @@ class NetworkEngine {
 
   isConnected() {
     if (this.isHost) return true;
-    return !!(this.hostConnection && this.hostConnection.open);
+    if (this.hostConnection && this.hostConnection.open) return true;
+    if (this.broadcastChannel) return true;
+    return false;
   }
 
   _setupConnectionEvents(conn, isOutbound) {
