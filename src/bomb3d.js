@@ -1205,7 +1205,22 @@ class Bomb3DEngine {
       }
     }
 
-    // For other inspect modes (Schematic, Keypad, Clock, Astrolabe), clicking the background steps back
+    // Direct 3D interaction in INSPECT_SECURITY_CONSOLE (clicking Faraday Switch or Surveillance Terminal)
+    if (this.currentView === 'INSPECT_SECURITY_CONSOLE') {
+      const hits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
+      for (let h of hits) {
+        let obj = h.object;
+        while (obj && obj !== this.envManager?.activeEnv?.group) {
+          if (obj.userData && (obj.userData.isFaradaySwitch || obj.userData.targetView === 'INSPECT_SECURITY_CONSOLE')) {
+            if (this.envManager?.activeEnv?.toggleFaradayShield) {
+              this.envManager.activeEnv.toggleFaradayShield();
+            }
+            return;
+          }
+          obj = obj.parent;
+        }
+      }
+    }
     if (this.currentView !== 'OVERVIEW') {
       const hits = this.raycaster.intersectObjects(this.envManager?.activeEnv?.group?.children || [], true);
       let hitInspected = false;

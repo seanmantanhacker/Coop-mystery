@@ -704,6 +704,21 @@
   border-color: #cbd5e1;
 }
 
+.btn-hud-action.action-end-turn,
+.btn-pass-turn {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.btn-hud-action.action-end-turn:hover,
+.btn-pass-turn:hover {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
 /* ==========================================================================
    BOTTOM CONTROL DOCK (ROOM NAVIGATION & PRIVATE HAND DOCKED AT BOTTOM)
    ========================================================================== */
@@ -875,9 +890,48 @@
 
 .node-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  padding: 1px 5px;
-  border-radius: 2px;
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.4px;
+}
+
+.node-tag.locked {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  font-weight: 800;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+}
+
+.node-tag.planted {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  font-weight: 800;
+}
+
+.btn-node-nav.node-restricted {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.btn-node-nav.node-restricted:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.18);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-node-nav.node-no-ap {
+  opacity: 0.42;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+.btn-node-nav.node-no-ap:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: none;
 }
 
 /* ==========================================================================
@@ -970,13 +1024,13 @@
   justify-content: center;
 }
 
-.whisper-rule-pill {
+.whisper-rule-pill, .radio-comms-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid #f59e0b;
-  color: #fbbf24;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid #10b981;
+  color: #34d399;
   padding: 4px 12px;
   border-radius: 20px;
   font-family: 'JetBrains Mono', monospace;
@@ -985,12 +1039,13 @@
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: 0.5px;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
-.whisper-rule-pill:hover {
-  background: rgba(245, 158, 11, 0.3);
+.whisper-rule-pill:hover, .radio-comms-pill:hover {
+  background: rgba(16, 185, 129, 0.25);
   transform: scale(1.03);
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
 }
 
 .whisper-help-icon {
@@ -1026,18 +1081,18 @@
   color: #38bdf8;
 }
 
-/* WHISPER RULE INLINE REMINDER BANNER */
+/* OPEN RADIO COMMS INLINE STATUS BANNER */
 .hand-whisper-banner {
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.16), rgba(30, 20, 10, 0.25));
-  border-left: 4px solid #f59e0b;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08));
+  border-left: 4px solid #10b981;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
   padding: 8px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   font-size: 0.8rem;
-  color: #fde68a;
+  color: #d1fae5;
   box-sizing: border-box;
 }
 
@@ -1052,7 +1107,7 @@
 }
 
 .whisper-banner-text strong {
-  color: #fbbf24;
+  color: #34d399;
   margin-right: 6px;
 }
 
@@ -1065,8 +1120,8 @@
 
 .btn-whisper-details {
   background: transparent;
-  border: 1px solid #f59e0b;
-  color: #fbbf24;
+  border: 1px solid #10b981;
+  color: #34d399;
   padding: 3px 8px;
   border-radius: 3px;
   font-family: 'JetBrains Mono', monospace;
@@ -1077,14 +1132,14 @@
 }
 
 .btn-whisper-details:hover {
-  background: #f59e0b;
+  background: #10b981;
   color: #111;
 }
 
 .btn-dismiss-whisper {
   background: none;
   border: none;
-  color: #f59e0b;
+  color: #10b981;
   font-size: 1.1rem;
   cursor: pointer;
   padding: 2px 6px;
@@ -3008,10 +3063,736 @@
     width: 100%;
     justify-content: stretch;
   }
+}
 
-  .roster-left .btn, .roster-right .btn {
-    flex: 1 1 auto;
-    font-size: 0.76rem;
+
+/* ==========================================================================
+   TRIAD MISSION BRIEFING: CONFIDENTIAL MANILA DOSSIER SYSTEM
+   Tactical Classified Agency aesthetic, Manila folder tab, ink stamps,
+   binder pins, typewriter fonts, and responsive layout for mobile & desktop.
+   ========================================================================== */
+.triad-briefing-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(3, 4, 8, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000;
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: dossierFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dossierFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Manila Folder Outer Wrapper */
+.dossier-folder {
+  width: 100%;
+  max-width: 980px;
+  max-height: 88vh;
+  max-height: 88dvh;
+  background: #181512;
+  background-image: 
+    radial-gradient(ellipse at top left, rgba(217, 169, 107, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #24201a 0%, #151310 100%);
+  border: 2px solid #5a4630;
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.9),
+    0 0 35px rgba(245, 158, 11, 0.12),
+    inset 0 1px 0 rgba(255, 235, 204, 0.1);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Manila Top Index Tab */
+.dossier-tab-header {
+  padding: 0 12px 0 0;
+  background: #13110e;
+  border-bottom: 2px solid #5a4630;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.dossier-tab-ear {
+  background: linear-gradient(180deg, #382f23 0%, #261f16 100%);
+  border: 1px solid #735c42;
+  border-bottom: none;
+  padding: 7px 22px;
+  border-radius: 8px 16px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.dossier-file-no {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #fde68a;
+  letter-spacing: 0.8px;
+}
+
+.dossier-security-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border: 1px solid #ef4444;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.8px;
+}
+
+.briefing-close-x-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  color: #a8a29e;
+  font-size: 1.15rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 12px;
+  margin: 4px 6px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.briefing-close-x-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #f87171;
+  transform: scale(1.06);
+}
+
+/* Agency Header Bar & Ink Stamps */
+.dossier-agency-bar {
+  padding: 12px 20px;
+  background: linear-gradient(90deg, rgba(38, 32, 24, 0.95), rgba(22, 19, 14, 0.95));
+  border-bottom: 1px solid #443727;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.agency-title-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agency-emblem {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+  background: radial-gradient(circle, #f59e0b 0%, #b45309 100%);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+  flex-shrink: 0;
+}
+
+.agency-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agency-dept {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #d97706;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+.agency-case-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fffbeb;
+  margin: 0;
+  letter-spacing: 0.6px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.agency-era-timeline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  letter-spacing: 0.8px;
+}
+
+.dossier-stamps-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stamp-red {
+  border: 2px dashed #ef4444;
+  color: #f87171;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  padding: 3px 8px;
+  transform: rotate(-3deg);
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.stamp-purple {
+  border: 2px solid #a855f7;
+  color: #c084fc;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  padding: 3px 8px;
+  transform: rotate(3deg);
+  border-radius: 4px;
+  background: rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+}
+
+/* Dossier Sheet Content Body */
+.dossier-sheet {
+  padding: 14px 20px;
+  background: 
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(255, 255, 255, 0.015) 28px),
+    #13100c;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto;
+}
+
+.dossier-sheet::-webkit-scrollbar {
+  width: 6px;
+}
+.dossier-sheet::-webkit-scrollbar-track {
+  background: #110f0c;
+}
+.dossier-sheet::-webkit-scrollbar-thumb {
+  background: #574632;
+  border-radius: 3px;
+}
+
+/* Priority Memorandum Strip */
+.dossier-memo-strip {
+  background: #1e1a14;
+  border: 1px solid #4a3b2b;
+  border-left: 4px solid #f59e0b;
+  border-radius: 6px;
+  padding: 9px 16px;
+  position: relative;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+}
+
+.memo-tape {
+  position: absolute;
+  top: -7px;
+  left: 24px;
+  width: 70px;
+  height: 14px;
+  background: rgba(245, 158, 11, 0.28);
+  border: 1px dashed rgba(245, 158, 11, 0.45);
+  transform: rotate(-2deg);
+}
+
+.memo-header {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.memo-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: #f59e0b;
+  letter-spacing: 0.9px;
+}
+
+.memo-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  color: #a8a29e;
+}
+
+.memo-text {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #e7e5e4;
+}
+
+.memo-text strong {
+  color: #fde68a;
+}
+
+/* Role Pills in Memorandum */
+.dossier-role-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin: 0 2px;
+  letter-spacing: 0.4px;
+}
+
+.dossier-role-tag.role-1979 {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+}
+
+.dossier-role-tag.role-1999 {
+  background: rgba(6, 182, 212, 0.18);
+  border: 1px solid #06b6d4;
+  color: #38bdf8;
+}
+
+.dossier-role-tag.role-2019 {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid #a855f7;
+  color: #c084fc;
+}
+
+/* 5 Index Directives Cards Grid (3-column on Desktop) */
+.dossier-index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.dossier-card {
+  background: #181512;
+  border: 1px solid #3d3122;
+  border-radius: 7px;
+  padding: 10px 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  transition: all 0.18s ease;
+}
+
+.dossier-card:hover {
+  border-color: #d97706;
+  background: #201c16;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 10px rgba(245, 158, 11, 0.15);
+}
+
+/* Card Accent Borders */
+.dossier-card.card-directive:nth-child(1) {
+  grid-column: 1;
+  border-top: 3px solid #06b6d4;
+}
+.dossier-card.card-directive:nth-child(2) {
+  grid-column: 2;
+  border-top: 3px solid #38bdf8;
+}
+.dossier-card.card-directive:nth-child(3) {
+  grid-column: 3;
+  border-top: 3px solid #f59e0b;
+}
+.dossier-card.card-directive:nth-child(4) {
+  grid-column: 1;
+  border-top: 3px solid #10b981;
+}
+.dossier-card.card-directive.card-full-span {
+  grid-column: 2 / span 2;
+  border-top: 3px solid #a855f7;
+  background: #1b161f;
+}
+
+.card-pin {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #78716c;
+  box-shadow: inset 0 1px 2px #000, 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.d-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  padding-right: 14px;
+}
+
+.d-card-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.8px;
+}
+
+.d-card-cost {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.d-card-cost.highlight-ap {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border-color: #a855f7;
+}
+
+.d-card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.4px;
+}
+
+.d-card-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.77rem;
+  line-height: 1.38;
+  color: #d6d3d1;
+  margin: 0;
+}
+
+.d-card-desc strong {
+  color: #ffffff;
+}
+
+.paradox-alert-text {
+  display: block;
+  margin-top: 3px;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.d-card-footer {
+  margin-top: auto;
+  padding-top: 4px;
+  display: flex;
+}
+
+.d-card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  color: #a8a29e;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 3px;
+  width: 100%;
+}
+
+.d-card-tag.tag-causality {
+  color: #c084fc;
+}
+
+/* Round Advance Banner */
+.dossier-round-banner {
+  background: #1c1813;
+  border: 1px solid #4a3b2b;
+  border-radius: 7px;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.round-badge-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #2a2217;
+  border: 1px solid #6b533a;
+  border-radius: 5px;
+  padding: 4px 10px;
+  min-width: 58px;
+  flex-shrink: 0;
+}
+
+.badge-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.badge-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.8px;
+}
+
+.round-content-col {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #d6d3d1;
+}
+
+.round-content-col strong {
+  color: #fde68a;
+}
+
+/* Dossier Footer & Action Button */
+.dossier-footer {
+  padding: 10px 20px;
+  background: #13110e;
+  border-top: 2px solid #5a4630;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.dossier-footer-seal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seal-icon {
+  font-size: 1rem;
+}
+
+.seal-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #8c827a;
+  letter-spacing: 0.5px;
+}
+
+.btn-dossier-confirm {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff;
+  border: 1px solid #fbbf24;
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.btn-dossier-confirm:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+.btn-dossier-confirm:active {
+  transform: translateY(0);
+}
+
+.confirm-icon {
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+/* ==========================================================================
+   RESPONSIVENESS: TABLETS & MEDIUM SCREENS (601px - 880px)
+   ========================================================================== */
+@media (max-width: 880px) {
+  .dossier-index-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dossier-card.card-directive:nth-child(1),
+  .dossier-card.card-directive:nth-child(2),
+  .dossier-card.card-directive:nth-child(3),
+  .dossier-card.card-directive:nth-child(4) {
+    grid-column: auto;
+  }
+
+  .dossier-card.card-directive.card-full-span {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVENESS: MOBILE & SMALL SCREENS (< 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .triad-briefing-modal-overlay {
+    padding: 6px;
+    align-items: flex-end;
+  }
+
+  .dossier-folder {
+    max-height: 94vh;
+    max-height: 94dvh;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .dossier-tab-header {
+    padding-right: 6px;
+  }
+
+  .dossier-tab-ear {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .dossier-file-no {
+    font-size: 0.65rem;
+  }
+
+  .dossier-security-badge {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+  }
+
+  .dossier-agency-bar {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .agency-emblem {
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+  }
+
+  .agency-case-title {
+    font-size: 1.1rem;
+  }
+
+  .dossier-stamps-group {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .stamp-red, .stamp-purple {
+    font-size: 0.62rem;
+    padding: 2px 5px;
+  }
+
+  .dossier-sheet {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .dossier-index-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .dossier-card.card-directive.card-full-span {
+    grid-column: 1;
+  }
+
+  .dossier-card {
+    padding: 8px 10px;
+  }
+
+  .d-card-title {
+    font-size: 0.95rem;
+  }
+
+  .d-card-desc {
+    font-size: 0.74rem;
+  }
+
+  .dossier-round-banner {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .round-content-col {
+    font-size: 0.74rem;
+  }
+
+  .dossier-footer {
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dossier-footer-seal {
+    display: none;
+  }
+
+  .dossier-footer-actions {
+    width: 100%;
+  }
+
+  .btn-dossier-confirm {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 0.78rem;
   }
 }
 

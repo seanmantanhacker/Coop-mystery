@@ -971,7 +971,7 @@ class GameEngine {
             <p><strong>THE CAUSAL RULES:</strong>
               <br>• <strong>Downstream Propagation:</strong> Actions in 1979 immediately alter 1999 and 2019 reality!
               <br>• <strong>Paradox Hazard (-3 Stability):</strong> 1979 CANNOT take an action that contradicts an established public future truth!
-              <br>• <strong>The Whisper Rule:</strong> Operatives may freely summarize card concepts, but cannot read specific text, names, dates, or keywords aloud unless they spend 1 AP to ANALYZE the card into Public Intel!
+              <br>• <strong>Open Radio Comms &amp; Station Lockout:</strong> Operatives may talk freely and read all text aloud without restrictions! Station maneuvers, time capsule stashes, and 2019 Quantum Synthesis strictly require in-game AP and physical terminal actions that cannot be bypassed by voice alone.
             </p>
           </div>
         `;

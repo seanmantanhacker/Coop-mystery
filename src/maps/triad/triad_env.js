@@ -18,6 +18,9 @@ class TriadEnvironment {
     this.vaultBulkhead = null;
     this.tachyonRing = null;
     this.tapeReels = [];
+    this.faradaySwitch = null;
+    this.faradayStatusLight = null;
+    this.monitorScreens = [];
     this.lights = {};
 
     // Camera Presets for 5 Distinct Enclosed Rooms & Close-Up Inspections
@@ -75,6 +78,12 @@ class TriadEnvironment {
         target: new THREE.Vector3(14.0, 1.8, -10.0),
         fov: 36,
         label: 'BIOMETRIC WALL SAFE'
+      },
+      INSPECT_SECURITY_CONSOLE: {
+        pos: new THREE.Vector3(7.5, 1.8, 5.2),
+        target: new THREE.Vector3(7.5, 1.1, 3.3),
+        fov: 38,
+        label: 'SECURITY SURVEILLANCE CONSOLE & FARADAY CONTROLS'
       }
     };
 
@@ -575,7 +584,46 @@ class TriadEnvironment {
       const monScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.5), crtMat);
       monScreen.position.set(7.5 + ox, 1.25, 3.59);
       this.group.add(monScreen);
+      this.monitorScreens.push(monScreen);
     });
+
+    // Interactive Faraday Cage Heavy Breaker Switch on Desk
+    const switchBase = new THREE.Mesh(
+      new THREE.BoxGeometry(0.6, 0.16, 0.6),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.3 })
+    );
+    switchBase.position.set(7.5, 0.94, 3.9);
+    this.group.add(switchBase);
+
+    // Faraday Switch Lever Group
+    const switchLeverGroup = new THREE.Group();
+    switchLeverGroup.position.set(7.5, 1.02, 3.9);
+
+    const switchArm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.35, 12),
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 })
+    );
+    switchArm.position.set(0, 0.15, 0);
+    switchLeverGroup.add(switchArm);
+
+    const switchHandle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 16),
+      new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.3 })
+    );
+    switchHandle.position.set(0, 0.32, 0);
+    switchLeverGroup.add(switchHandle);
+
+    switchLeverGroup.rotation.x = 0.45; // default position (unshielded)
+    switchLeverGroup.userData = { isFaradaySwitch: true };
+    this.group.add(switchLeverGroup);
+    this.faradaySwitch = switchLeverGroup;
+
+    // Faraday Status LED Indicator Light
+    const ledMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const ledMesh = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), ledMat);
+    ledMesh.position.set(7.85, 1.05, 3.9);
+    this.group.add(ledMesh);
+    this.faradayStatusLight = ledMesh;
   }
 
   // =========================================================================
@@ -586,7 +634,7 @@ class TriadEnvironment {
     this.addHotspot(new THREE.Vector3(13.8, 1.8, -9.0), 'INSPECT_SAFE', 'BIOMETRIC WALL SAFE', 2);
     this.addHotspot(new THREE.Vector3(0, 2.0, -13.5), 'NODE_3_VAULT', 'TEMPORAL VAULT BULKHEAD', 3);
     this.addHotspot(new THREE.Vector3(-7.5, 0.5, 3.5), 'INSPECT_CISTERN', 'DRAINAGE CISTERN GRATE', 4);
-    this.addHotspot(new THREE.Vector3(7.5, 1.5, 3.5), 'NODE_5_SECURITY', 'SECURITY SURVEILLANCE HUB', 5);
+    this.addHotspot(new THREE.Vector3(7.5, 1.2, 3.9), 'INSPECT_SECURITY_CONSOLE', 'SURVEILLANCE TERMINAL & FARADAY SWITCH', 5);
   }
 
   addHotspot(position, targetView, label, nodeNum) {
@@ -633,6 +681,35 @@ class TriadEnvironment {
     // 4. Subtle fluorescent flicker in lab
     if (this.lights.lab && Math.random() < 0.03) {
       this.lights.lab.intensity = 1.3 + (Math.random() * 0.5);
+    }
+
+    // 5. Node 5 Faraday Shield Status & Switch Animation
+    if (window.triadState && window.triadState.rippleTracks) {
+      const isShielded = (window.triadState.rippleTracks.securityArchive.state === 'FARADAY_SHIELDED');
+      
+      // Animate lever position
+      if (this.faradaySwitch) {
+        const targetRot = isShielded ? -0.45 : 0.45;
+        this.faradaySwitch.rotation.x += (targetRot - this.faradaySwitch.rotation.x) * 0.15;
+      }
+
+      // Update LED indicator
+      if (this.faradayStatusLight) {
+        this.faradayStatusLight.material.color.setHex(isShielded ? 0x10b981 : 0xef4444);
+      }
+
+      // Update CRT Monitor Screens
+      if (this.monitorScreens && this.monitorScreens.length > 0) {
+        this.monitorScreens.forEach(screen => {
+          if (isShielded) {
+            // Amber/Gold shielded surveillance stream
+            screen.material.color.setHex(0xf59e0b);
+          } else {
+            // Standard phosphor green
+            screen.material.color.setHex(0x059669);
+          }
+        });
+      }
     }
   }
 
@@ -682,6 +759,10 @@ class TriadEnvironment {
           </div>
 
           <div class="hud-top-actions">
+            <button class="btn btn-hud-action action-briefing" onclick="window.triadShowMissionBriefing()" title="Open Mission Operation Briefing guide">
+              <span class="act-icon">🧭</span>
+              <span class="act-text">BRIEFING</span>
+            </button>
             <button class="btn btn-hud-action action-search" onclick="triadEnv.onSearchClick()" title="Search current room for confidential blueprints and items (1 AP)">
               <span class="act-icon">🔍</span>
               <span class="act-text">SEARCH <span class="ap-badge">1 AP</span></span>
@@ -701,6 +782,10 @@ class TriadEnvironment {
             <button class="btn btn-hud-action action-overview" onclick="triadEnv.onOverviewClick()" title="Reset 3D camera to full facility overview">
               <span class="act-icon">🎥</span>
               <span class="act-text">OVERVIEW</span>
+            </button>
+            <button class="btn btn-hud-action action-end-turn" onclick="triadEnv.onPassTurn()" title="End your turn and pass remaining AP for this round">
+              <span class="act-icon">⏭️</span>
+              <span class="act-text">END TURN</span>
             </button>
           </div>
         </div>
@@ -741,9 +826,9 @@ class TriadEnvironment {
               </div>
 
               <div class="drawer-header-center">
-                <div class="whisper-rule-pill" onclick="event.stopPropagation(); triadEnv.showWhisperModal();" title="Click to view Whisper Rule details">
-                  <span class="whisper-lock-icon">🔒</span>
-                  <span class="whisper-pill-text">WHISPER RULE APPLIES</span>
+                <div class="whisper-rule-pill radio-comms-pill" onclick="event.stopPropagation(); triadEnv.showCommsProtocolModal();" title="Click to view Open Comms & System Rules">
+                  <span class="whisper-lock-icon radio-comms-icon">📡</span>
+                  <span class="whisper-pill-text">OPEN RADIO COMMS (ACTIVE)</span>
                   <span class="whisper-help-icon">ℹ️</span>
                 </div>
               </div>
@@ -756,17 +841,17 @@ class TriadEnvironment {
               </div>
             </div>
 
-            <!-- WHISPER RULE INLINE REMINDER BANNER -->
+            <!-- OPEN RADIO COMMS INLINE STATUS BANNER -->
             <div class="hand-whisper-banner ${this.whisperBannerDismissed ? 'hidden' : ''}" id="hand-whisper-banner">
               <div class="whisper-banner-left">
-                <span class="whisper-banner-icon">🤫</span>
+                <span class="whisper-banner-icon">📡</span>
                 <div class="whisper-banner-text">
-                  <strong>OPERATIVE 1 WHISPER DIRECTIVE:</strong>
-                  <span>Describe concepts, symbols, and clues verbally in your own words. <em>Do NOT read text verbatim</em> until you spend <strong>1 AP to ANALYZE</strong> the card into Public Intel!</span>
+                  <strong>OPEN CHRONAL RADIO ACTIVE:</strong>
+                  <span>You may talk freely and read clues aloud to Operatives 2 &amp; 3! Station actions, AP costs, and 2019 Quantum Synthesis are mechanically enforced by code.</span>
                 </div>
               </div>
               <div class="whisper-banner-right">
-                <button class="btn-whisper-details" onclick="event.stopPropagation(); triadEnv.showWhisperModal();">FULL RULES</button>
+                <button class="btn-whisper-details" onclick="event.stopPropagation(); triadEnv.showCommsProtocolModal();">SYSTEM RULES</button>
                 <button class="btn-dismiss-whisper" title="Dismiss banner" onclick="event.stopPropagation(); triadEnv.dismissWhisperBanner();">✕</button>
               </div>
             </div>
@@ -844,32 +929,24 @@ class TriadEnvironment {
   }
 
   renderNodesGridHtml(state, currentNode) {
+    const hasAP = state ? state.hasAP('1979', 1) : true;
     return [1, 2, 3, 4, 5].map(n => {
       const isHere = (currentNode === n);
       let statusNotice = '';
       if (state) {
-        if (n === 1) {
-          const cool = state.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
-          statusNotice = cool ? '<span class="node-tag vent">💨 VENTED</span>' : '<span class="node-tag cold">❄️ CRYO ACTIVE</span>';
-        } else if (n === 2) {
-          const safeBypassed = state.rippleTracks.directorSafe.state === 'BYPASSED';
-          statusNotice = safeBypassed ? '<span class="node-tag open">🔓 SAFE BYPASSED</span>' : '<span class="node-tag locked">🔐 SAFE SECURE</span>';
-        } else if (n === 3) {
-          const vaultOpen = state.rippleTracks.vaultDoor.state === 'UNLOCKED';
-          statusNotice = vaultOpen ? '<span class="node-tag open">🚪 VAULT OPEN</span>' : '<span class="node-tag locked">🔒 VAULT LOCKED</span>';
-        } else if (n === 4) {
-          const flooded = state.rippleTracks.courtyardCistern.state === 'FLOODED';
-          statusNotice = flooded ? '<span class="node-tag wet">🌊 CISTERN FULL</span>' : '<span class="node-tag dry">☀️ DRAINED</span>';
-        } else if (n === 5) {
-          const shielded = state.rippleTracks.securityArchive.state === 'FARADAY_SHIELDED';
-          statusNotice = shielded ? '<span class="node-tag dry">🛡️ FARADAY SHIELD</span>' : '<span class="node-tag warning">📼 UNSHIELDED</span>';
+        // Operator 1: If room is not locked, do not add any status or locked label!
+        const isRestricted = state.isNodeRestricted ? state.isNodeRestricted('1979', n) : false;
+        if (isRestricted) {
+          statusNotice = '<span class="node-tag locked">🔒 LOCKED</span>';
         }
         if (state.plantedItems && state.plantedItems[n]) {
           statusNotice += '<span class="node-tag planted">🌱 ITEM STASHED</span>';
         }
       }
+      const noAPClass = (!isHere && !hasAP) ? 'node-no-ap' : '';
+      const tooltip = (!isHere && !hasAP) ? 'title="Insufficient AP (Requires 1 AP)"' : '';
       return `
-        <button class="btn-node-nav ${isHere ? 'active' : ''}" onclick="triadEnv.onMoveNode(${n})">
+        <button class="btn-node-nav ${isHere ? 'active' : ''} ${noAPClass}" ${tooltip} onclick="triadEnv.onMoveNode(${n})">
           <span class="node-num-tag">NODE ${n}</span>
           <span class="node-title-tag">${state ? state.nodeNames[n - 1] : ''}</span>
           ${isHere ? '<span class="meeple-here-badge">YOU ARE HERE</span>' : ''}
@@ -909,66 +986,66 @@ class TriadEnvironment {
     if (banner) banner.classList.add('hidden');
   }
 
-  showWhisperModal() {
+  showCommsProtocolModal() {
     let modal = document.getElementById('triad-whisper-modal');
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'triad-whisper-modal';
       modal.className = 'triad-modal-overlay';
       modal.innerHTML = `
-        <div class="triad-modal-card whisper-modal-card" style="max-width: 600px; max-height: 88vh;">
+        <div class="triad-modal-card whisper-modal-card" style="max-width: 620px; max-height: 88vh;">
           <div class="triad-modal-header" style="background: rgba(30, 20, 10, 0.95); border-bottom: 2px solid #f59e0b;">
             <div class="triad-header-title">
               <h2 style="color: #fbbf24; display: flex; align-items: center; gap: 8px;">
-                <span>🔒</span> THE WHISPER RULE
+                <span>📡</span> OPEN RADIO COMMS &amp; SYSTEM RULES
               </h2>
-              <span class="triad-case-tag" style="color: #f59e0b;">CASE 005: THE TRIAD PARADOX // OPERATIVE 1 DIRECTIVE</span>
+              <span class="triad-case-tag" style="color: #f59e0b;">CASE 005: THE TRIAD PARADOX // SYSTEM-ENFORCED CO-OP</span>
             </div>
-            <button class="modal-close-btn" onclick="triadEnv.closeWhisperModal()">✕</button>
+            <button class="modal-close-btn" onclick="triadEnv.closeCommsProtocolModal()">✕</button>
           </div>
-          <div class="triad-modal-body" style="padding: 22px; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; line-height: 1.5; color: #e2e8f0;">
-            <div style="background: rgba(245, 158, 11, 0.12); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-bottom: 18px;">
-              <strong style="color: #fbbf24; font-size: 1.15rem; display: block; margin-bottom: 4px;">TOP-SECRET ASYMMETRIC INFORMATION SPLIT</strong>
-              <p style="margin: 0; font-size: 0.95rem; color: #fde68a;">As The Architect in 1979, cards in your private hand are known <em>only to you</em>. To maintain co-operative deduction integrity, you must strictly follow this protocol:</p>
+          <div class="triad-modal-body" style="padding: 20px; font-family: 'Rajdhani', sans-serif; font-size: 1.02rem; line-height: 1.45; color: #e2e8f0;">
+            <div style="background: rgba(16, 185, 129, 0.12); border-left: 4px solid #10b981; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px;">
+              <strong style="color: #34d399; font-size: 1.08rem; display: block; margin-bottom: 2px;">🗣️ UNRESTRICTED VOICE COMMS (TALK ANYTHING)</strong>
+              <p style="margin: 0; font-size: 0.92rem; color: #a7f3d0;">Operatives may freely talk, read text aloud word-for-word, and coordinate over Discord/voice chat without artificial restrictions. Asymmetry is strictly enforced by in-game code:</p>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-              <div style="display: flex; gap: 12px; align-items: flex-start;">
-                <span style="font-size: 1.5rem; line-height: 1;">🗣️</span>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 1.4rem; line-height: 1;">🔒</span>
                 <div>
-                  <strong style="color: #38bdf8;">1. SUMMARIZE CONCEPTS VERBALLY</strong>
-                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">You may describe what you see in your own words over voice chat (e.g., <em>"I have a heavy lead canister that shields radioactive isotopes"</em> or <em>"I found a pressure valve controlling subterranean coolant"</em>).</p>
+                  <strong style="color: #f59e0b;">1. HARD STATION LOCKOUT (PHYSICAL CONTROL)</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.88rem; color: #94a3b8;">Controls are era-locked: <strong>ONLY 1979</strong> can physically flip the breakers, valves, and switches in the past. <strong>ONLY 1999</strong> can analyze crime scene ballistics. <strong>ONLY 2019</strong> can operate the Quantum Terminal. Voice cannot touch hardware!</p>
                 </div>
               </div>
 
-              <div style="display: flex; gap: 12px; align-items: flex-start;">
-                <span style="font-size: 1.5rem; line-height: 1;">🚫</span>
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 1.4rem; line-height: 1;">📜</span>
                 <div>
-                  <strong style="color: #ef4444;">2. NEVER READ VERBATIM TEXT</strong>
-                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">You may <strong>NEVER</strong> read the exact technical phrasing, serial codes, or card text word-for-word to Operative 2 or Operative 3 while the card remains in your private hand.</p>
+                  <strong style="color: #00f0ff;">2. INTEL UPLOAD (1 AP) MANDATORY FOR SYNTHESIS</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.88rem; color: #94a3b8;">Even if you read clues aloud to Operative 3, the 2019 Quantum Engine programmatically requires cards to be uploaded to the Public Board with <strong>1 AP</strong> before synthesis is possible.</p>
                 </div>
               </div>
 
-              <div style="display: flex; gap: 12px; align-items: flex-start;">
-                <span style="font-size: 1.5rem; line-height: 1;">📜</span>
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 1.4rem; line-height: 1;">⚠️</span>
                 <div>
-                  <strong style="color: #00f0ff;">3. ANALYZE (1 AP) -> REVEAL TO PUBLIC INTEL</strong>
-                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">Spending 1 AP analyzes the card, moving it from your private hand to the <strong>Public Intel Board</strong>! All operatives can now view full text and highlight keywords in the Consensus Notebook.</p>
+                  <strong style="color: #ef4444;">3. AUTOMATIC CAUSAL PARADOX (-3 STABILITY)</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.88rem; color: #94a3b8;">The continuum engine mechanically validates timeline integrity. Manipulating 1979 reality in a way that contradicts verified future facts instantly triggers a -3 Chronal Paradox in code.</p>
                 </div>
               </div>
 
-              <div style="display: flex; gap: 12px; align-items: flex-start;">
-                <span style="font-size: 1.5rem; line-height: 1;">🌱</span>
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 1.4rem; line-height: 1;">🌱</span>
                 <div>
-                  <strong style="color: #10b981;">4. PLANT ITEM (1 AP) -> TIME CAPSULE STASH</strong>
-                  <p style="margin: 2px 0 0 0; font-size: 0.92rem; color: #94a3b8;">Plantable prototype items can be hidden in your current 1979 room. In 1999, Operative 2 (Detective) can spend 1 AP to secure this exact planted item!</p>
+                  <strong style="color: #10b981;">4. TIME CAPSULE STASH (1 AP)</strong>
+                  <p style="margin: 2px 0 0 0; font-size: 0.88rem; color: #94a3b8;">To transmit a prototype to 1999, 1979 must physically stash it in the room (1 AP). In 1999, the Detective must physically spend 1 AP to secure it from the safe.</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="triad-modal-footer" style="padding: 12px 20px; background: rgba(18, 14, 10, 0.95); border-top: 1px solid rgba(245, 158, 11, 0.2); display: flex; justify-content: flex-end;">
-            <button class="btn btn-primary" onclick="triadEnv.closeWhisperModal()" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #111; font-weight: 800; font-family: 'JetBrains Mono', monospace; padding: 10px 20px; border-radius: 4px; border: none; cursor: pointer;">
-              UNDERSTOOD // RETURN TO OPERATION
+          <div class="triad-modal-footer" style="padding: 10px 18px; background: rgba(18, 14, 10, 0.95); border-top: 1px solid rgba(245, 158, 11, 0.2); display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="triadEnv.closeCommsProtocolModal()" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #111; font-weight: 800; font-family: 'JetBrains Mono', monospace; padding: 8px 18px; border-radius: 4px; border: none; cursor: pointer;">
+              CONFIRMED // RESUME OPERATION
             </button>
           </div>
         </div>
@@ -978,9 +1055,17 @@ class TriadEnvironment {
     modal.style.display = 'flex';
   }
 
-  closeWhisperModal() {
+  closeCommsProtocolModal() {
     const modal = document.getElementById('triad-whisper-modal');
     if (modal) modal.style.display = 'none';
+  }
+
+  showWhisperModal() {
+    this.showCommsProtocolModal();
+  }
+
+  closeWhisperModal() {
+    this.closeCommsProtocolModal();
   }
 
   renderHUD() {
@@ -989,8 +1074,14 @@ class TriadEnvironment {
 
   onMoveNode(nodeNum) {
     if (!window.triadState) return;
-    window.triadState.moveMeeple('1979', nodeNum);
+    if (window.triadState.meepleNodes['1979'] === nodeNum) {
+      return;
+    }
+    const ok = window.triadState.moveMeeple('1979', nodeNum);
     this.inject1979HUD();
+    if (!ok) {
+      return;
+    }
     const viewKeys = ['', 'NODE_1_LAB', 'NODE_2_OFFICE', 'NODE_3_VAULT', 'NODE_4_COURTYARD', 'NODE_5_SECURITY'];
     if (window.bomb3D && viewKeys[nodeNum]) {
       window.bomb3D.setView(viewKeys[nodeNum]);
@@ -1016,6 +1107,10 @@ class TriadEnvironment {
       document.body.appendChild(banner);
     }
 
+    const subNotice = (nodeNum === 3)
+      ? (state && state.rippleTracks.vaultDoor.state === 'UNLOCKED' ? 'OUTER BULKHEAD // INNER VAULT UNLOCKED ✓' : 'OUTER BULKHEAD // INNER VAULT LOCKED (SEALS 1999 CRIME SCENE)')
+      : 'PRESSURIZED AIRLOCK SEAL VERIFIED ✓';
+
     banner.innerHTML = `
       <div class="transit-banner-content">
         <span class="transit-era-tag">1979 ARCHITECT // FACILITY TRANSIT</span>
@@ -1023,7 +1118,7 @@ class TriadEnvironment {
           <span class="transit-node-badge">SECTOR 0${nodeNum}</span>
           <strong>${roomName.toUpperCase()}</strong>
         </div>
-        <span class="transit-status-sub">PRESSURIZED AIRLOCK SEAL VERIFIED ✓</span>
+        <span class="transit-status-sub">${subNotice}</span>
       </div>
     `;
 
@@ -1130,6 +1225,12 @@ class TriadEnvironment {
     }).join('');
   }
 
+  onPassTurn() {
+    if (!window.triadState) return;
+    window.triadState.passTurn('1979');
+    this.inject1979HUD();
+  }
+
   onSearchClick() {
     if (!window.triadState) return;
     const ok = window.triadState.searchCurrentNode('1979');
@@ -1147,6 +1248,23 @@ class TriadEnvironment {
     const currentNode = window.triadState.meepleNodes['1979'];
     const ok = window.triadState.plantItem(cardId, currentNode);
     if (ok) this.render1979Hand();
+  }
+
+  toggleFaradayShield() {
+    if (!window.triadState) return;
+    const currentTrack = window.triadState.rippleTracks.securityArchive;
+    if (!currentTrack) return;
+    const targetState = (currentTrack.state === 'FARADAY_SHIELDED') ? 'UNSHIELDED' : 'FARADAY_SHIELDED';
+    
+    const ok = window.triadState.temporalRipple('securityArchive', targetState);
+    if (ok) {
+      if (window.audio && window.audio.playLeverSwitch) {
+        window.audio.playLeverSwitch();
+      } else if (window.audio && window.audio.playClick) {
+        window.audio.playClick();
+      }
+      this.inject1979HUD();
+    }
   }
 }
 

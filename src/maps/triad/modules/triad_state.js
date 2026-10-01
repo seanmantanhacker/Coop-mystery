@@ -230,6 +230,65 @@ class TriadStateManager {
       stability: this.chronalStability,
       ap: this.ap
     });
+
+    this.notifyLocalUI();
+  }
+
+  // End turn / pass remaining AP for an era
+  passTurn(era) {
+    if (!this.ap[era] || this.ap[era] === 0) {
+      if (window.game) window.game.showToast(`Operative ${era} already has 0 AP.`);
+      return false;
+    }
+    this.ap[era] = 0;
+    if (window.game) window.game.showToast(`Operative ${era} ended their turn (forfeited remaining AP).`);
+    this.checkTurnProgression();
+    this.broadcastState('AP_SPENT', { era, cost: 0, remaining: 0 });
+    this.notifyLocalUI();
+    return true;
+  }
+
+  notifyLocalUI() {
+    if (window.triadManualInstance && window.triadManualInstance.render) {
+      window.triadManualInstance.render();
+    }
+    if (window.triadIntelInstance && window.triadIntelInstance.render) {
+      window.triadIntelInstance.render();
+    }
+    if (window.triadRippleUI && window.triadRippleUI.renderAll) {
+      window.triadRippleUI.renderAll();
+    }
+    if (window.triadEnvInstance && window.triadEnvInstance.renderHUD) {
+      window.triadEnvInstance.renderHUD();
+    }
+  }
+
+  // Query if a node is currently restricted/locked for a given era
+  isNodeRestricted(era, node) {
+    if (node < 1 || node > 5) return false;
+    if (era === '1979') {
+      // Operator 1 (Architect): Full facility access in 1979 (no locks)
+      return false;
+    }
+    if (era === '1999') {
+      // Operator 2 (Detective): Node 3 (Vault) is locked if vault door is LOCKED and coolant line is not depressurized
+      if (node === 3) {
+        const vaultLocked = this.rippleTracks.vaultDoor.state === 'LOCKED';
+        const ventClear = this.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
+        return (vaultLocked && !ventClear);
+      }
+      return false;
+    }
+    if (era === '2019') {
+      // Operator 3 (Archivist): Node 3 (Vault) is locked if vault door is LOCKED and not decrypted
+      if (node === 3) {
+        const vaultLocked = this.rippleTracks.vaultDoor.state === 'LOCKED';
+        const decrypted = !!this.decryptedBypasses['vaultDoor'];
+        return (vaultLocked && !decrypted);
+      }
+      return false;
+    }
+    return false;
   }
 
   // Action: MOVE (1 AP)
@@ -237,24 +296,26 @@ class TriadStateManager {
     if (targetNode < 1 || targetNode > 5) return false;
     if (this.meepleNodes[era] === targetNode) return true; // already there
 
-    // Check locked doors for 1999 / 2019
-    if (targetNode === 3) { // Temporal Vault
-      if (era === '1999' && this.rippleTracks.vaultDoor.state === 'LOCKED') {
-        // Can only enter if coolant is depressurized (vent bypass)
-        if (this.rippleTracks.coolantLine.state !== 'DEPRESSURIZED') {
-          if (window.game) window.game.showToast('🔒 VAULT SEALED: Door is locked and vent shaft is filled with freezing cryo-fog!');
-          if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
-          return false;
+    // Check locked doors across all nodes for this era
+    if (this.isNodeRestricted(era, targetNode)) {
+      if (targetNode === 3) {
+        if (era === '1999') {
+          if (window.game) window.game.showToast('🔒 ROOM LOCKED: Temporal Vault is sealed! In 1979, depressurize the Cryo Line or unlock the vault door.');
+        } else if (era === '2019') {
+          if (window.game) window.game.showToast('🔒 ROOM LOCKED: Vault Bulkhead collapsed! Unlock in 1979 or use 2019 DECRYPT bypass.');
         }
+      } else {
+        if (window.game) window.game.showToast(`🔒 ROOM LOCKED: Access to Node ${targetNode} is restricted!`);
       }
-      if (era === '2019' && this.rippleTracks.vaultDoor.state === 'LOCKED' && !this.decryptedBypasses['vaultDoor']) {
-        if (window.game) window.game.showToast('🔒 BULKHEAD COLLAPSED: 2019 requires DECRYPT action to breach the vault ruins!');
-        if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
-        return false;
-      }
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
     }
 
-    if (!this.spendAP(era, 1)) return false;
+    if (!this.spendAP(era, 1)) {
+      if (window.game) window.game.showToast(`⚠️ NO AP REMAINING: Operative ${era} has 0/3 AP! Movement requires 1 AP.`);
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
 
     this.meepleNodes[era] = targetNode;
     if (window.audio && window.audio.playStep) window.audio.playStep();
@@ -268,7 +329,11 @@ class TriadStateManager {
 
   // Action: SEARCH (1 AP)
   searchCurrentNode(era) {
-    if (!this.hasAP(era, 1)) return false;
+    if (!this.hasAP(era, 1)) {
+      if (window.game) window.game.showToast(`⚠️ NO AP REMAINING: Operative ${era} has 0/3 AP! Searching requires 1 AP.`);
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
     const currentNode = this.meepleNodes[era];
     const drawn = this.drawCards(era, 2, currentNode);
 
@@ -294,7 +359,11 @@ class TriadStateManager {
 
   // Action: ANALYZE (1 AP)
   analyzeCard(era, cardId) {
-    if (!this.hasAP(era, 1)) return false;
+    if (!this.hasAP(era, 1)) {
+      if (window.game) window.game.showToast(`⚠️ NO AP REMAINING: Operative ${era} has 0/3 AP! Analyzing requires 1 AP.`);
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
     const hand = this.hands[era];
     const cardIndex = hand.findIndex(c => c.id === cardId);
     if (cardIndex === -1) return false;
@@ -322,7 +391,8 @@ class TriadStateManager {
   // Changes a State Token on the Ripple Matrix. Checks for Paradoxes!
   temporalRipple(trackId, targetState) {
     if (!this.hasAP('1979', 2)) {
-      if (window.game) window.game.showToast('⚠️ Requires 2 AP to alter a Temporal Ripple!');
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Operative 1979 requires 2 AP to alter a Temporal Ripple!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
       return false;
     }
 
@@ -360,7 +430,11 @@ class TriadStateManager {
 
   // 1979 Action: PLANT ITEM (1 AP)
   plantItem(cardId, nodeNumber) {
-    if (!this.hasAP('1979', 1)) return false;
+    if (!this.hasAP('1979', 1)) {
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Operative 1979 requires 1 AP to stash an item!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
     const hand = this.hands['1979'];
     const idx = hand.findIndex(c => c.id === cardId);
     if (idx === -1) return false;
@@ -389,7 +463,8 @@ class TriadStateManager {
   // Must be in the murder room (Node 3: Temporal Vault)
   forensicSweep() {
     if (!this.hasAP('1999', 2)) {
-      if (window.game) window.game.showToast('⚠️ Forensic Sweep requires 2 AP!');
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Operative 1999 requires 2 AP to conduct Forensic Sweep!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
       return false;
     }
 
@@ -420,7 +495,11 @@ class TriadStateManager {
 
   // 1999 Action: SECURE EVIDENCE (1 AP)
   securePlantedEvidence(nodeNumber) {
-    if (!this.hasAP('1999', 1)) return false;
+    if (!this.hasAP('1999', 1)) {
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Operative 1999 requires 1 AP to secure evidence!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
     const planted = this.plantedItems[nodeNumber];
 
     if (!planted) {
@@ -453,7 +532,8 @@ class TriadStateManager {
   // Combines 1 Public Intel from 1979 and 1 from 1999 sharing a keyword
   synthesizeIntel(card1979Id, card1999Id) {
     if (!this.hasAP('2019', 2)) {
-      if (window.game) window.game.showToast('⚠️ Synthesis requires 2 AP on the Quantum Archive Terminal!');
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Synthesis requires 2 AP on the Quantum Terminal!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
       return false;
     }
 
@@ -500,7 +580,11 @@ class TriadStateManager {
   // 2019 Action: DECRYPT (1 AP)
   // Modern electronic bypass without altering 1979 past
   decryptTrack(trackId) {
-    if (!this.hasAP('2019', 1)) return false;
+    if (!this.hasAP('2019', 1)) {
+      if (window.game) window.game.showToast('⚠️ NO AP REMAINING: Operative 2019 requires 1 AP to decrypt bypass!');
+      if (window.audio && window.audio.playBuzz) window.audio.playBuzz();
+      return false;
+    }
     if (this.decryptedBypasses[trackId]) {
       if (window.game) window.game.showToast('⚡ Track already decrypted by 2019 quantum terminal.');
       return true;

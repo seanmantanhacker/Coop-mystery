@@ -91,7 +91,7 @@ class TriadRippleMatrixUI {
             <div id="triad-view-intel" class="triad-tab-view hidden">
               <div class="public-intel-header">
                 <h3>TABLE INTEL (ANALYZED CARDS ACCESSIBLE TO ALL OPERATIVES)</h3>
-                <p class="whisper-rule-note">💡 Un-Analyzed cards in your hand obey the Whisper Rule (only describe concepts). Once Analyzed (1 AP), full card details appear here for keyword synthesis!</p>
+                <p class="whisper-rule-note">📡 <strong>OPEN RADIO ACTIVE:</strong> Talk freely across eras! To unlock 2019 Quantum Synthesis, spend 1 AP at your station to upload clues here to the table.</p>
               </div>
               <div class="public-intel-grid" id="public-intel-container">
                 <!-- Rendered dynamically -->
@@ -380,6 +380,7 @@ class TriadRippleMatrixUI {
       if (window.game) window.game.showToast(`⚠️ You can only move your own Operative meeple (${myEra})!`);
       return;
     }
+    if (window.triadState.meepleNodes[myEra] === nodeNum) return;
     window.triadState.moveMeeple(myEra, nodeNum);
     this.renderAll();
   }

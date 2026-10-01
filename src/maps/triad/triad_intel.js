@@ -76,8 +76,14 @@ class TriadIntelView {
             <span class="m-label">LOCATION:</span>
             <strong class="m-val loc-val">N${currentNode}: ${currentNodeName} (RUINS)</strong>
           </div>
+          <button class="btn btn-outline btn-sm" onclick="window.triadShowMissionBriefing()" style="border-color: #a855f7; color: #c084fc; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+            🧭 BRIEFING
+          </button>
           <button class="btn btn-primary btn-sm btn-matrix-toggle" onclick="triadRippleUI.openModal()">
             🌀 RIPPLE MATRIX
+          </button>
+          <button class="btn btn-outline btn-sm btn-pass-turn" onclick="triadIntelInstance.onPassTurn()" title="End your turn and pass remaining AP for this round" style="border-color: #64748b; color: #cbd5e1; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+            ⏭️ END TURN
           </button>
         </div>
       </div>
@@ -88,25 +94,16 @@ class TriadIntelView {
         <div class="nodes-nav-grid">
           ${[1, 2, 3, 4, 5].map(n => {
             const isHere = (currentNode === n);
+            const isRestricted = state.isNodeRestricted ? state.isNodeRestricted('2019', n) : false;
             let statusNotice = '';
-            if (n === 1) {
-              const decrypted = state.decryptedBypasses['coolantLine'] || state.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
-              statusNotice = decrypted ? '<span class="node-tag open">⚡ SENSORS ONLINE</span>' : '<span class="node-tag cold">❄️ CRYO RESIDUE</span>';
-            } else if (n === 2) {
-              const decrypted = state.decryptedBypasses['directorSafe'] || state.rippleTracks.directorSafe.state === 'BYPASSED';
-              statusNotice = decrypted ? '<span class="node-tag open">⚡ SAFE BYPASSED</span>' : '<span class="node-tag locked">🔐 CORRUPT LOCK</span>';
-            } else if (n === 3) {
-              const decrypted = state.decryptedBypasses['vaultDoor'] || state.rippleTracks.vaultDoor.state === 'UNLOCKED';
-              statusNotice = decrypted ? '<span class="node-tag open">⚡ BYPASS ACTIVE</span>' : '<span class="node-tag locked">🔒 SEALED BULKHEAD</span>';
-            } else if (n === 4) {
-              const clear = state.decryptedBypasses['courtyardCistern'] || state.rippleTracks.courtyardCistern.state === 'DRAINED';
-              statusNotice = clear ? '<span class="node-tag dry">☀️ EXCAVATION ACCESS</span>' : '<span class="node-tag wet">🌊 SUBMERGED RUINS</span>';
-            } else if (n === 5) {
-              const recovered = state.decryptedBypasses['securityArchive'] || state.rippleTracks.securityArchive.state === 'FARADAY_SHIELDED';
-              statusNotice = recovered ? '<span class="node-tag open">⚡ ARCHIVE RESTORED</span>' : '<span class="node-tag warning">📼 EMP CORRUPTED</span>';
+            if (isRestricted) {
+              statusNotice = '<span class="node-tag locked">🔒 LOCKED</span>';
             }
+            const hasAP = state ? state.hasAP('2019', 1) : true;
+            const noAPClass = (!isHere && !hasAP) ? 'node-no-ap' : '';
+            const tooltip = (!isHere && !hasAP) ? 'title="Insufficient AP (Requires 1 AP)"' : '';
             return `
-              <button class="btn-node-nav ${isHere ? 'active' : ''}" onclick="triadIntelInstance.onMoveNode(${n})">
+              <button class="btn-node-nav ${isHere ? 'active' : ''} ${isRestricted ? 'node-restricted' : ''} ${noAPClass}" ${tooltip} onclick="triadIntelInstance.onMoveNode(${n})">
                 <span class="node-num-tag">NODE ${n}</span>
                 <span class="node-title-tag">${state.nodeNames[n - 1]}</span>
                 ${isHere ? '<span class="meeple-here-badge">YOU ARE HERE</span>' : ''}
@@ -310,8 +307,8 @@ class TriadIntelView {
       return `
         <div class="dossier-tab-view">
           <div class="dossier-header-banner">
-            <h3>ARCHIVIST PRIVATE HAND</h3>
-            <span class="dossier-date">OBEY THE WHISPER RULE (SUMMARIZE CONCEPTS ONLY)</span>
+            <h3>ARCHIVIST FIELD HAND</h3>
+            <span class="dossier-date">OPEN RADIO COMMS • DISCUSS &amp; READ CLUES FREELY WITH 1979 &amp; 1999</span>
           </div>
 
           ${hand.length === 0 ? `
@@ -453,7 +450,12 @@ class TriadIntelView {
 
   onMoveNode(nodeNum) {
     if (!window.triadState) return;
-    window.triadState.moveMeeple('2019', nodeNum);
+    if (window.triadState.meepleNodes['2019'] === nodeNum) return;
+    const ok = window.triadState.moveMeeple('2019', nodeNum);
+    if (!ok) {
+      this.render();
+      return;
+    }
     this.activeTab = 'room'; // Immediately display the 2D room view when moving nodes!
     this.showRoomTransitNotice(nodeNum);
     this.render();
@@ -940,6 +942,12 @@ class TriadIntelView {
   onAnalyze(cardId) {
     if (!window.triadState) return;
     window.triadState.analyzeCard('2019', cardId);
+    this.render();
+  }
+
+  onPassTurn() {
+    if (!window.triadState) return;
+    window.triadState.passTurn('2019');
     this.render();
   }
 }

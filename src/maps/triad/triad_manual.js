@@ -91,8 +91,14 @@ class TriadManualView {
             <span class="m-label">LOCATION:</span>
             <strong class="m-val loc-val">N${currentNode}: ${currentNodeName}</strong>
           </div>
+          <button class="btn btn-outline btn-sm" onclick="window.triadShowMissionBriefing()" style="border-color: #a855f7; color: #c084fc; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+            🧭 BRIEFING
+          </button>
           <button class="btn btn-primary btn-sm btn-matrix-toggle" onclick="triadRippleUI.openModal()">
             🌀 RIPPLE MATRIX
+          </button>
+          <button class="btn btn-outline btn-sm btn-pass-turn" onclick="triadManualInstance.onPassTurn()" title="End your turn and pass remaining AP for this round" style="border-color: #64748b; color: #cbd5e1; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;">
+            ⏭️ END TURN
           </button>
         </div>
       </div>
@@ -103,26 +109,10 @@ class TriadManualView {
         <div class="nodes-nav-grid">
           ${[1, 2, 3, 4, 5].map(n => {
             const isHere = (currentNode === n);
+            const isRestricted = state.isNodeRestricted ? state.isNodeRestricted('1999', n) : false;
             let statusNotice = '';
-            if (n === 1) {
-              const ventClear = state.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
-              statusNotice += ventClear ? '<span class="node-tag vent">💨 VENT CRAWL OPEN</span>' : '<span class="node-tag cold">❄️ FROZEN CRYO</span>';
-            } else if (n === 2) {
-              const safeOpen = state.rippleTracks.directorSafe.state === 'BYPASSED';
-              statusNotice += safeOpen ? '<span class="node-tag open">🔓 SAFE OPEN</span>' : '<span class="node-tag locked">🔐 SAFE LOCKED</span>';
-            } else if (n === 3) {
-              statusNotice += '<span class="node-tag crime">💀 CRIME SCENE</span>';
-              const vaultLocked = state.rippleTracks.vaultDoor.state === 'LOCKED';
-              const ventClear = state.rippleTracks.coolantLine.state === 'DEPRESSURIZED';
-              if (vaultLocked && !ventClear) statusNotice += '<span class="node-tag locked">🔒 VENT FROZEN</span>';
-              else if (vaultLocked && ventClear) statusNotice += '<span class="node-tag vent">💨 VENT CRAWL</span>';
-              else statusNotice += '<span class="node-tag open">🚪 DOOR OPEN</span>';
-            } else if (n === 4) {
-              const flooded = state.rippleTracks.courtyardCistern.state === 'FLOODED';
-              statusNotice += flooded ? '<span class="node-tag wet">🌊 CISTERN FLOODED</span>' : '<span class="node-tag dry">☀️ DRAINED</span>';
-            } else if (n === 5) {
-              const saved = state.rippleTracks.securityArchive.state === 'FARADAY_SHIELDED';
-              statusNotice += saved ? '<span class="node-tag dry">🛡️ TAPES SAVED</span>' : '<span class="node-tag warning">📼 TAPES BURNT</span>';
+            if (isRestricted) {
+              statusNotice = '<span class="node-tag locked">🔒 LOCKED</span>';
             }
             if (state.plantedItems && state.plantedItems[n]) {
               const isBlockedFlooded = (n === 4 && state.rippleTracks.courtyardCistern.state === 'FLOODED');
@@ -130,8 +120,11 @@ class TriadManualView {
                 ? '<span class="node-tag warning">🌊 STASH SUBMERGED</span>' 
                 : '<span class="node-tag planted">📦 EVIDENCE STASH</span>';
             }
+            const hasAP = state ? state.hasAP('1999', 1) : true;
+            const noAPClass = (!isHere && !hasAP) ? 'node-no-ap' : '';
+            const tooltip = (!isHere && !hasAP) ? 'title="Insufficient AP (Requires 1 AP)"' : '';
             return `
-              <button class="btn-node-nav ${isHere ? 'active' : ''}" onclick="triadManualInstance.onMoveNode(${n})">
+              <button class="btn-node-nav ${isHere ? 'active' : ''} ${isRestricted ? 'node-restricted' : ''} ${noAPClass}" ${tooltip} onclick="triadManualInstance.onMoveNode(${n})">
                 <span class="node-num-tag">NODE ${n}</span>
                 <span class="node-title-tag">${state.nodeNames[n - 1]}</span>
                 ${isHere ? '<span class="meeple-here-badge">YOU ARE HERE</span>' : ''}
@@ -311,8 +304,8 @@ class TriadManualView {
       return `
         <div class="dossier-tab-view">
           <div class="dossier-header-banner">
-            <h3>DETECTIVE PRIVATE HAND</h3>
-            <span class="dossier-date">OBEY THE WHISPER RULE (SUMMARIZE CONCEPTS ONLY)</span>
+            <h3>DETECTIVE FIELD HAND</h3>
+            <span class="dossier-date">OPEN RADIO COMMS • DISCUSS &amp; READ CLUES FREELY WITH 1979 &amp; 2019</span>
           </div>
 
           ${hand.length === 0 ? `
@@ -438,7 +431,12 @@ class TriadManualView {
 
   onMoveNode(nodeNum) {
     if (!window.triadState) return;
-    window.triadState.moveMeeple('1999', nodeNum);
+    if (window.triadState.meepleNodes['1999'] === nodeNum) return;
+    const ok = window.triadState.moveMeeple('1999', nodeNum);
+    if (!ok) {
+      this.render();
+      return;
+    }
     this.activeTab = 'room'; // Immediately display the 2D room view when moving nodes!
     this.showRoomTransitNotice(nodeNum);
     this.render();
@@ -1030,6 +1028,12 @@ class TriadManualView {
   onAnalyze(cardId) {
     if (!window.triadState) return;
     window.triadState.analyzeCard('1999', cardId);
+    this.render();
+  }
+
+  onPassTurn() {
+    if (!window.triadState) return;
+    window.triadState.passTurn('1999');
     this.render();
   }
 }
